@@ -18,17 +18,19 @@ Layout computeLayout(int width, int height, int presetCount) {
     const int railW = sc(76);
     if (landscape) {
         L.rail = Rect{0, 0, railW, height};
+        const int step = (height - 2 * m - sideD) / 3;  // quatre boutons, même écart entre eux
         L.navHome = Rect{(railW - sideD) / 2, m, sideD, sideD};
+        L.navLibrary = Rect{(railW - sideD) / 2, m + step, sideD, sideD};
+        L.navSearch = Rect{(railW - sideD) / 2, m + 2 * step, sideD, sideD};
         L.navSettings = Rect{(railW - sideD) / 2, height - m - sideD, sideD, sideD};
-        L.navSearch = Rect{(railW - sideD) / 2, (height - sideD) / 2, sideD, sideD};
-        L.navLibrary = Rect{(railW - sideD) / 2, (L.navHome.y + L.navSearch.y) / 2, sideD, sideD};
         L.content = Rect{railW, 0, width - railW, height};
     } else {
         L.rail = Rect{0, 0, width, railW};
+        const int step = (width - 2 * m - sideD) / 3;
         L.navHome = Rect{m, (railW - sideD) / 2, sideD, sideD};
+        L.navLibrary = Rect{m + step, (railW - sideD) / 2, sideD, sideD};
+        L.navSearch = Rect{m + 2 * step, (railW - sideD) / 2, sideD, sideD};
         L.navSettings = Rect{width - m - sideD, (railW - sideD) / 2, sideD, sideD};
-        L.navSearch = Rect{(width - sideD) / 2, (railW - sideD) / 2, sideD, sideD};
-        L.navLibrary = Rect{(L.navHome.x + L.navSearch.x) / 2, (railW - sideD) / 2, sideD, sideD};
         L.content = Rect{0, railW, width, height - railW};
     }
     const int X0 = landscape ? L.content.x - sc(4) : 0;  // la barre a déjà sa marge

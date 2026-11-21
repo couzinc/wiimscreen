@@ -181,8 +181,8 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 - **Deep sleep cannot wake on touch on the Tab5**: the touch INT is GPIO23 and only GPIO0–15 wake the ESP32-P4 from
   deep sleep (M5Unified defines no Tab5 wake pin). `goToSleep()` uses `M5.Power.powerOff()`: PWROFF pulse (true off
   on battery, power button turns it on), else deep sleep with no wake source. Wake behaviour on USB: not verified.
-- Navigation bar: `Layout::rail/navHome/navLibrary/navSearch/navSettings/content` (Library halfway between Home and
-  Search, so Search stays centred); each full screen starts with `beginScreen(View)`; screens that show the bar call `Ui::navRail()` and lay
+- Navigation bar: `Layout::rail/navHome/navLibrary/navSearch/navSettings/content` (Home, Library, Search,
+  Settings, evenly spaced); each full screen starts with `beginScreen(View)`; screens that show the bar call `Ui::navRail()` and lay
   out their content inside `layout_.content`. `hitHome()`/`hitSettings()` only match while it is shown.
 - **Every tappable element is registered in `Ui::targets_` while its screen is drawn** (`beginScreen()` clears it;
   partial redraws never change it); a new button = one `targets_.add(...)`, placed in the order main.cpp tests taps.

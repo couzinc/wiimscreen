@@ -190,7 +190,7 @@ private:
     void homeIcon(int cx, int cy, int s, uint32_t color, uint32_t bg);
     void gearIcon(int cx, int cy, int r, uint32_t color, uint32_t bg);
     void navRail(int active);  // 0 Accueil, 1 Réglages, 2 Recherche, 3 Bibliothèque
-    void libraryIcon(int cx, int cy, int r, uint32_t color);
+    void libraryIcon(int cx, int cy, int r, uint32_t color, uint32_t bg);
     void searchIcon(int cx, int cy, int r, uint32_t color, uint32_t bg);
     void searchField(const std::string& query, const String& status, bool busy, int source, bool sources, int mic,
                      float level);

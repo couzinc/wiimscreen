@@ -5,6 +5,10 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Changed
+- **Navigation bar**: Home, Library, Search and Settings are evenly spaced (there was a large gap above Settings).
+  The Library button shows two stacked covers with a heart instead of a grid of four squares.
+
 ## [0.4.1-beta] — 2026-11-21 — Library fixes
 
 **Tab5:** checked in the simulator only, like v0.4.0-beta: not checked on a Tab5 yet. If something does not work,

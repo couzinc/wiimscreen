@@ -60,11 +60,11 @@ PY
 mocklog() { tail -n +"$((MOCK0 + 1))" "$T/mock.log"; }
 is() { [ "$(mock "$1")" = "$2" ] || fail "$3 (mock $1 = $(mock "$1"), expected $2)"; }
 # Keyboard (QWERTY, 1280x720): search icon, then m i l e s, then Search
-MILES='tap 50 360\nwait 400\ntap 861 541\nwait 150\ntap 975 330\nwait 150\ntap 1089 435\nwait 150\ntap 405 330\nwait 150\ntap 291 435\nwait 300\ntap 1089 647\n'
+MILES='tap 50 458\nwait 400\ntap 861 541\nwait 150\ntap 975 330\nwait 150\ntap 1089 435\nwait 150\ntap 405 330\nwait 150\ntap 291 435\nwait 300\ntap 1089 647\n'
 
 # 1. Status, presets, pause (932,348), pinning. Then, paused in a queue with shuffle on: search "miles", play the
 #    second result (600,300), search again while it plays.
-run "wait 3000\ntap 932 348\nwait 2000\n${MILES}wait 14000\ntap 600 300\nwait 9000\ntap 50 360\nwait 600\ntap 1089 647\nwait 16000\nquit\n"
+run "wait 3000\ntap 932 348\nwait 2000\n${MILES}wait 14000\ntap 600 300\nwait 9000\ntap 50 458\nwait 600\ntap 1089 647\nwait 16000\nquit\n"
 has wiim.presets "result=ok count=2 " "presets"
 has wiim.status "result=ok " "status"
 grep -q "setPlayerCmd:pause" "$T/mock.log" || fail "pause command"

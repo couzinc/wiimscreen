@@ -89,7 +89,7 @@ wait 300
 key mute
 wait 300
 # A tap hides the ring (rail, between its buttons: nothing else happens)
-tap 30 200
+tap 30 160
 wait 400
 shot dpad-08-sans-anneau
 # Search key: the keyboard; Down only shows the ring again (hidden by the tap), on the first letter; OK presses it

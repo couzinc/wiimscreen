@@ -470,8 +470,9 @@ static void test_rail_moves_controls() {
     for (const Target* t : {prev, next, play, fav}) TEST_ASSERT_TRUE(railMove(L, t, Dir::Up).edge);
     // Left from vol-: the rail button nearest across, Search (was: a tile below)
     TEST_ASSERT_TRUE(railMove(L, volDown, Dir::Left).target == at(Act::Search, 0));
-    // Path: rail -> heart -> previous -> play -> next; play -> volume row -> tiles
-    TEST_ASSERT_TRUE(railMove(L, at(Act::Search, 0), Dir::Right).target == fav);
+    // Search is level with the first tile (rail buttons evenly spaced): Right -> that tile
+    TEST_ASSERT_TRUE(railMove(L, at(Act::Search, 0), Dir::Right).target == at(Act::Preset, 0));
+    // Path: heart -> previous -> play -> next; play -> volume row -> tiles
     TEST_ASSERT_TRUE(railMove(L, fav, Dir::Right).target == prev);
     TEST_ASSERT_TRUE(railMove(L, prev, Dir::Right).target == play);
     TEST_ASSERT_TRUE(railMove(L, play, Dir::Right).target == next);
@@ -489,8 +490,8 @@ static void test_rail_moves_controls() {
     TEST_ASSERT_TRUE(railMove(L, at(Act::Preset, 1), Dir::Right).target == at(Act::Preset, 2));
     TEST_ASSERT_TRUE(railMove(L, at(Act::Preset, 5), Dir::Right).edge);
     TEST_ASSERT_TRUE(railMove(L, at(Act::Preset, 0), Dir::Left).target == at(Act::Settings, 0));
-    // Heart: Left -> rail (Search, in its row)
-    TEST_ASSERT_TRUE(railMove(L, fav, Dir::Left).target == at(Act::Search, 0));
+    // Heart: Left -> rail (Library, the nearest across)
+    TEST_ASSERT_TRUE(railMove(L, fav, Dir::Left).target == at(Act::Library, 0));
     // On the rail: along it, the rail only; Left: nothing; Right from Settings: the first tile (same row)
     TEST_ASSERT_TRUE(railMove(L, at(Act::Search, 0), Dir::Up).target == at(Act::Library, 0));
     TEST_ASSERT_TRUE(railMove(L, at(Act::Library, 0), Dir::Up).target == at(Act::Home, 0));
@@ -512,7 +513,7 @@ static void test_rail_moves_menu_and_properties() {
     TEST_ASSERT_TRUE(railMove(M, M.find(Act::MenuChoice, 5), Dir::Down).edge);
     TEST_ASSERT_EQUAL(4, railMove(M, M.find(Act::MenuChoice, 5), Dir::Up).target->arg);
     TEST_ASSERT_TRUE(railMove(M, M.find(Act::MenuChoice, 0), Dir::Up).edge);
-    TEST_ASSERT_TRUE(railMove(M, M.find(Act::MenuChoice, 0), Dir::Left).target->act == Act::Library);  // nearest across
+    TEST_ASSERT_TRUE(railMove(M, M.find(Act::MenuChoice, 0), Dir::Left).target->act == Act::Home);  // nearest across
     TEST_ASSERT_TRUE(railMove(M, M.find(Act::MenuChoice, 2), Dir::Right).edge);
     // The general properties (direction, no NoFocus, chains end, every target reachable, same-row returns) hold
     // for railMove on every controls layout, on the keyboard and on the menu

@@ -61,7 +61,7 @@ shot taps-04-coeur
 tap 651 348
 wait 600
 # Nothing here (rail between its buttons)
-tap 30 200
+tap 30 160
 wait 300
 # Settings menu: Journal; in the Journal: WiiM queue, then Search, Settings, Close
 tap 50 656
@@ -71,7 +71,7 @@ wait 1200
 shot taps-05-journal
 tap 925 79
 wait 2000
-tap 50 360
+tap 50 458
 wait 400
 tap 50 656
 wait 400
@@ -115,7 +115,7 @@ wait 400
 # Search from the menu; source chips; keys "mi", backspace, rail Search (nothing on the keyboard)
 tap 50 656
 wait 400
-tap 50 360
+tap 50 458
 wait 400
 tap 1173 143
 wait 200
@@ -127,7 +127,7 @@ tap 861 541
 wait 150
 tap 975 330
 wait 150
-tap 50 360
+tap 50 458
 wait 150
 shot taps-08-clavier
 # Dictation: microphone, then the red button (the simulator types "Miles Davis" and searches)
@@ -145,7 +145,7 @@ tap 1143 58
 wait 400
 tap 1089 647
 wait 2500
-tap 50 360
+tap 50 458
 wait 400
 tap 1089 647
 wait 2500
@@ -153,18 +153,18 @@ tap 690 309
 wait 2500
 shot taps-10-lecture-resultat
 # Results: Settings and Home of the rail
-tap 50 360
+tap 50 458
 wait 400
 tap 1089 647
 wait 2500
 tap 50 656
 wait 400
-tap 50 360
+tap 50 458
 wait 400
 tap 50 64
 wait 400
 # Dictation cancelled by Home
-tap 50 360
+tap 50 458
 wait 400
 tap 1214 66
 wait 800

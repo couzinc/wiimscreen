@@ -46,7 +46,7 @@ void Ui::navRail(int active) {
         if (i == 0) homeIcon(cx, cy, b.w / 4, fg, bg);
         else if (i == 1) gearIcon(cx, cy, b.w / 4, fg, bg);
         else if (i == 2) searchIcon(cx, cy, b.w / 4, fg, bg);
-        else libraryIcon(cx, cy, b.w / 4, fg);
+        else libraryIcon(cx, cy, b.w / 4, fg, bg);
     }
     // Zones tactiles : toute la largeur (la hauteur en portrait) de la barre, et sc(16) autour du bouton. Elles ne
     // touchent aucun autre élément (la barre est à part : wr::computeLayout), leur place dans la liste est donc libre.
@@ -76,11 +76,15 @@ void Ui::focusRing() {
     for (int i = 0; i < line; ++i) ring(gap + i, kText);
 }
 
-// Bibliothèque : quatre petites tuiles (r : demi-côté de l'icône)
-void Ui::libraryIcon(int cx, int cy, int r, uint32_t c) {
+// Bibliothèque (les favoris) : deux pochettes empilées, un cœur sur celle de devant (r : demi-côté de l'icône)
+void Ui::libraryIcon(int cx, int cy, int r, uint32_t c, uint32_t bg) {
     auto& C = canvas_;
-    const int g = std::max(2, r / 4), s = r - g / 2, rad = std::max(1, s / 4);
-    for (int k = 0; k < 4; ++k) C.fillRoundRect(cx - r + (k % 2) * (s + g), cy - r + (k / 2) * (s + g), s, s, rad, c);
+    r = r * 6 / 5;  // un peu plus grand : les autres icônes débordent de r
+    const int side = r * 3 / 2, off = r - side / 2, g = std::max(2, r / 6), rad = std::max(2, r / 5);
+    C.fillRoundRect(cx - side / 2 + off, cy - side / 2 - off, side, side, rad, mix(c, bg, 0.55f));  // derrière
+    C.fillRoundRect(cx - side / 2 - off - g, cy - side / 2 + off - g, side + 2 * g, side + 2 * g, rad + g, bg);
+    C.fillRoundRect(cx - side / 2 - off, cy - side / 2 + off, side, side, rad, c);  // devant
+    heartIcon(cx - off, cy + off - side / 10, side / 3, bg);
 }
 
 // Loupe : anneau et manche

@@ -2,7 +2,7 @@
 # Then: python tools/preview/topng.py .pio/sim-out/*.ppm
 # Keyboard: QWERTY (English, the default language). "miles" = m(861,541) i(975,330) l(1089,435) e(405,330) s(291,435)
 wait 2000
-tap 50 360
+tap 50 458
 wait 400
 tap 861 541
 wait 150
@@ -33,7 +33,7 @@ shot tour-08-page2
 tap 208 640
 wait 1200
 shot tour-09-favoris-qobuz
-tap 50 360
+tap 50 458
 wait 400
 tap 998 143
 wait 150

@@ -39,10 +39,10 @@ struct Layout {
     int perPage = 0;
     Rect dots;      // indicateur de pages
     Rect rail;         // barre de navigation
-    Rect navHome;      // Accueil (écran principal)
+    Rect navHome;      // Accueil (écran principal). Ordre : Accueil, Bibliothèque, Recherche, Réglages, à écarts égaux
     Rect navSettings;  // Réglages
-    Rect navSearch;    // Recherche (au milieu)
-    Rect navLibrary;   // Bibliothèque (toutes les tuiles) : à mi-chemin entre Accueil et Recherche
+    Rect navSearch;    // Recherche
+    Rect navLibrary;   // Bibliothèque (toutes les tuiles)
     Rect content;      // reste de l'écran, à côté de la barre
 };
 
