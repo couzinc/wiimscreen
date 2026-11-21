@@ -44,14 +44,19 @@ onglet **Actions** > dernière exécution > artefact **wiim-remote-tab5**. Tu y 
 
 ## 2. Flasher en USB (une seule fois)
 
-La page web d'Espressif (esptool-js) n'existe plus (2026) : on utilise **esptool**, l'outil d'Espressif, avec
-Python 3.8 ou plus récent. Ensuite, les mises à jour passent par le Wi-Fi (section 5).
+Ensuite, les mises à jour passent par le Wi-Fi (section 5). Rien à installer :
 
-1. Installe esptool (sous Windows, remplace `python3` par `py`) : `python3 -m pip install --upgrade esptool`
+1. Ouvre **Chrome ou Edge** (Firefox ne gère pas le port série web) sur https://esp.huhn.me/ (ESPWebTool).
 2. Branche le Tab5 en USB-C (câble **de données**), puis passe-le en **mode téléchargement** : appui long (~2 s) sur le bouton d'alimentation/reset jusqu'à ce que la LED **verte clignote rapidement**.
-3. Écris le fichier à l'adresse 0x0 (mets le chemin de ton fichier ; ajoute `--port COM5` sous Windows si le Tab5 n'est pas trouvé) :
-   `python3 -m esptool --chip esp32p4 write-flash 0x0 wiim-remote-tab5.bin`
-4. Quand esptool affiche « Hard resetting », appuie sur le bouton d'alimentation pour démarrer le Tab5.
+3. Clique **Connect** et choisis le port qui apparaît.
+4. Choisis `wiim-remote-tab5.bin`, mets son *offset* à **0x0**, clique **Program**.
+5. À la fin, appuie sur le bouton d'alimentation pour démarrer le Tab5.
+
+La page web d'Espressif (esptool-js) n'existe plus (2026). Autre possibilité, en ligne de commande avec **esptool**
+(Python 3.8 ou plus récent ; sous Windows, remplace `python3` par `py`) : `python3 -m pip install --upgrade esptool`,
+Tab5 en mode téléchargement, puis `python3 -m esptool --chip esp32p4 write-flash 0x0 wiim-remote-tab5.bin`
+(ajoute `--port COM5` sous Windows si le Tab5 n'est pas trouvé) ; quand esptool affiche « Hard resetting », appuie
+sur le bouton d'alimentation.
 
 Pas de batterie ? Le Tab5 fonctionne très bien branché en USB-C. La batterie (type Sony NP-F550, 7,4 V) est vendue à part ; sans elle, l'indicateur de batterie n'apparaît pas.
 
