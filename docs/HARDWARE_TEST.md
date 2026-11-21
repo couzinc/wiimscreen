@@ -92,6 +92,10 @@ The Journal masks tokens and passwords, but check anyway.
 |---|---|---|
 | 6.1 | ⚙ › **Mise à jour**. Scan the QR code with the phone (phone on the same Wi-Fi, mobile data off). | The update page opens. |
 | 6.2 | Choose the `-ota.bin` file on the phone. | The file is not greyed out. Progress on the phone and on the Tab5; restart; new version in the Journal. |
+| 6.3 | ⚙ › **Mise à jour** (Tab5 on an older version than the latest GitHub release). Wait a few seconds. | « Nouvelle version : vX » and an **Installer** button. Journal: `Mise à jour GitHub : dernière version vX (installée : …)`. |
+| 6.4 | Touch **Installer**. | Progress bar « Téléchargement de vX depuis GitHub… » (about 3 MB); the Tab5 restarts on vX (bottom of the Settings menu). Settings and favorites kept. |
+| 6.5 | Again ⚙ › **Mise à jour** on the latest version. | « À jour », no **Installer** button. |
+| 6.6 | Optional: ⚙ › **Mise à jour** on an older version, **Installer**, then **Annuler** during the download. | « Téléchargement annulé : rien n'a changé. »; the old version still runs after Annuler. |
 
 ## 7. Microphone and sound (only if you use them)
 

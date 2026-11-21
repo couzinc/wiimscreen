@@ -99,12 +99,15 @@ wait 300
 shot taps-06-test-tactile
 tap 1154 58
 wait 400
-# Update screen (simulator): Cancel
+# Update screen (simulator): the fake GitHub version, Install (simulated download), then Cancel
 tap 50 656
 wait 400
 tap 690 249
-wait 400
+wait 900
 shot taps-07-mise-a-jour
+tap 906 660
+wait 1200
+shot taps-07b-mise-a-jour-github
 tap 1154 650
 wait 400
 # Menu: Close

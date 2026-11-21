@@ -21,6 +21,15 @@ struct UiState {
     int pending = -1;  // bouton de lecture dont la commande attend la confirmation du WiiM (anneau tournant)
 };
 
+// Écran Mise à jour, recherche sur GitHub : ligne d'état au-dessus de la version installée, bouton Installer si
+// `Available`
+struct GithubOffer {
+    enum State { Hidden, Checking, Available, UpToDate, Failed } state = Hidden;
+    String tag;         // version trouvée (Available, UpToDate)
+    bool newer = true;  // Available : plus récente que l'installée (faux : version installée sans numéro)
+    String note;        // Failed : raison courte
+};
+
 // Affichage sur l'écran couleur (Tab5 : 1280×720 en paysage, 720×1280 en portrait ; les autres tailles
 // sont mises à l'échelle par sc(), mise en page : wr::computeLayout).
 //
@@ -141,8 +150,10 @@ public:
     int resultsPerPage() const { return resultsPerPage_; }
 
     // Mise à jour par le réseau : adresse à ouvrir, code à saisir, progression (-1 : en attente)
-    void showUpdate(const String& url, const String& code, const char* version, int percent, const String& status);
+    void showUpdate(const String& url, const String& code, const char* version, int percent, const String& status,
+                    const GithubOffer& github = GithubOffer());
     bool hitUpdateCancel(int x, int y) const { return targets_.hit(wr::Act::UpdateCancel, x, y) != nullptr; }
+    bool hitUpdateInstall(int x, int y) const { return targets_.hit(wr::Act::UpdateInstall, x, y) != nullptr; }
 
     // Écrans plein page
     void showInfo(const char* title, const String& body, const char* footer = nullptr);

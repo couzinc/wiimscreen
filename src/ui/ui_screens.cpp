@@ -424,19 +424,55 @@ void Ui::renderPicker(const std::vector<std::pair<std::string, std::string>>& de
     present();
 }
 
-void Ui::showUpdate(const String& url, const String& code, const char* version, int percent, const String& status) {
+void Ui::showUpdate(const String& url, const String& code, const char* version, int percent, const String& status,
+                    const GithubOffer& github) {
     beginScreen(View::Other);
     auto& C = canvas_;
     background();
     const int W = C.width(), H = C.height(), m = sc(40);
     const bool landscape = W > H;
-    // QR code de l'adresse : le téléphone ouvre la page sans rien taper (et sans « https:// » ajouté par le navigateur)
+    // Lignes du bas : version installée et, au-dessus, la recherche sur GitHub (cachée pendant un envoi ou un
+    // message). Chaque ligne a une forme courte, prise quand la longue ne tient pas (petits écrans, polices fixes).
+    String ghLong, ghShort;
+    const String tag = github.tag;
+    switch (github.state) {
+        case GithubOffer::Hidden: break;
+        case GithubOffer::Checking:
+            ghLong = wr::L("Looking for a new version on GitHub\xE2\x80\xA6", "Recherche d'une nouvelle version sur GitHub\xE2\x80\xA6");
+            ghShort = wr::L("GitHub\xE2\x80\xA6", "GitHub\xE2\x80\xA6");
+            break;
+        case GithubOffer::Available:
+            ghLong = String(github.newer ? wr::L("New version: ", "Nouvelle version : ")
+                                         : wr::L("Latest version: ", "Derni\xC3\xA8re version : ")) + tag;
+            ghShort = String(github.newer ? wr::L("New: ", "Nouvelle : ") : wr::L("Latest: ", "Derni\xC3\xA8re : ")) + tag;
+            break;
+        case GithubOffer::UpToDate: ghLong = ghShort = wr::L("Up to date", "\xC3\x80 jour"); break;
+        case GithubOffer::Failed:
+            ghLong = String(wr::L("GitHub not reachable (", "GitHub injoignable (")) + github.note + ")";
+            ghShort = wr::L("GitHub not reachable", "GitHub injoignable");
+            break;
+    }
+    if (percent >= 0 || status.length()) ghLong = ghShort = "";
+    const String verLong = String(wr::L("Installed version: ", "Version install\xC3\xA9" "e : ")) + version;
+    const String verShort = String(wr::L("Installed: ", "Install\xC3\xA9" "e : ")) + version;
+    useFont(C, kSmall);
+    const int lineH = C.fontHeight() + sc(8), lines = ghLong.length() ? 2 : 1;
+    const int bw = sc(150), bh = sc(44), rowY = H - sc(24) - bh;  // rangée des boutons
+    // Paysage : lignes à gauche des boutons ; portrait : au-dessus d'eux, sur toute la largeur
+    const int linesBottom = landscape ? H - sc(24) : rowY - sc(12);
+    const int linesTop = landscape ? rowY : linesBottom - lines * lineH;
+
+    // QR code de l'adresse : le téléphone ouvre la page sans rien taper (et sans « https:// » ajouté par le
+    // navigateur). Paysage : à droite, en haut ; portrait : sous les textes, à la taille de la place libre.
     const int pad = sc(14);
-    const int qr = landscape ? std::min(H - 2 * m - sc(150), W * 3 / 10) : W / 2;
-    const int qx = landscape ? W - m - pad - qr : (W - qr) / 2;
-    const int qy = landscape ? m + sc(20) + pad : H - sc(24) - sc(44) - sc(40) - pad - qr;
-    C.fillRoundRect(qx - pad, qy - pad, qr + 2 * pad, qr + 2 * pad, sc(16), kText);
-    C.qrcode(url.c_str(), qx, qy, qr);
+    auto drawQr = [&](int qx, int qy, int qr) {
+        C.fillRoundRect(qx - pad, qy - pad, qr + 2 * pad, qr + 2 * pad, sc(16), kText);
+        C.qrcode(url.c_str(), qx, qy, qr);
+    };
+    const int qrSide = landscape ? std::min(H - 2 * m - sc(150), W * 3 / 10) : W / 2;
+    const int qrX = landscape ? W - m - pad - qrSide : (W - qrSide) / 2;
+    if (landscape) drawQr(qrX, m + sc(20) + pad, qrSide);
+
     C.setTextDatum(textdatum_t::top_left);
     useFont(C, kBig);
     C.setTextColor(kText);
@@ -475,26 +511,51 @@ void Ui::showUpdate(const String& url, const String& code, const char* version, 
     useFont(C, kSmall);
     C.setTextDatum(textdatum_t::top_left);
     if (percent >= 0) {
-        const int bw = landscape ? qx - pad - sc(30) - m : W - 2 * m, bh = sc(14);
-        C.fillRoundRect(m, y, bw, bh, bh / 2, kTrack);
-        C.fillRoundRect(m, y, std::max(bh, bw * std::min(100, percent) / 100), bh, bh / 2, accent_);
-        y += bh + sc(12);
+        const int pw = landscape ? qrX - pad - sc(30) - m : W - 2 * m, ph = sc(14);
+        C.fillRoundRect(m, y, pw, ph, ph / 2, kTrack);
+        C.fillRoundRect(m, y, std::max(ph, pw * std::min(100, percent) / 100), ph, ph / 2, accent_);
+        y += ph + sc(12);
     }
     if (status.length()) {
         C.setTextColor(kText);
         C.drawString(status.c_str(), m, y);
+        y += C.fontHeight();
     }
-    // Version et bouton Annuler
-    C.setTextColor(kText2);
-    C.setTextDatum(textdatum_t::bottom_left);
-    C.drawString((String(wr::L("Installed version: ", "Version install\xC3\xA9" "e : ")) + version).c_str(), m, H - sc(24));
-    const int bw = sc(150), bh = sc(44);
-    const wr::Rect cancelRect = wr::Rect{W - m - bw, H - sc(24) - bh, bw, bh};
+    if (!landscape) {
+        // Entre les textes du haut et les lignes du bas, au plus la moitié de la largeur, centré dans la place
+        const int top = y + sc(16) + pad, bottom = linesTop - sc(16) - pad;
+        const int qr = std::min(qrSide, bottom - top);
+        if (qr >= sc(80)) drawQr((W - qr) / 2, top + (bottom - top - qr) / 2, qr);
+    }
+
+    // Boutons Annuler et (version trouvée sur GitHub) Installer, en bas à droite
+    const wr::Rect cancelRect = wr::Rect{W - m - bw, rowY, bw, bh};
     C.fillRoundRect(cancelRect.x, cancelRect.y, bw, bh, bh / 2, kCard);
     C.setTextDatum(textdatum_t::middle_center);
     C.setTextColor(kText);
     C.drawString(wr::L("Cancel", "Annuler"), cancelRect.x + bw / 2, cancelRect.y + bh / 2 + 1);
+    wr::Rect installRect{};
+    if (github.state == GithubOffer::Available) {
+        const char* label = wr::L("Install", "Installer");
+        const int iw = std::max(bw, (int)C.textWidth(label) + sc(48));
+        installRect = wr::Rect{cancelRect.x - sc(16) - iw, rowY, iw, bh};
+        C.fillRoundRect(installRect.x, installRect.y, iw, bh, bh / 2, accent_);
+        C.setTextColor(kBg);
+        C.drawString(label, installRect.x + iw / 2, installRect.y + bh / 2 + 1);
+    }
+    const int textW = std::max(sc(40), (landscape ? (installRect.w ? installRect.x : cancelRect.x) - sc(16) : W - m) - m);
+    auto measure = [&](const std::string& t) { return (int)C.textWidth(t.c_str()); };
+    auto line = [&](const String& longText, const String& shortText, int bottom, uint32_t color) {
+        const String& t = (int)C.textWidth(longText.c_str()) <= textW ? longText : shortText;
+        C.setTextColor(color);
+        C.drawString(wr::wrapText(t.c_str(), textW, 1, measure)[0].c_str(), m, bottom);
+    };
+    C.setTextDatum(textdatum_t::bottom_left);
+    line(verLong, verShort, linesBottom, kText2);
+    if (ghLong.length())
+        line(ghLong, ghShort, linesBottom - lineH, github.state == GithubOffer::Available ? kText : kText2);
     targets_.add(wr::Act::UpdateCancel, 0, cancelRect, wr::kTargetDefault);
+    if (installRect.w) targets_.add(wr::Act::UpdateInstall, 0, installRect);
     present();
 }
 

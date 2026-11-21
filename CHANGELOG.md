@@ -5,6 +5,12 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Added
+- **Update from GitHub**: ⚙ › Update looks for the latest version published on GitHub when the screen opens. When it
+  is newer, touch **Install**: the Tab5 downloads it (about 3 MB), checks its size and SHA-256 against the ones GitHub
+  lists, installs it and restarts. **Cancel** during the download keeps the current version. The upload from a
+  phone or a computer still works. The computer app shows the latest version on GitHub on its Update screen.
+
 ### Changed
 - **Navigation bar**: Home, Library, Search and Settings are evenly spaced (there was a large gap above Settings).
   The Library button shows two stacked covers with a heart instead of a grid of four squares.

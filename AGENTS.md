@@ -59,7 +59,7 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `lib/core/src/appstate.*` | Main-loop timing decisions without hardware: wrap-safe `expired`, `idleAction` (ambient, dim, screen off, sleep), `musicSettled` |
 | `lib/core/src/keys.*` | Key input without hardware: `NavKey`, `KeyEvent`, `KeyTracker` (raw down/up → press, long press on OK, repeat on arrows/Backspace; wrap-safe), key names for scripts |
 | `lib/core/src/decisions.*` | App decisions without hardware: pending-command confirmation, what to do after a search through a WiiM queue, queue stability, track index in a queue, dictation clean-up |
-| `lib/core/src/firmware.*` | OTA stream filter (accepts app-only or merged images) |
+| `lib/core/src/firmware.*` | OTA stream filter (accepts app-only or merged images); GitHub release list (`parseLatestRelease`: tag, file URL, SHA-256, size) and version order (`compareVersions`, `releaseOffer`) |
 | `lib/core/src/upnp.*` | XML/SOAP helpers, UPnP description/SCPD parsing, WiiM PlayQueue `QueueContext` parsing, secret masking |
 | `lib/core/src/qobuz.*` | Qobuz tracks/albums parsing, `GetUserInfo` access parsing, Qobuz queue model and album URL/key |
 | `test/test_core/test_<module>.cpp` | Unity tests, one file per `lib/core` module, each with `run_<module>_tests()`; `test_main.cpp` calls them; shared helpers in `test_helpers.h` |
@@ -88,8 +88,9 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `src/net/discovery.*` | SSDP + `getStatusEx` discovery |
 | `src/net/art.*` | Background image downloader (FreeRTOS task, CA-verified HTTPS) |
 | `src/net/voice_service.*` | OpenAI transcription (dictation in the search field) |
+| `src/net/github_release.*` | Latest GitHub release of `couzinc/wiimscreen` with the Tab5 firmware (`ghrelease::latest`) and its download (`ghrelease::download`, redirect to the file server followed); the desktop builds use `latest` to show the latest version |
 | `src/net/ca_bundle.h` | Embedded Mozilla root certificates |
-| `src/device/portal.*` / `src/device/ota.*` | Setup portal (Wi-Fi AP + captive DNS) / OTA upload page |
+| `src/device/portal.*` / `src/device/ota.*` | Setup portal (Wi-Fi AP + captive DNS) / Update screen: OTA upload page, and the GitHub check (own task, on open) and **Install** (download written while it arrives, size + SHA-256 checked before `Update.end`) |
 | `src/device/web_style.h` | Shared self-contained CSS for both web pages (no external resources: the phone is offline on the AP) |
 | `src/device/sound.*` | Taps and beeps on the speaker |
 | `src/device/key_input.*` | `takeKey()`: key events for the app (`loop()` reads them: `serviceKeys()` in `main.cpp`). `key_input.cpp` = Tab5, none; PC: `platform/pc/pc_platform_keys.cpp` |

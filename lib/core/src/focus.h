@@ -59,6 +59,7 @@ enum class Act : uint8_t {
     ResultsPlayAll,  // favorites list: arg 0 "Play all" (in order), 1 "Shuffle"
     // Update screen
     UpdateCancel,
+    UpdateInstall,  // install the version found on GitHub
 };
 
 // Flags of a target

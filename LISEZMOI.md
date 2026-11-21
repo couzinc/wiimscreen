@@ -99,7 +99,11 @@ recherche tapée au clavier ; touche celui à écouter.
 
 ## 5. Mettre à jour par le Wi-Fi
 
-Une fois ce firmware installé par USB, les versions suivantes s'installent sans câble :
+Une fois ce firmware installé par USB, les versions suivantes s'installent sans câble.
+
+**Depuis GitHub, sans téléphone :** sur le Tab5, bouton ⚙ → **Mise à jour**. Le Tab5 cherche la dernière version publiée sur GitHub. S'il affiche « Nouvelle version », touche **Installer** : il la télécharge, vérifie sa taille et son empreinte SHA-256 (celles annoncées par GitHub), l'installe et redémarre. **Annuler** pendant le téléchargement garde la version actuelle.
+
+**Depuis un téléphone ou un ordinateur :**
 
 1. Télécharge l'artefact **wiim-remote-tab5** de la dernière exécution (onglet **Actions** de GitHub) et dézippe-le.
 2. Sur le Tab5 : bouton ⚙ (barre de gauche) → **Mise à jour**. L'écran affiche un QR code, une adresse (`http://192.168.x.x`) et un code à 6 chiffres.
@@ -183,10 +187,11 @@ src/net/                     réseau
   wiim_worker*               tâche de fond : interrogation, commandes, files, recherche
   art.*                      téléchargement des images (tâche de fond, HTTPS vérifié)
   voice_service.*            transcription OpenAI de la dictée (HTTPS vérifié)
+  github_release.*           dernière version publiée sur GitHub et téléchargement de son firmware
   discovery.*                recherche des WiiM sur le Wi-Fi (SSDP + getStatusEx)
 src/device/                  services de l'appareil
   portal.*                   portail de configuration (point d'accès + DNS + formulaire)
-  ota.*                      mise à jour par le Wi-Fi (page web + code affiché à l'écran)
+  ota.*                      mise à jour par le Wi-Fi (page web + code affiché à l'écran, ou depuis GitHub)
   sound.*                    sons (M5.Speaker) ; le bus audio est partagé avec le micro
 src/storage/                 stockage sur l'appareil
   settings.*                 réglages en NVS (+ copie de secours en LittleFS)
@@ -230,7 +235,7 @@ partage en UPnP (`GetUserInfo`), ce que Qobuz n'a pas approuvé. À toi de chois
 - Le mot de passe Wi-Fi n'est jamais renvoyé dans la page de configuration.
 - Toutes les valeurs réaffichées dans la page sont échappées (HTML).
 - Recherche du WiiM : lecture seule (getStatusEx). Quand le Tab5 suit son WiiM à une nouvelle adresse, l'empreinte du certificat enregistrée doit toujours correspondre : un appareil qui se ferait passer pour lui est refusé.
-- Mise à jour par le Wi-Fi : uniquement après un geste sur le Tab5 (menu Réglages), avec un code à 6 chiffres affiché seulement à l'écran, un délai qui double après chaque code faux, 10 minutes au plus ; l'image est vérifiée par l'ESP32 avant d'être activée.
+- Mise à jour par le Wi-Fi : uniquement après un geste sur le Tab5 (menu Réglages), avec un code à 6 chiffres affiché seulement à l'écran, un délai qui double après chaque code faux, 10 minutes au plus ; l'image est vérifiée par l'ESP32 avant d'être activée. Depuis GitHub : HTTPS vérifié (certificats racines embarqués), seulement après un appui sur **Installer**, fichier refusé si sa taille ou son empreinte SHA-256 diffère de celles annoncées par GitHub.
 - Clé OpenAI : refusée si elle contient des espaces ou des retours à la ligne (elle va dans un en-tête HTTP) ; jamais réaffichée ni écrite dans le journal.
 - Micro : actif uniquement pendant la dictée d'une recherche ou en vue ambiance avec le visualiseur activé ; chaque bloc de 32 ms est réduit à 24 niveaux de fréquence puis effacé. Aucun son n'est conservé ni transmis.
 - Réponses du WiiM plafonnées à 64 Ko.

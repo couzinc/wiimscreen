@@ -110,6 +110,11 @@ sim_taps() {
         echo "$out"
         return 1
     fi
+    if ! grep -qF "[update.github] tag=v9.9.9-beta |" <<<"$out"; then
+        echo "check.sh: sim: the taps.txt run did not tap Install on the update screen:"
+        echo "$out"
+        return 1
+    fi
 }
 
 # Scripted keys (tools/sim/scripts/keys.txt): the events that --log-keys prints, through takeKey() in loop()

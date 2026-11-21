@@ -558,6 +558,7 @@ static void test_focused_target() {
     TEST_ASSERT_EQUAL_STRING("transport", actName(Act::Transport));
     TEST_ASSERT_EQUAL_STRING("menuchoice", actName(Act::MenuChoice));
     TEST_ASSERT_EQUAL_STRING("updatecancel", actName(Act::UpdateCancel));
+    TEST_ASSERT_EQUAL_STRING("updateinstall", actName(Act::UpdateInstall));
     TEST_ASSERT_EQUAL_STRING("none", actName(Act::None));
     TEST_ASSERT_EQUAL_STRING("?", actName(static_cast<Act>(200)));
 }

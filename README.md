@@ -163,6 +163,13 @@ approximately $0.003 for each minute of sound when we wrote this file.
 <details>
 <summary><b>Update the firmware</b></summary>
 
+**From GitHub (no phone or computer):**
+
+1. On the Tab5, touch ⚙, then **Update**. The Tab5 looks for a new version on GitHub.
+2. If the Tab5 shows "New version", touch **Install**. The Tab5 downloads the version, checks it and restarts.
+
+**From a phone or a computer** (a file that you downloaded):
+
 1. On the Tab5, touch ⚙, then **Update**. The Tab5 shows a QR code, an address and a 6-digit code.
 2. Connect a phone or a computer to the same Wi-Fi network. Scan the QR code, or type the address (`http://`).
 3. Type the code, select the new `.bin` file, then click **Install**.

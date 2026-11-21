@@ -328,6 +328,11 @@ int main(int argc, char** argv) {
             // Bibliothèque en portrait : les cinq filtres tiennent sur la ligne, le dernier (Deezer) choisi
             up.renderLibrary({0, 1, 2, 3, 4, 5}, {-1, 0, 1, 2, 3}, 3, 0);
             save(out, "53-bibliotheque-portrait.ppm");
+            GithubOffer gh;
+            gh.state = GithubOffer::Available;
+            gh.tag = "v0.4.2-beta";
+            up.showUpdate("http://192.168.1.42", "481203", "v0.4.1-beta", -1, "", gh);
+            save(out, "56-mise-a-jour-portrait.ppm");
         }
         D.deleteSprite();
         D.createSprite(W, H);
@@ -397,8 +402,26 @@ int main(int argc, char** argv) {
     }
     ui.renderTouchTest(820, 470, 7);
     save(out, "18-test-tactile.ppm");
-    ui.showUpdate("http://192.168.1.42", "481203", "57-219c0bc", 63, wr::L("Receiving the firmware\xE2\x80\xA6", "R\xC3\xA9" "ception du firmware\xE2\x80\xA6"));
-    save(out, "14-mise-a-jour.ppm");
+    {
+        // Mise à jour : en attente, une version plus récente trouvée sur GitHub (bouton Installer)
+        GithubOffer gh;
+        gh.state = GithubOffer::Available;
+        gh.tag = "v0.4.2-beta";
+        ui.showUpdate("http://192.168.1.42", "481203", "v0.4.1-beta", -1, "", gh);
+        save(out, "14-mise-a-jour.ppm");
+        // Envoi depuis un navigateur pendant que GitHub ne répond pas
+        GithubOffer failed;
+        failed.state = GithubOffer::Failed;
+        failed.note = "HTTP 403";
+        ui.showUpdate("http://192.168.1.42", "481203", "57-219c0bc", 63,
+                      wr::L("Receiving the firmware\xE2\x80\xA6", "R\xC3\xA9" "ception du firmware\xE2\x80\xA6"), failed);
+        save(out, "54-mise-a-jour-envoi.ppm");
+        // Téléchargement depuis GitHub
+        ui.showUpdate("http://192.168.1.42", "481203", "v0.4.1-beta", 41,
+                      String(wr::L("Downloading v0.4.2-beta from GitHub\xE2\x80\xA6",
+                                   "T\xC3\xA9l\xC3\xA9" "chargement de v0.4.2-beta depuis GitHub\xE2\x80\xA6")));
+        save(out, "55-mise-a-jour-github.ppm");
+    }
 
     ui.showPortal("WiiM-Remote-3F2A", "k7Qp2xRm9w", "http://192.168.4.1", wr::L("Setup requested. Touch the Tab5 screen to cancel.", "Reconfiguration demand\xC3\xA9" "e. Touche l'\xC3\xA9" "cran du Tab5 pour annuler."));
     save(out, "8-configuration.ppm");

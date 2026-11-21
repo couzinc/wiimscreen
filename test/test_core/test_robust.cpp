@@ -11,6 +11,7 @@
 #include "qobuz.h"
 #include "voice.h"
 #include "decisions.h"
+#include "firmware.h"
 #include "test_helpers.h"
 
 using namespace wr;
@@ -68,6 +69,9 @@ static void feedAll(const std::string& s) {
     g_sink += jsonTop(s, "a").size() + jsonText(s).size() + jsonArray(s).size();
     g_sink += normalizeText(s).size() + sharesWord(s, {s, "abc"}) + deezerUserId(s).size();
     g_sink += cleanTranscript(s).size() + typeText(s, s).size();
+    ReleaseInfo rel;
+    int vc = 0;
+    g_sink += parseLatestRelease(s, "o/r", "a.bin", rel) + compareVersions(s, s, vc) + (int)releaseOffer(s, "v1.0.0");
     SearchUndo undo;
     g_sink += parseSearchUndo(s, undo) + searchUndoText(undo).size();
     RobustSettings rs;
