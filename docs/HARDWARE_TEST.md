@@ -116,7 +116,7 @@ Do these last: some restart or erase the Tab5.
 | 9.1 | ⚙ › **Mise en veille**. Then press the power button. | The Tab5 turns off; the power button turns it on. Note if it was on battery or USB (on USB it may not turn off fully). | `Mise en veille (…)` |
 | 9.2 | ⚙ › **Configuration**, then touch the Tab5 screen without using the phone. | Setup mode starts after a restart; a touch cancels it and the Tab5 restarts normally with the same settings. | `Configuration : redémarrage en mode configuration` |
 | 9.3 | Optional (you lose all settings): setup page › **Avancé** › tick **Tout effacer** › confirm. | « Tout est effacé »; the Tab5 restarts in setup mode with a new Wi-Fi password, no favorites. | — |
-| 9.4 | Optional (needs a computer and USB): flash the full image (without `-ota`) at `0x0` with esptool-js, without « Erase flash ». | After the start, the settings are back (Wi-Fi, WiiM, OpenAI key). | `Réglages remis depuis la copie de secours …` |
+| 9.4 | Optional (needs a computer and USB): flash the full image (without `-ota`) at `0x0` with `python3 -m esptool --chip esp32p4 write-flash 0x0 <file>` (no `erase-flash`). | After the start, the settings are back (Wi-Fi, WiiM, OpenAI key). | `Réglages remis depuis la copie de secours …` |
 
 ## Results
 

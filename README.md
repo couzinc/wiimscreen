@@ -60,14 +60,28 @@ The images come from the real UI code ([tools/preview](tools/preview/)).
 **1. Get the firmware.** Download `wiim-remote-tab5.bin` from the [latest release](../../releases), or from the
 latest [Actions](../../actions) run (artifact `wiim-remote-tab5`).
 
-**2. Flash it.** Use Chrome or Edge. You do not have to install software.
+**2. Flash it** with `esptool`, the flashing tool from Espressif (Python 3.8 or later). The Tab5 needs this USB
+flash only one time: later updates go over Wi-Fi (refer to "Update the firmware").
 
-1. Connect the Tab5 to the computer with a USB-C **data** cable.
-2. Push the power button one time to turn on the Tab5.
-3. Push and hold the power button until the green LED flashes (download mode).
-4. Open <https://espressif.github.io/esptool-js/> and click **Connect**. Select the port of the Tab5 (not COM1).
-5. Set the flash address to **`0x0`**, select the file and click **Program**.
-6. When the operation is complete, reset the Tab5.
+1. Install esptool. On Windows, use `py` instead of `python3`.
+
+   ```bash
+   python3 -m pip install --upgrade esptool
+   ```
+
+2. Connect the Tab5 to the computer with a USB-C **data** cable.
+3. Push the power button one time to turn on the Tab5.
+4. Push and hold the power button until the green LED flashes (download mode).
+5. Write the file at address `0x0`. Replace the path with the path of your file. Add `--port COM5` (Windows) or
+   `--port /dev/ttyACM0` (Linux) if esptool does not find the Tab5.
+
+   ```bash
+   python3 -m esptool --chip esp32p4 write-flash 0x0 wiim-remote-tab5.bin
+   ```
+
+6. When esptool shows "Hard resetting", push the power button to start the Tab5.
+
+Note: Espressif removed its online flashing page (esptool-js, 2026). Old guides that link to it do not work.
 
 **3. Set it up.**
 

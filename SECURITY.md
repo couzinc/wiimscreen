@@ -22,7 +22,7 @@ wiimscreen runs on a home network and talks to a WiiM player, a few HTTPS servic
 | Computer version (`desktop`) | TLS with OpenSSL: public servers checked against the system's certificates and host name; the WiiM pinned as on the Tab5. Settings (including the OpenAI key) and favorites are plain files in `~/.config/wiimscreen`, readable by the user only (umask 077). |
 | Deezer profile number | Optional setting (NVS and the LittleFS settings copy). It is not a secret: it only reads favorites that the profile already makes public on `api.deezer.com`. |
 | Microphone | Active only in the ambient view (visualizer, processed on-device) or while dictating a search (audio sent to OpenAI only then). |
-| Secrets | Stored in the ESP32's NVS (not encrypted), with a backup copy in LittleFS (`/settings.bak`, not encrypted) so that a full USB flash does not lose them; never logged. An OpenAI key with spending limits is recommended. "Erase flash" removes both. |
+| Secrets | Stored in the ESP32's NVS (not encrypted), with a backup copy in LittleFS (`/settings.bak`, not encrypted) so that a full USB flash does not lose them; never logged. An OpenAI key with spending limits is recommended. `esptool erase-flash` removes both. |
 
 **Unsigned firmware over plain HTTP (known limitation).** The update page and the upload are plain HTTP on the home
 network, and the 6-digit code travels in the request's query string. During the 10-minute update window, someone

@@ -42,13 +42,16 @@ une télécommande ou une manette. Voir [docs/DESKTOP.md](docs/DESKTOP.md) (en a
 La compilation se lance toute seule à chaque envoi sur GitHub :
 onglet **Actions** > dernière exécution > artefact **wiim-remote-tab5**. Tu y trouves `wiim-remote-tab5.bin`.
 
-## 2. Flasher depuis le navigateur, sans rien installer
+## 2. Flasher en USB (une seule fois)
 
-1. Ouvre **Chrome ou Edge** (Firefox ne gère pas le port série web) sur https://espressif.github.io/esptool-js/
-2. Branche le Tab5 en USB-C, puis passe-le en **mode téléchargement** : appui long (~2 s) sur le bouton d'alimentation/reset jusqu'à ce que la LED **verte clignote rapidement**.
-3. Clique **Connect** et choisis le port qui apparaît.
-4. Dans *Flash Address* mets **0x0**, choisis `wiim-remote-tab5.bin`, clique **Program**.
-5. À la fin, appuie brièvement sur le bouton reset pour redémarrer.
+La page web d'Espressif (esptool-js) n'existe plus (2026) : on utilise **esptool**, l'outil d'Espressif, avec
+Python 3.8 ou plus récent. Ensuite, les mises à jour passent par le Wi-Fi (section 5).
+
+1. Installe esptool (sous Windows, remplace `python3` par `py`) : `python3 -m pip install --upgrade esptool`
+2. Branche le Tab5 en USB-C (câble **de données**), puis passe-le en **mode téléchargement** : appui long (~2 s) sur le bouton d'alimentation/reset jusqu'à ce que la LED **verte clignote rapidement**.
+3. Écris le fichier à l'adresse 0x0 (mets le chemin de ton fichier ; ajoute `--port COM5` sous Windows si le Tab5 n'est pas trouvé) :
+   `python3 -m esptool --chip esp32p4 write-flash 0x0 wiim-remote-tab5.bin`
+4. Quand esptool affiche « Hard resetting », appuie sur le bouton d'alimentation pour démarrer le Tab5.
 
 Pas de batterie ? Le Tab5 fonctionne très bien branché en USB-C. La batterie (type Sony NP-F550, 7,4 V) est vendue à part ; sans elle, l'indicateur de batterie n'apparaît pas.
 
