@@ -5,6 +5,12 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [0.5.0-beta] — 2026-11-21 — Update from GitHub, navigation bar
+
+**Tab5:** checked in the simulator only: not checked on a Tab5 yet. Install this version one time from a phone or a
+computer (⚙ › Update) or by USB. The next versions can then be installed with **Install** on the Tab5. If something
+does not work, report it and install v0.4.1-beta again.
+
 ### Added
 - **Update from GitHub**: ⚙ › Update looks for the latest version published on GitHub when the screen opens. When it
   is newer, touch **Install**: the Tab5 downloads it (about 3 MB), checks its size and SHA-256 against the ones GitHub
