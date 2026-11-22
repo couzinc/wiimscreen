@@ -5,6 +5,11 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [0.6.0-beta] — 2026-11-22 — Ratings, cleaner screen changes
+
+**Tab5:** from v0.5.0-beta or v0.5.1-beta, open ⚙ › Update and touch **Install**. Then check the screen changes
+(HARDWARE_TEST row 5.9): send the `Réactivité` Journal lines from before and after the update if they differ.
+
 ### Added
 - **Ratings**: hold a tile and touch a star (1 to 5) in its menu; touch the same star again to remove the rating.
   The Library shows the rating on the tile (★ and the number) and puts the rated tiles first, most stars first. The
