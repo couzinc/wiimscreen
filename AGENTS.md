@@ -170,6 +170,13 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 - 16-bit canvases are byte-swapped RGB565; the background gradient is Bayer-dithered to avoid banding.
 - WiiM `getPlayerStatus` has no track info; `getMetaInfo` keys may carry a trailing space; preset `number` is an
   integer; `seek` takes seconds. Details in `docs/WIIM_API_NOTES.md`.
+- **AES interrupt race at start** (v0.6.1-beta boot loop, 2026-11-22): ESP-IDF reserves the AES interrupt at the
+  first `esp_aes_init` (first TLS client) without a lock; the `wiim` and `art` tasks (core 0) did it at the same
+  time and the second request aborted. `claimAesInterrupt()` in `setup()` does it once before any network task:
+  keep it before `g_img.fetcher.begin()` / `g_worker.begin()`. Crashes: `logPreviousCrash()` writes the core dump
+  summary to the Journal; resolve the addresses with `riscv32-esp-elf-addr2line` and the `.elf` of the same build
+  (CI paths: `-ffile-prefix-map=<repo>=/home/runner/work/wiimscreen/wiimscreen` and
+  `~/.platformio=/home/runner/.platformio`, `FW_VERSION` = the tag, give the same code).
 - **Never call the WiiM from the main loop.** Each request opens a TLS connection (1–3 s on the P4); doing it in
   `loop()` froze the screen and dropped taps. Use `g_worker.command()` (non-blocking), update `g_state`
   optimistically, and let `serviceWiim()` apply reports and errors. `WiimClient` keeps the TLS connection open

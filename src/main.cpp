@@ -23,6 +23,11 @@
 #include <WiFi.h>
 
 #include <esp_heap_caps.h>
+#if defined(CONFIG_IDF_TARGET_ESP32P4)
+#include <esp_core_dump.h>
+#include <esp_system.h>
+#include <mbedtls/aes.h>
+#endif
 
 #include <atomic>
 #include <cmath>
@@ -1702,6 +1707,65 @@ static void logMemory() {
 
 using namespace app;
 
+// Démarrage après un plantage : résumé du rapport (core dump) que l'ESP-IDF a écrit en flash, au Journal. Le compteur
+// de programme et les adresses de la pile se traduisent en fonctions avec le .elf de la même version (addr2line).
+// Le rapport reste en flash (le suivant le remplace) : ses lignes reviennent à chaque démarrage, avec l'empreinte de
+// la version qui a planté.
+// Interruption de l'AES matériel : l'ESP-IDF la réserve à la première initialisation AES (premier client TLS), sans
+// verrou ; deux tâches qui ouvrent leur premier client en même temps (wiim et art, sur le cœur 0) la demandent deux
+// fois et la seconde demande arrête tout (abort dans esp_aes_intr_alloc : v0.6.1-beta redémarrait en boucle).
+// Réservée ici une fois, sur le cœur 0 comme avant, avant que les tâches réseau démarrent.
+static void claimAesInterrupt() {
+#if defined(CONFIG_IDF_TARGET_ESP32P4)
+    static volatile bool done = false;
+    auto task = [](void*) {
+        mbedtls_aes_context aes;
+        mbedtls_aes_init(&aes);  // esp_aes_init -> esp_aes_intr_alloc (une fois)
+        mbedtls_aes_free(&aes);
+        done = true;
+        vTaskDelete(nullptr);
+    };
+    if (xTaskCreatePinnedToCore(task, "aesinit", 4096, nullptr, 5, nullptr, 0) != pdPASS) return;
+    for (int i = 0; i < 200 && !done; ++i) delay(5);
+#endif
+}
+
+static void logPreviousCrash() {
+#if defined(CONFIG_IDF_TARGET_ESP32P4)
+    logEvent("Red\xC3\xA9marrage : cause %d", (int)esp_reset_reason());
+    if (esp_core_dump_image_check() != ESP_OK) return;
+    auto* s = static_cast<esp_core_dump_summary_t*>(heap_caps_calloc(1, sizeof(esp_core_dump_summary_t), MALLOC_CAP_SPIRAM));
+    if (!s) return;
+    if (esp_core_dump_get_summary(s) == ESP_OK) {
+        char elf[9] = {};
+        memcpy(elf, s->app_elf_sha256, 8);
+        logEvent("Plantage pr\xC3\xA9" "c\xC3\xA9" "dent (version %s) : t\xC3\xA2" "che %.15s, pc %08lx, ra %08lx", elf, s->exc_task,
+                 (unsigned long)s->exc_pc, (unsigned long)s->ex_info.ra);
+        logEvent("Plantage : mcause %lx, mtval %08lx, sp %08lx, a0 %08lx", (unsigned long)s->ex_info.mcause,
+                 (unsigned long)s->ex_info.mtval, (unsigned long)s->ex_info.sp, (unsigned long)s->ex_info.exc_a[0]);
+        // Adresses de code trouvées dans la pile (dans l'ordre) : la suite des appels
+        char line[150];
+        int len = snprintf(line, sizeof line, "Plantage, pile :");
+        int found = 0;
+        const uint32_t* w = reinterpret_cast<const uint32_t*>(s->exc_bt_info.stackdump);
+        for (uint32_t i = 0; i < s->exc_bt_info.dump_size / 4 && found < 24; ++i) {
+            const uint32_t v = w[i];
+            if (v < 0x40000000u || v >= 0x44000000u) continue;  // code en flash
+            if (len > (int)sizeof line - 10) {
+                logEvent("%s", line);
+                len = snprintf(line, sizeof line, "Plantage, pile :");
+            }
+            len += snprintf(line + len, sizeof line - len, " %08lx", (unsigned long)v);
+            ++found;
+        }
+        if (found) logEvent("%s", line);
+    }
+    char reason[120] = {};
+    if (esp_core_dump_get_panic_reason(reason, sizeof reason) == ESP_OK) logEvent("Plantage : %s", reason);
+    heap_caps_free(s);
+#endif
+}
+
 void setup() {
     auto cfg = M5.config();
     M5.begin(cfg);
@@ -1737,6 +1801,8 @@ void setup() {
                        wr::L("The saved preset list is invalid.", "La liste de presets enregistr\xC3\xA9" "e est invalide."));
 
     logEvent("D\xC3\xA9marrage, version %s", FW_VERSION);
+    logPreviousCrash();
+    claimAesInterrupt();  // avant toute tâche réseau (art, wiim) et tout client TLS
     if (restored) logEvent("R\xC3\xA9glages remis depuis la copie de secours (Wi-Fi, WiiM, cl\xC3\xA9, options)");
     connectWifi();
     logEvent("Wi-Fi connect\xC3\xA9, adresse du Tab5 %s", WiFi.localIP().toString().c_str());

@@ -5,6 +5,15 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Fixed
+- **Restart loop after the Wi-Fi connection** (v0.6.1-beta and v0.6.2-beta on a Tab5): two network tasks opened
+  their first secure connection at the same moment, and the system stopped (`abort()` in the AES set-up of
+  ESP-IDF). The AES hardware is now set up once at start, before the network tasks.
+
+### Added
+- **Crash report in the Journal**: after a crash, the next start writes the cause, the task and the code addresses
+  to the Journal (`Plantage …` lines), from the report the Tab5 keeps in its flash.
+
 ## [0.6.2-beta] — 2026-11-22 — Instant screen changes, favorites lists in the Library
 
 **Tab5:** from v0.6.1-beta, open ⚙ › Update and touch **Install** (the first test of the fixed download). Then
