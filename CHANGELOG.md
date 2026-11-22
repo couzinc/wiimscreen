@@ -5,6 +5,18 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Added
+- **Ratings**: hold a tile and touch a star (1 to 5) in its menu; touch the same star again to remove the rating.
+  The Library shows the rating on the tile (★ and the number) and puts the rated tiles first, most stars first. The
+  strip on the main screen keeps its order. The rating is kept on the remote, with the tile history. A downgrade to
+  an older version forgets the ratings only (pins and history stay). After the tile menu, the Library shows the
+  page of that tile, also when its rating moved it.
+
+### Changed
+- **Screen changes on the Tab5**: a new screen is sent to the display in 16 strips, each one written out at once,
+  instead of in one block that reached the display in pieces. It now sweeps in from one side with a clean edge. The
+  amount of data is the same.
+
 ## [0.5.1-beta] — 2026-11-22 — Test of Install
 
 **Tab5:** the same firmware as v0.5.0-beta. This version is here so that **Install** has a newer version to

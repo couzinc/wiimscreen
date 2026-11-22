@@ -85,6 +85,7 @@ void Ui::relayout() {
 void Ui::beginScreen(View view) {
     view_ = view;
     libTiles_.clear();  // la Bibliothèque les remet en se dessinant
+    tileStars_ = wr::Rect{};  // le menu d'une tuile la remet en se dessinant
     targets_.clear();  // l'écran qui commence inscrit ses éléments touchables en se dessinant
 }
 
@@ -104,9 +105,29 @@ void Ui::presentRect(const wr::Rect& r) {
 
 void Ui::present() {
     focusRing();  // en dernier, par-dessus l'écran
+#if defined(CONFIG_IDF_TARGET_ESP32P4)
+    // Tab5 : l'écran lit sa mémoire d'image en continu, et M5GFX ne la vide du cache qu'à la fin de l'écriture
+    // (endWrite). En une fois, l'image arrivait donc à l'écran par morceaux dans le désordre (blocs du cache) ;
+    // par bandes, chacune vidée aussitôt, elle passe d'un bord à l'autre avec un bord net. Mêmes octets en tout.
+    // Bandes dans le sens des lignes de la dalle (portrait 720×1280) : des colonnes quand l'écran est tourné en paysage
+    constexpr int kStrips = 16;
+    const int W = canvas_.width(), H = canvas_.height();
+    const bool columns = W > H;
+    const int len = columns ? W : H, step = (len + kStrips - 1) / kStrips;
+    for (int p = 0; p < len; p += step) {
+        const int n = std::min(step, len - p);
+        D.startWrite();
+        if (columns) D.setClipRect(p, 0, n, H);
+        else D.setClipRect(0, p, W, n);
+        canvas_.pushSprite(&D, 0, 0);
+        D.clearClipRect();
+        D.endWrite();  // vide cette bande du cache : l'écran la montre tout de suite
+    }
+#else
     D.startWrite();
     canvas_.pushSprite(&D, 0, 0);
     D.endWrite();
+#endif
     ++presents_;
     lastPresentMs_ = millis();
 }

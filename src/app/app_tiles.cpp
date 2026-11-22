@@ -157,6 +157,19 @@ void pinTile(int index, bool on) {
     refreshTiles();
 }
 
+bool rateTile(int index, int stars) {
+    if (index < 0 || index >= (int)g_tiles.list.size()) return false;
+    const std::string key = wr::tileKey(g_tiles.list[index]);
+    if (key.empty() || !g_tiles.stats.setRating(key, stars)) {
+        logEvent("Note non enregistr\xC3\xA9" "e (historique plein) : %s", g_tiles.list[index].label.c_str());
+        return false;
+    }
+    saveTileStats();
+    logTagged("tile.rate", "stars=%d | Note de la tuile : %d \xC3\xA9toile(s), %s", stars, stars,
+              g_tiles.list[index].label.c_str());
+    return true;
+}
+
 void serviceTileOrder(uint32_t now, bool touching) {
     if (g_tiles.statsDirty && !touching && !g_strip.touch && wr::expired(now, g_idle.lastTouch, 2000)) {
         g_tiles.statsDirty = false;

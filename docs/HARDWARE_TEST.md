@@ -71,6 +71,7 @@ The Journal masks tokens and passwords, but check anyway.
 | 4.5 | In that menu, touch **Pin to the front**. | Back to the main screen; the tile is first. Hold it again: the menu says **Unpin**. | `Tuile épinglée : …` |
 | 4.6 | Touch a tile on page 2, then do not touch the screen for 1 min. | The tile does not move at once; after 1 min it is first after the pinned tiles. Restart the Tab5: the order stays. | |
 | 4.7 | Hold a favorite tile (small ♥ in its corner) › **Remove from favorites**. | The tile goes away. A Qobuz/Deezer album tile or a WiiM preset has no Remove choice. | `Favori retiré depuis sa tuile (…) : OK` |
+| 4.7b | Hold a tile › touch the 4th star, then the 4th star again, then the 3rd star › **Close**. Open the Library. Restart the Tab5 and open the Library again. | The stars light up to the one touched; the same star again clears them. In the Library the tile shows ★ 3 and comes first. The rating is still there after the restart. The strip on the main screen does not change its order. | `Note de la tuile : 4 étoile(s), …`, then `0 …`, then `3 …` |
 | 4.8 | Touch the grid button (2nd in the side bar). Touch each filter; hold a tile, then **Close**; touch a tile. | All the tiles on one screen, same order as the strip; each filter shows only its kind. After Close: back in the Library, same filter. The touched tile plays and the main screen comes back. | `Bibliothèque : N tuile(s)`, `Menu de la tuile : …`, `Preset … : …` |
 
 ## 5. Screen and touch
@@ -84,6 +85,7 @@ The Journal masks tokens and passwords, but check anyway.
 | 5.6 | Touch and hold − or + of the volume for 2 s. | After a short delay the volume changes step by step and the button stays lit; Journal: `Volume maintenu : N` at release. |
 | 5.7 | Touch − / +, the speaker, ⏯, then a tile and slide off it. | Each button lights at once, without a flicker of the whole screen. After 20 touches, the Journal shows `Réactivité : image … ms après l'appui …`: note the numbers in the results. |
 | 5.8 | Pause the music. Wait until the screen dims (10 min without a touch), then touch ⏯. | The light comes back and the music plays with the same touch. While music plays, the ambient view shows instead: a touch there only brings back the controls. When the screen is off (20 min, nothing playing), a touch only turns it on. |
+| 5.9 | Open ⚙, the Library, Search and the Journal one after the other, then 🏠. Look at how each new screen appears. Do 20 touches and read the `Réactivité` line. | Each screen sweeps in from one side with a straight, clean edge, in a fraction of a second: no scattered blocks or pixels. The `Réactivité` numbers for a full image are about the same as before (note them). |
 | 5.4 | Navigation bar: 🏠, ⌕, ⚙ from each screen (main, search, results, Journal, menu). | 🏠 always goes to the main screen with the tiles. |
 
 ## 6. Update page (firmware `cb22222` and later)
@@ -145,7 +147,7 @@ Firmware version: `local-……`  Date: `……`  WiiM model / firmware: `……
 | 3.4b Deezer Play all (playlist) | | |
 | 3.6 Deezer Flow tile | | |
 | 4.1–4.3 Tab5 favorites | | |
-| 4.4–4.8 tile menu, order, Library | | |
+| 4.4–4.8 tile menu, ratings, order, Library | | |
 | 5.x screen and touch | | |
 | 6.x update page from phone | | |
 | 7.x microphone and sound | | |

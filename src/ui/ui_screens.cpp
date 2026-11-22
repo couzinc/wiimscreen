@@ -84,7 +84,22 @@ void Ui::renderMenu(const char* version) {
 }
 
 // Menu d'une tuile : en-tête (image, nom, artiste), puis les choix, puis Fermer. Ouvert par un appui long sur la tuile
-void Ui::renderTileMenu(int index, bool pinned, bool removable) {
+// Carte des étoiles du menu d'une tuile (tileStars_), `rating` pleines : la même au dessin complet et partiel
+void Ui::drawTileStars(int rating) {
+    const wr::Rect& b = tileStars_;
+    canvas_.fillRoundRect(b.x, b.y, b.w, b.h, sc(16), kCard);
+    const int cellW = b.w / wr::TileStats::kMaxRating, r = std::min(sc(22), b.h / 2 - sc(8));
+    for (int k = 0; k < wr::TileStats::kMaxRating; ++k)
+        starIcon(b.x + k * cellW + cellW / 2, b.y + b.h / 2 + sc(2), r, k < rating ? kStar : kStarOff);
+}
+
+void Ui::updateTileStars(int rating) {
+    if (tileStars_.w <= 0) return;
+    drawTileStars(rating);
+    presentRect(tileStars_);
+}
+
+void Ui::renderTileMenu(int index, bool pinned, bool removable, int rating) {
     beginScreen(View::Other);
     auto& C = canvas_;
     background();
@@ -104,9 +119,9 @@ void Ui::renderTileMenu(int index, bool pinned, bool removable) {
     const int side = thumbSide(), pad = sc(12);
     const int headH = side + 2 * pad;
     const int rows = removable ? 2 : 1;
-    const int cw = sc(150), ch = sc(44);
-    // En-tête, rangées et Fermer centrés ensemble dans la hauteur
-    const int total = headH + sc(20) + rows * bh + (rows - 1) * gap + sc(14) + ch;
+    const int cw = sc(150), ch = sc(44), starH = sc(64);
+    // En-tête, étoiles, rangées et Fermer centrés ensemble dans la hauteur
+    const int total = headH + sc(12) + starH + sc(12) + rows * bh + (rows - 1) * gap + sc(14) + ch;
     const int x = A.x + (W - bw) / 2;
     const int y0 = A.y + std::max(sc(16), (A.h - total) / 2);
     // En-tête : image de la tuile et ses deux lignes
@@ -128,8 +143,15 @@ void Ui::renderTileMenu(int index, bool pinned, bool removable) {
         C.setTextColor(kText2);
         C.drawString(wr::wrapText(p.sub, tw, 1, measure)[0].c_str(), tx, ty + lh + sc(4));
     }
+    // Note : cinq étoiles sur toute la largeur (une case touchable chacune) ; la même étoile retouchée l'efface
+    wr::Rect starRects[wr::TileStats::kMaxRating];
+    const int sy = y0 + headH + sc(12);
+    tileStars_ = wr::Rect{x, sy, bw, starH};
+    drawTileStars(rating);
+    const int cellW = bw / wr::TileStats::kMaxRating;
+    for (int k = 0; k < wr::TileStats::kMaxRating; ++k) starRects[k] = wr::Rect{x + k * cellW, sy, cellW, starH};
     wr::Rect rects[3];
-    int y = y0 + headH + sc(20);
+    int y = sy + starH + sc(12);
     rects[TilePin] = wr::Rect{x, y, bw, bh};
     menuButton(C, rects[TilePin], pinned ? wr::L("Unpin", "D\xC3\xA9s\xC3\xA9pingler") : wr::L("Pin to the front", "\xC3\x89pingler en t\xC3\xAAte"),
                pinned ? wr::L("Back to its usual place", "Retour \xC3\xA0 sa place habituelle")
@@ -149,7 +171,8 @@ void Ui::renderTileMenu(int index, bool pinned, bool removable) {
     C.setTextDatum(textdatum_t::middle_center);
     C.setTextColor(kText);
     C.drawString(wr::L("Close", "Fermer"), c.x + c.w / 2, c.y + c.h / 2 + 1);
-    // Touchables (la barre est inscrite par navRail), dans l'ordre de TileChoice
+    // Touchables (la barre est inscrite par navRail) : les étoiles, puis les choix dans l'ordre de TileChoice
+    for (int k = 0; k < wr::TileStats::kMaxRating; ++k) targets_.add(wr::Act::TileRate, k + 1, starRects[k]);
     targets_.add(wr::Act::TileChoice, TilePin, rects[TilePin], wr::kTargetDefault);
     if (removable) targets_.add(wr::Act::TileChoice, TileRemove, rects[TileRemove]);
     targets_.add(wr::Act::TileChoice, TileClose, rects[TileClose]);
@@ -158,7 +181,8 @@ void Ui::renderTileMenu(int index, bool pinned, bool removable) {
 
 // Bibliothèque : filtres en haut (pastilles), toutes les tuiles en grille (même taille et même ordre que la bande),
 // pages en bas si besoin. Un appui joue la tuile, un appui long ouvre son menu (main.cpp)
-int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed) {
+int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed,
+                      int follow) {
     beginScreen(View::Other);
     auto& C = canvas_;
     background();
@@ -208,13 +232,15 @@ int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& fil
     if ((int)shown.size() > cols * rows) rows = rowsFor(A.bottom() - m - navH - sc(10));  // place des pages
     const int per = cols * rows;
     const int pages = std::max(1, ((int)shown.size() + per - 1) / per);
+    for (size_t k = 0; follow >= 0 && k < shown.size(); ++k)
+        if (shown[k] == follow) page = (int)k / per;
     page = std::max(0, std::min(pages - 1, page));
     std::vector<std::pair<int, wr::Rect>> tiles;
     for (int k = 0; k < per && page * per + k < (int)shown.size(); ++k) {
         const int i = shown[page * per + k];
         if (i < 0 || i >= (int)presets_.size()) continue;
         const wr::Rect r{gx + (k % cols) * (tw + g), top + (k / cols) * (th + g), tw, th};
-        tileAt(r, i, i == pressed);
+        tileAt(r, i, i == pressed, libStars(i));
         tiles.push_back({i, r});
     }
     libTiles_ = tiles;
@@ -260,7 +286,7 @@ bool Ui::updateLibraryTile(int index, bool pressed) {
         auto& C = canvas_;
         C.setClipRect(r.x, r.y, r.w, r.h);
         bg_.pushSprite(&C, 0, 0);
-        tileAt(r, index, pressed);
+        tileAt(r, index, pressed, libStars(index));
         C.clearClipRect();
         presentRect(r);
         return true;

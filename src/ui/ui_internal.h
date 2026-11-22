@@ -17,6 +17,8 @@ static constexpr uint32_t kText = 0xFFFFFFu;
 static constexpr uint32_t kText2 = 0xA6A9B2u;   // texte secondaire
 static constexpr uint32_t kAccent = 0xE8A33Du;  // accent par défaut (ambre)
 static constexpr uint32_t kRed = 0xE5484Du;
+static constexpr uint32_t kStar = 0xF2C14Eu;     // étoile d'une note
+static constexpr uint32_t kStarOff = 0x4A4D57u;  // étoile vide (menu de la tuile)
 
 // Polices VLW : les tableaux ne sont définis qu'une fois (ui_core.cpp), ici seulement leurs adresses
 #ifdef PC_SCALED_FONTS  // ordinateur : choisies selon la taille du canevas (ui_core.cpp)

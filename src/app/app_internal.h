@@ -197,6 +197,7 @@ struct LibraryView {
     int page = 0;
     int touch = -1;      // tuile sous le doigt (indice global), -1 aucune
     uint32_t since = 0;  // doigt posé
+    int follow = -1;     // au retour du menu d'une tuile : sa page est montrée (l'ordre a pu changer), -1 aucune
 };
 extern LibraryView g_lib;
 
@@ -304,6 +305,8 @@ constexpr uint32_t kTileOrderIdleMs = 60000;
 void loadTileStats();
 void noteTilePlayed(int index);
 void pinTile(int index, bool on);
+bool rateTile(int index, int stars);  // note de la tuile (0 = aucune), enregistrée ; ordre de la bande inchangé. Faux :
+                                      // pas prise (historique plein de tuiles épinglées ou notées)
 void serviceTileOrder(uint32_t now, bool touching);
 // Bibliothèque (app_library.cpp) : ouverte depuis la barre ; redessinée quand les tuiles ou leurs images changent
 void openLibrary();

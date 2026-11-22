@@ -329,7 +329,7 @@ void Ui::tileArt(int index, int ax, int ay, uint32_t bg) {
 
 void Ui::tile(int slot, int index, bool pressed) { tileAt(layout_.presets[slot], index, pressed); }
 
-void Ui::tileAt(const wr::Rect& r, int index, bool pressed) {
+void Ui::tileAt(const wr::Rect& r, int index, bool pressed, int stars) {
     auto& C = canvas_;
     const std::string& label = presets_[index].label;
     const bool active = index == active_;
@@ -347,6 +347,19 @@ void Ui::tileAt(const wr::Rect& r, int index, bool pressed) {
         const int d = sc(26), hx = ax + sc(4), hy = ay + sc(4);
         C.fillRoundRect(hx, hy, d, d, sc(8), kBg);
         heartIcon(hx + d / 2, hy + d / 2 - sc(1), sc(7), accent_);
+    }
+    if (stars > 0) {  // note (Bibliothèque) : une étoile et le nombre, sur une pastille en bas de l'image (cinq
+                      // étoiles ne tiendraient pas sur une petite image)
+        useFont(C, kTiny);
+        const String n(std::min(stars, wr::TileStats::kMaxRating));
+        const int h = std::max(sc(26), (int)C.fontHeight() + sc(4)), r = sc(8);
+        const int w = sc(8) + 2 * r + sc(5) + (int)C.textWidth(n.c_str()) + sc(9);
+        const int sx = ax + sc(4), sy = ay + side - h - sc(4);
+        C.fillRoundRect(sx, sy, w, h, h / 2, kBg);
+        starIcon(sx + sc(8) + r, sy + h / 2 + sc(1), r, kStar);
+        C.setTextDatum(textdatum_t::middle_left);
+        C.setTextColor(kText);
+        C.drawString(n.c_str(), sx + sc(8) + 2 * r + sc(5), sy + h / 2 + 1);
     }
     if (active) {  // petite icône d'égaliseur dans le coin de l'image
         const int d = sc(30), ex = ax + side - d - sc(4), ey = ay + sc(4);

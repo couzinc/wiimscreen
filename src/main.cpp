@@ -734,7 +734,7 @@ static bool tileRemovable(const wr::Preset& p) {
 static void renderTileMenu() {
     const int i = tileMenuIndex();
     const std::string& key = g_view.tileKey;
-    g_ui.renderTileMenu(i, g_tiles.stats.pinned(key), i >= 0 && tileRemovable(g_tiles.list[i]));
+    g_ui.renderTileMenu(i, g_tiles.stats.pinned(key), i >= 0 && tileRemovable(g_tiles.list[i]), g_tiles.stats.rating(key));
 }
 
 static void openTileMenu(int index) {
@@ -762,6 +762,17 @@ static void activateTileMenu(const wr::Target& tg, uint32_t now) {
             return;
         case wr::Act::Home: g_view.tileMenuBack = Screen::Controls; break;  // Accueil : fermer, vers les commandes
         case wr::Act::TileChoice: break;
+        case wr::Act::TileRate: {  // note : le menu reste ouvert ; la même étoile retouchée efface la note
+            sound::tap();
+            const int i = tileMenuIndex();
+            if (i >= 0 && !rateTile(i, g_tiles.stats.toggledRating(g_view.tileKey, tg.arg)))
+                setMessage(wr::L("Rating not saved: too many pinned or rated tiles",
+                                 "Note non enregistr\xC3\xA9" "e : trop de tuiles \xC3\xA9pingl\xC3\xA9" "es ou not\xC3\xA9" "es"),
+                           4000);
+            g_idle.lastTouch = now;
+            g_ui.updateTileStars(g_tiles.stats.rating(g_view.tileKey));  // les étoiles seules
+            return;
+        }
         default: return;
     }
     sound::tap();
@@ -776,6 +787,7 @@ static void activateTileMenu(const wr::Target& tg, uint32_t now) {
                        4000);
         } else if (tg.arg == Ui::TileRemove && tileRemovable(p)) {
             if (g_tiles.stats.pinned(g_view.tileKey)) pinTile(i, false);  // plus de place réservée en tête
+            if (g_tiles.stats.rating(g_view.tileKey)) rateTile(i, 0);    // ni de note : l'entrée peut partir
             const bool ok = fav::remove(p.favId);
             logEvent("Favori retir\xC3\xA9 depuis sa tuile (%s) : %s", p.favId.c_str(), ok ? "OK" : "erreur");
             refreshTiles();
@@ -784,9 +796,10 @@ static void activateTileMenu(const wr::Target& tg, uint32_t now) {
                        4000);
         }
     }
+    g_lib.follow = tileMenuIndex();  // la tuile (si elle reste) : sa page à l'écran, l'ordre a pu changer
     g_view.tileKey.clear();
     g_idle.lastTouch = now;
-    if (g_view.tileMenuBack == Screen::Library) {  // ouvert depuis la Bibliothèque : on y revient (même filtre, page)
+    if (g_view.tileMenuBack == Screen::Library) {  // ouvert depuis la Bibliothèque : on y revient (même filtre)
         g_view.screen = Screen::Library;
         renderLibrary();
         return;

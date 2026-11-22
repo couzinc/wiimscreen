@@ -82,11 +82,73 @@ static void test_tile_stats_text() {
 static void test_tile_stats_full() {
     TileStats s;
     s.setPin("pinned", true);
+    s.setRating("rated", 2);
     for (size_t i = 0; i < TileStats::kMax + 10; ++i) s.played("k" + std::to_string(i));
     TEST_ASSERT_EQUAL((int)TileStats::kMax, (int)s.uses.size());
     TEST_ASSERT_TRUE(s.pinned("pinned"));  // épinglée : jamais retirée
     TEST_ASSERT_NULL(s.find("k0"));        // les plus anciennes sont parties
     TEST_ASSERT_NOT_NULL(s.find("k209"));
+    TEST_ASSERT_EQUAL(2, s.rating("rated"));  // notée : jamais retirée non plus
+    // Pleine de tuiles épinglées ou notées : une nouvelle note n'est pas prise, et le dit
+    TileStats f;
+    for (size_t i = 0; i < TileStats::kMax; ++i) f.setRating("r" + std::to_string(i), 1);
+    TEST_ASSERT_FALSE(f.setRating("new", 3));
+    TEST_ASSERT_NULL(f.find("new"));
+    TEST_ASSERT_TRUE(f.setRating("r5", 4));  // déjà dedans : changée
+}
+
+static void test_tile_rating() {
+    TileStats s;
+    TEST_ASSERT_TRUE(s.setRating("a", 4));
+    TEST_ASSERT_FALSE(s.setRating("b", 6));  // hors de 1..5 : rien
+    TEST_ASSERT_FALSE(s.setRating("c", -1));
+    TEST_ASSERT_EQUAL(4, s.rating("a"));
+    TEST_ASSERT_EQUAL(0, s.rating("b"));
+    TEST_ASSERT_NULL(s.find("b"));
+    TEST_ASSERT_NULL(s.find("c"));
+    s.played("a");
+    TEST_ASSERT_EQUAL(4, s.rating("a"));  // jouer ne change pas la note
+    TEST_ASSERT_FALSE(s.setRating("x\ty", 3));  // clé illégale : ignorée
+    TEST_ASSERT_NULL(s.find("x\ty"));
+    // Étoile touchée : sa note, ou 0 si c'est la note actuelle
+    TEST_ASSERT_EQUAL(0, s.toggledRating("a", 4));
+    TEST_ASSERT_EQUAL(2, s.toggledRating("a", 2));
+    TEST_ASSERT_EQUAL(3, s.toggledRating("new", 3));
+    // Texte : les notes en lignes "rate" après les entrées (les anciennes versions les sautent et gardent les tuiles)
+    s.played("d");
+    s.setPin("d", true);
+    s.setRating("d", 1);
+    const std::string t = tileStatsToText(s);
+    TEST_ASSERT_EQUAL_STRING("seq\t2\na\t1\t1\t0\nd\t2\t1\t1\nrate\ta\t4\nrate\td\t1\n", t.c_str());
+    const TileStats r = tileStatsFromText(t);
+    TEST_ASSERT_EQUAL(4, r.rating("a"));
+    TEST_ASSERT_EQUAL(1, r.rating("d"));
+    TEST_ASSERT_TRUE(r.pinned("d"));
+    // Lignes "rate" abîmées, trop grandes, à 0 ou sans entrée : ignorées ; une clé "rate" reste une tuile
+    const TileStats b = tileStatsFromText(
+        "rate\te\t3\ne\t1\t1\t0\nf\t1\t1\t0\nrate\tf\t9\nrate\tf\t0\nrate\tf\tx\nrate\tnone\t2\n"
+        "rate\t1\t1\t0\ng\t1\t1\t0\t5\n");
+    TEST_ASSERT_EQUAL(3, b.rating("e"));  // avant son entrée : appliquée quand même
+    TEST_ASSERT_EQUAL(0, b.rating("f"));
+    TEST_ASSERT_NULL(b.find("none"));
+    TEST_ASSERT_NOT_NULL(b.find("rate"));
+    TEST_ASSERT_NULL(b.find("g"));  // 5 colonnes : ligne ignorée
+    // Retirer la note
+    TEST_ASSERT_TRUE(s.setRating("a", 0));
+    TEST_ASSERT_EQUAL(0, s.rating("a"));
+    s.setRating("zz", 0);  // inconnue : pas d'entrée créée
+    TEST_ASSERT_NULL(s.find("zz"));
+    // Ordre de la Bibliothèque : notées d'abord (plus d'étoiles d'abord), égalité : ordre donné
+    TileStats o;
+    o.setRating("k2", 3);
+    o.setRating("k4", 5);
+    o.setRating("k1", 3);
+    const std::vector<std::string> keys = {"k0", "k1", "k2", "k3", "k4"};
+    const std::vector<size_t> got = ratingOrder(keys, o);
+    const size_t want[] = {4, 1, 2, 0, 3};
+    TEST_ASSERT_EQUAL(5, (int)got.size());
+    for (size_t i = 0; i < 5; ++i) TEST_ASSERT_EQUAL((int)want[i], (int)got[i]);
+    TEST_ASSERT_EQUAL(0, (int)ratingOrder({}, o).size());
 }
 
 static void test_tile_kind() {
@@ -110,4 +172,5 @@ void run_tiles_tests() {
     RUN_TEST(test_tile_played_and_order);
     RUN_TEST(test_tile_stats_text);
     RUN_TEST(test_tile_stats_full);
+    RUN_TEST(test_tile_rating);
 }

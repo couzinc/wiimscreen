@@ -11,6 +11,19 @@ void Ui::heartIcon(int cx, int cy, int s, uint32_t c) {
     C.fillTriangle(cx - 2 * r + 1, cy - s / 8, cx + 2 * r - 1, cy - s / 8, cx, cy + s, c);
 }
 
+// Étoile : dix sommets (pointes et creux), remplie par dix triangles depuis le centre
+void Ui::starIcon(int cx, int cy, int r, uint32_t c) {
+    auto& C = canvas_;
+    int px[10], py[10];
+    for (int k = 0; k < 10; ++k) {
+        const float a = -1.5707963f + k * 0.6283185f;  // première pointe en haut, pas de 36°
+        const float d = (k & 1) ? r * 0.42f : (float)r;
+        px[k] = cx + (int)lroundf(d * cosf(a));
+        py[k] = cy + (int)lroundf(d * sinf(a));
+    }
+    for (int k = 0; k < 10; ++k) C.fillTriangle(cx, cy, px[k], py[k], px[(k + 1) % 10], py[(k + 1) % 10], c);
+}
+
 // Micro : capsule, arceau et pied (s : demi-hauteur de l'icône)
 void Ui::micIcon(int cx, int cy, int s, uint32_t c, uint32_t bg) {
     auto& C = canvas_;

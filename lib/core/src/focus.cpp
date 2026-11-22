@@ -200,8 +200,8 @@ const char* actName(Act act) {
                                          "dots", "preset", "strip", "fav", "transport", "ambientexit", "menuchoice", "tilechoice", "libfilter", "libtile", "libpage",
                                          "pickdevice", "pickretry", "picksetup", "logclose", "logqueue", "touchclose",
                                          "source", "mic", "key", "resultrow", "resultheart", "resultspage",
-                                         "resultsedit", "resultsplayall", "updatecancel", "updateinstall"};
-    static_assert(sizeof kNames / sizeof kNames[0] == (size_t)Act::UpdateInstall + 1, "one name per Act");
+                                         "resultsedit", "resultsplayall", "updatecancel", "updateinstall", "tilerate"};
+    static_assert(sizeof kNames / sizeof kNames[0] == (size_t)Act::TileRate + 1, "one name per Act");
     const size_t i = (size_t)act;
     return i < sizeof kNames / sizeof kNames[0] ? kNames[i] : "?";
 }

@@ -104,15 +104,22 @@ public:
     enum MenuChoice { MenuNone = -1, MenuConfig = 0, MenuUpdate, MenuTouch, MenuLog, MenuSleep, MenuClose };
     void renderMenu(const char* version);  // éléments MenuChoice (arg = MenuChoice)
 
-    // Menu d'une tuile (appui long) : son image et son nom, Épingler / Désépingler, Retirer des favoris (removable),
-    // Fermer. Éléments TileChoice (arg = TileChoice)
+    // Menu d'une tuile (appui long) : son image et son nom, sa note (cinq étoiles, `rating` pleines), Épingler /
+    // Désépingler, Retirer des favoris (removable), Fermer. Éléments TileRate (arg = 1..5) et TileChoice
+    // (arg = TileChoice)
     enum TileChoice { TilePin = 0, TileRemove, TileClose };
-    void renderTileMenu(int index, bool pinned, bool removable);
+    void renderTileMenu(int index, bool pinned, bool removable, int rating = 0);
+    void updateTileStars(int rating);  // menu d'une tuile montré : ses étoiles redessinées seules (presentRect)
 
-    // Bibliothèque : toutes les tuiles en grille. shown : indices des tuiles à montrer (filtre appliqué, dans l'ordre
-    // de la bande) ; filters : filtres proposés (wr::TileKind, -1 = toutes) ; filter : le choisi ; pressed : tuile
-    // enfoncée (-1). Éléments LibFilter, LibTile (arg = indice global), LibPage. Rend la page montrée (bornée).
-    int renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed = -1);
+    // Bibliothèque : toutes les tuiles en grille. shown : indices des tuiles à montrer, dans l'ordre affiché (filtre
+    // appliqué, notées d'abord) ; filters : filtres proposés (wr::TileKind, -1 = toutes) ; filter : le choisi ;
+    // pressed : tuile enfoncée (-1) ; follow : tuile dont la page est montrée à la place de `page` (-1, ou absente :
+    // `page`). Éléments LibFilter, LibTile (arg = indice global), LibPage. Rend la page montrée (bornée).
+    int renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed = -1,
+                      int follow = -1);
+    // Notes des tuiles pour la Bibliothèque (étoiles sur l'image) : stars[i] pour la tuile i, 0 = aucune. À donner
+    // avant renderLibrary ; gardées pour updateLibraryTile
+    void setLibraryStars(std::vector<int> stars) { libStars_ = std::move(stars); }
     // Une tuile de la Bibliothèque montrée redessinée seule (image arrivée, doigt posé ou relevé) ; false si elle
     // n'est pas à l'écran (autre page, autre écran)
     bool updateLibraryTile(int index, bool pressed);
@@ -192,7 +199,12 @@ private:
     void volumePill(const UiState& st, int pressed);
     void tile(int slot, int index, bool pressed);
     std::vector<std::pair<int, wr::Rect>> libTiles_;  // tuiles de la Bibliothèque à l'écran (indice, rectangle)
-    void tileAt(const wr::Rect& r, int index, bool pressed);  // tuile `index` dans le rectangle r (bande, Bibliothèque)
+    std::vector<int> libStars_;                        // notes des tuiles (setLibraryStars)
+    wr::Rect tileStars_{};                             // carte des étoiles du menu d'une tuile (vide : menu pas montré)
+    void drawTileStars(int rating);
+    int libStars(int index) const { return index >= 0 && index < (int)libStars_.size() ? libStars_[index] : 0; }
+    // Tuile `index` dans le rectangle r (bande, Bibliothèque) ; stars > 0 : ses étoiles en bas de l'image
+    void tileAt(const wr::Rect& r, int index, bool pressed, int stars = 0);
     void tileArt(int index, int x, int y, uint32_t bg);  // image de la tuile (ou monogramme, grand cœur), côté thumbSide()
     void pageDots();
     void toast(const String& msg);
@@ -208,6 +220,7 @@ private:
     void drawKey(int index, bool down);
     void emptyStrip();         // bande des presets sans preset
     void heartIcon(int cx, int cy, int s, uint32_t color);
+    void starIcon(int cx, int cy, int r, uint32_t color);  // étoile à cinq branches, r : rayon des pointes
     void favButton();
     void controlsTargets();  // inscrit les éléments touchables de la vue commandes (fin de render())
     void focusRing();        // anneau du focus sur canvas_ (ui_widgets.cpp), si la source le demande

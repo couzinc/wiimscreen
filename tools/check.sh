@@ -110,6 +110,14 @@ sim_taps() {
         echo "$out"
         return 1
     fi
+    local want
+    for want in "[tile.rate] stars=4 |" "[tile.rate] stars=0 |"; do
+        if ! grep -qF "$want" <<<"$out"; then
+            echo "check.sh: sim: '$want' missing in the taps.txt run (stars of the tile menu):"
+            echo "$out"
+            return 1
+        fi
+    done
     if ! grep -qF "[update.github] tag=v9.9.9-beta |" <<<"$out"; then
         echo "check.sh: sim: the taps.txt run did not tap Install on the update screen:"
         echo "$out"

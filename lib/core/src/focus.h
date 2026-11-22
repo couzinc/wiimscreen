@@ -60,6 +60,8 @@ enum class Act : uint8_t {
     // Update screen
     UpdateCancel,
     UpdateInstall,  // install the version found on GitHub
+    // Tile menu (after the others: the order above is unchanged)
+    TileRate,  // arg = stars (1..5) of the star touched
 };
 
 // Flags of a target

@@ -16,7 +16,7 @@ const TileUse* TileStats::find(const std::string& key) const {
 }
 
 // Entrée de la clé, créée au besoin ; nullptr si la clé ne peut pas être enregistrée. Liste pleine : la plus
-// ancienne non épinglée part (toutes épinglées : pas de nouvelle entrée).
+// ancienne ni épinglée ni notée part (toutes gardées : pas de nouvelle entrée).
 static TileUse* entry(TileStats& s, const std::string& key) {
     if (!storableKey(key)) return nullptr;
     for (TileUse& u : s.uses)
@@ -24,7 +24,7 @@ static TileUse* entry(TileStats& s, const std::string& key) {
     if (s.uses.size() >= TileStats::kMax) {
         auto old = s.uses.end();
         for (auto it = s.uses.begin(); it != s.uses.end(); ++it)
-            if (!it->pin && (old == s.uses.end() || it->last < old->last)) old = it;
+            if (!it->pin && !it->rating && (old == s.uses.end() || it->last < old->last)) old = it;
         if (old == s.uses.end()) return nullptr;
         s.uses.erase(old);
     }
@@ -56,6 +56,26 @@ bool TileStats::pinned(const std::string& key) const {
     return u && u->pin;
 }
 
+bool TileStats::setRating(const std::string& key, int stars) {
+    if (stars < 0 || stars > kMaxRating) return false;
+    if (stars == 0) {
+        for (TileUse& u : uses)
+            if (u.key == key) u.rating = 0;
+        return true;
+    }
+    TileUse* u = entry(*this, key);
+    if (!u) return false;
+    u->rating = (uint32_t)stars;
+    return true;
+}
+
+int TileStats::toggledRating(const std::string& key, int stars) const { return stars == rating(key) ? 0 : stars; }
+
+int TileStats::rating(const std::string& key) const {
+    const TileUse* u = find(key);
+    return u ? (int)u->rating : 0;
+}
+
 std::string tileKey(const Preset& p) {
     std::string k = p.favId.empty() ? "preset:" + std::to_string(p.slot) : p.favId;
     return storableKey(k) ? k : std::string();
@@ -74,6 +94,9 @@ std::string tileStatsToText(const TileStats& s) {
         if (!storableKey(u.key)) continue;
         out += u.key + "\t" + std::to_string(u.last) + "\t" + std::to_string(u.count) + "\t" + std::to_string(u.pin) + "\n";
     }
+    // Notes à part, après les entrées : les versions d'avant les ignorent (3 colonnes) et gardent la ligne de la tuile
+    for (const TileUse& u : s.uses)
+        if (u.rating && storableKey(u.key)) out += "rate\t" + u.key + "\t" + std::to_string(u.rating) + "\n";
     return out;
 }
 
@@ -88,6 +111,7 @@ static bool parseCount(const std::string& t, uint32_t& v) {
 
 TileStats tileStatsFromText(const std::string& text) {
     TileStats s;
+    std::vector<std::pair<std::string, uint32_t>> rates;  // lignes "rate", appliquées une fois les entrées lues
     size_t start = 0;
     while (start < text.size()) {
         size_t end = text.find('\n', start);
@@ -107,6 +131,11 @@ TileStats tileStatsFromText(const std::string& text) {
             if (parseCount(f[1], v)) s.seq = std::max(s.seq, v);
             continue;
         }
+        if (f.size() == 3 && f[0] == "rate") {
+            uint32_t v;
+            if (parseCount(f[2], v) && v >= 1 && v <= (uint32_t)TileStats::kMaxRating) rates.push_back({f[1], v});
+            continue;
+        }
         TileUse u;
         u.key = f[0];
         if (f.size() != 4 || !storableKey(u.key) || s.find(u.key) || s.uses.size() >= TileStats::kMax) continue;
@@ -114,6 +143,9 @@ TileStats tileStatsFromText(const std::string& text) {
         s.seq = std::max(s.seq, u.last);  // compteur jamais en arrière d'une entrée
         s.uses.push_back(u);
     }
+    for (const auto& r : rates)  // note d'une tuile sans entrée : ignorée
+        for (TileUse& u : s.uses)
+            if (u.key == r.first) u.rating = r.second;
     return s;
 }
 
@@ -129,6 +161,17 @@ std::vector<size_t> tileOrder(const std::vector<std::string>& keys, const TileSt
         return {2, 0};
     };
     std::stable_sort(order.begin(), order.end(), [&](size_t a, size_t b) { return rank(a) < rank(b); });
+    return order;
+}
+
+std::vector<size_t> ratingOrder(const std::vector<std::string>& keys, const TileStats& s) {
+    std::vector<size_t> order(keys.size());
+    std::vector<int> stars(keys.size());
+    for (size_t i = 0; i < keys.size(); ++i) {
+        order[i] = i;
+        stars[i] = s.rating(keys[i]);
+    }
+    std::stable_sort(order.begin(), order.end(), [&](size_t a, size_t b) { return stars[a] > stars[b]; });
     return order;
 }
 

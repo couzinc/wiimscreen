@@ -1,4 +1,4 @@
-# Taps on every element of every screen (1280x720): controls, Settings menu, Journal, touch test, update screen,
+# Taps on every element of every screen (1280x720): controls, tile menu (stars), Settings menu, Journal, touch test, update screen,
 # search keyboard (sources, keys, dictation), results (pages, Edit, a row), rail buttons on each screen, and Sleep at
 # the end (the program stops there). Run: .pio/build/sim/program --headless --reset --script tools/sim/scripts/taps.txt
 # The Journal lines on the terminal ("Appui ...", screens opened) are what a change of the tap dispatch must keep.
@@ -60,6 +60,26 @@ wait 3000
 shot taps-04-coeur
 tap 651 348
 wait 600
+# Tile menu (finger held on the first tile): 4 stars, the same star again (rating cleared), 4 stars, Close; then the
+# Library shows the rating on the tile, and Home
+press 208 584
+wait 900
+release
+wait 400
+tap 838 346
+wait 300
+shot taps-04b-note
+tap 838 346
+wait 300
+tap 838 346
+wait 300
+tap 690 541
+wait 400
+tap 50 261
+wait 600
+shot taps-04c-bibliotheque-note
+tap 50 64
+wait 400
 # Nothing here (rail between its buttons)
 tap 30 160
 wait 300

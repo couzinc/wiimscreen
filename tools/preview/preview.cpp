@@ -166,16 +166,20 @@ int main(int argc, char** argv) {
         ui.setFavorite(2);
         ui.render(st);
         save(out, "23-favoris.ppm");
-        // Menu d'une tuile (appui long) : favori de la télécommande (Retirer proposé), puis preset épinglé
-        ui.renderTileMenu(2, false, true);
+        // Menu d'une tuile (appui long) : favori de la télécommande noté 4 étoiles (Retirer proposé), puis preset
+        // épinglé sans note
+        ui.renderTileMenu(2, false, true, 4);
         save(out, "49-menu-tuile.ppm");
         ui.renderTileMenu(0, true, false);
         save(out, "50-menu-tuile-epinglee.ppm");
-        // Bibliothèque : toutes les tuiles, filtres des sortes présentes (presets, favoris, Qobuz)
-        ui.renderLibrary({0, 1, 2, 3, 4}, {-1, 0, 1, 2, 3}, -1, 0);  // les quatre sortes : 800x480 aussi
+        // Bibliothèque : toutes les tuiles, filtres des sortes présentes (presets, favoris, Qobuz) ; les notées
+        // d'abord (5 et 2 étoiles)
+        ui.setLibraryStars({2, 0, 0, 5, 0});
+        ui.renderLibrary({3, 0, 1, 2, 4}, {-1, 0, 1, 2, 3}, -1, 0);  // les quatre sortes : 800x480 aussi
         save(out, "51-bibliotheque.ppm");
         ui.renderLibrary({2, 3}, {-1, 0, 1, 2}, 1, 0, 2);  // filtre Favoris, tuile enfoncée
         save(out, "52-bibliotheque-favoris.ppm");
+        ui.setLibraryStars({});
         UiState wait = st;
         wait.pending = wr::kNext;  // ⏭ envoyé, le WiiM n'a pas encore changé de morceau
         ui.render(wait);
