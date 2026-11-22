@@ -3,6 +3,7 @@
 
 #include <esp_heap_caps.h>
 
+#include <algorithm>
 #include <cstring>
 
 #include "app/app_internal.h"
@@ -40,7 +41,9 @@ static void applyPresets(const std::vector<wr::Preset>& list) {
             for (auto& p : g_tiles.list) used |= p.picUrl == it->first;
             it = used ? std::next(it) : g_img.presets.erase(it);
         }
-    g_ui.setPresets(g_tiles.list);
+    int strip = 0;  // listes de favoris (Qobuz, Deezer) en dernier : Bibliothèque seulement (refreshTiles)
+    while (strip < (int)g_tiles.list.size() && !g_tiles.list[strip].list) ++strip;
+    g_ui.setPresets(g_tiles.list, strip);
     g_active.index = -1;
     for (size_t i = 0; !activeKey.empty() && i < g_tiles.list.size(); ++i)
         if (wr::tileKey(g_tiles.list[i]) == activeKey) {
@@ -119,6 +122,9 @@ void refreshTiles() {
     for (auto& p : list) keys.push_back(wr::tileKey(p));
     std::vector<wr::Preset> sorted;
     for (size_t i : wr::tileOrder(keys, g_tiles.shown, g_settings.recentFirst)) sorted.push_back(list[i]);
+    // Listes « Favoris Qobuz / Deezer » : pas sur la bande, dans la Bibliothèque (filtre Qobuz / Deezer) ; en dernier,
+    // la bande montre les tuiles d'avant (applyPresets)
+    std::stable_partition(sorted.begin(), sorted.end(), [](const wr::Preset& p) { return !p.list; });
     if (samePresets(sorted, g_tiles.list)) return;
     applyPresets(sorted);
     show();

@@ -1,6 +1,6 @@
 // Bibliothèque : toutes les tuiles (presets, favoris, albums et listes des comptes) en grille, avec des filtres par
-// sorte de tuile. Les tuiles notées d'abord (plus d'étoiles d'abord), puis l'ordre de la bande (épinglées, dernières
-// lancées). Appuis et appui long : main.cpp
+// sorte de tuile. Les listes « Favoris Qobuz / Deezer » d'abord (seulement ici, pas sur la bande), puis les notées
+// (plus d'étoiles d'abord), puis l'ordre de la bande (épinglées, dernières lancées). Appuis et appui long : main.cpp
 // (activateLibrary, serviceLibraryTouch), qui partagent playPreset() et le menu de la tuile avec la bande.
 
 #include "app/app_internal.h"
@@ -24,6 +24,8 @@ void renderLibrary(int pressed) {
     for (int i : picked) keys.push_back(wr::tileKey(g_tiles.list[i]));
     std::vector<int> shown;
     for (size_t k : wr::ratingOrder(keys, g_tiles.stats)) shown.push_back(picked[k]);
+    // Listes « Favoris Qobuz / Deezer » en tête : elles ne sont que dans la Bibliothèque (pas sur la bande)
+    std::stable_partition(shown.begin(), shown.end(), [](int i) { return g_tiles.list[i].list; });
     std::vector<int> stars(g_tiles.list.size());
     for (size_t i = 0; i < g_tiles.list.size(); ++i) stars[i] = g_tiles.stats.rating(wr::tileKey(g_tiles.list[i]));
     g_ui.setLibraryStars(std::move(stars));

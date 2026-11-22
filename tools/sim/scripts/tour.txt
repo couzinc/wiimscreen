@@ -30,7 +30,12 @@ move 300 585
 release
 wait 600
 shot tour-08-page2
-tap 208 640
+# Qobuz favorites: no longer on the strip; Library › Qobuz › the list (first)
+tap 50 261
+wait 600
+tap 557 56
+wait 400
+tap 305 195
 wait 1200
 shot tour-09-favoris-qobuz
 tap 50 458

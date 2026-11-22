@@ -142,10 +142,11 @@ has search.cancelled "reason=status " "search cancelled without the player statu
 ! mocklog | grep -q "upnp DeleteQueue\|upnp CreateQueue\|setPlayerCmd:mute:1" || fail "no queue change without the player status"
 is status play "music untouched without the player status"
 is mute 0 "sound untouched without the player status"
-# 7. Qobuz favorites tile (third tile, after the two presets): the list, then "Play all" (990,59): shuffle off, first
-#    favorite; the list again, then "Shuffle" (1177,59): shuffle on again
+# 7. Qobuz favorites (Library (50,261), first tile (305,195): the lists come first, not on the strip): the list, then
+#    "Play all" (990,59): shuffle off, first favorite; the list again, then "Shuffle" (1177,59): shuffle on again
 mock reset
-run "wait 3000\ntap 592 585\nwait 16000\ntap 990 59\nwait 9000\ntap 592 585\nwait 16000\ntap 1177 59\nwait 9000\nquit\n"
+LIB="tap 50 261\nwait 1500\ntap 305 195\n"
+run "wait 3000\n${LIB}wait 16000\ntap 990 59\nwait 9000\n${LIB}wait 16000\ntap 1177 59\nwait 9000\nquit\n"
 has favlist.play "deezer=0 shuffle=0 ok=1 " "Qobuz favorites played in order"
 has play.result "create=200 play=200 index=1 " "first favorite played"
 has favlist.play "deezer=0 shuffle=1 ok=1 " "Qobuz favorites shuffled"

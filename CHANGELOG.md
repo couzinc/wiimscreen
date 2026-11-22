@@ -5,6 +5,10 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Changed
+- **Qobuz favorites and Deezer favorites** are no longer on the main strip: open the Library, touch **Qobuz** (or
+  **Deezer**), and the favorites panel comes first.
+
 ## [0.6.1-beta] — 2026-11-22 — Install fixes
 
 **Tab5:** install this one from the upload page (⚙ › Update, QR code): **Install** in v0.5.x and v0.6.0-beta has

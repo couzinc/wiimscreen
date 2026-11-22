@@ -1487,7 +1487,7 @@ static void moveFocus(const wr::Target& cur, wr::Dir d) {
         if (g_ui.page() != before) {
             sound::tap();
             const int first = g_ui.page() * g_ui.perPage();
-            const int last = std::min((int)g_tiles.list.size(), first + g_ui.perPage()) - 1;
+            const int last = std::min(g_ui.stripCount(), first + g_ui.perPage()) - 1;
             spot.act = wr::Act::Preset;
             spot.arg = d == wr::Dir::Right ? first : last;
             show();

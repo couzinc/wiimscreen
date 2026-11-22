@@ -145,7 +145,8 @@ int main(int argc, char** argv) {
     save(out, "1-lecture.ppm");
     {
         // Presets du WiiM suivis de favoris de la télécommande (petit cœur, titre court et artiste, comme
-        // refreshTiles()), album en cours déjà favori, puis la tuile de la liste « Favoris Qobuz »
+        // refreshTiles()), album en cours déjà favori, puis la liste « Favoris Qobuz » en dernier : pas sur la bande
+        // (4 tuiles), dans la Bibliothèque
         std::vector<wr::Preset> mix(six.begin(), six.begin() + 2);
         wr::Preset f1{101, wr::shortTitle("Kind of Blue (Legacy Edition)"), "x"};
         f1.favId = "a1";
@@ -159,7 +160,7 @@ int main(int argc, char** argv) {
         mix.push_back(f1);
         mix.push_back(f2);
         mix.push_back(f3);
-        ui.setPresets(mix);
+        ui.setPresets(mix, 4);
         for (int i = 0; i < 2; ++i) ui.setPresetArt(i, &thumbs[i]);
         ui.setPresetArt(2, &thumbs[3]);
         ui.setActivePreset(2);
@@ -172,10 +173,10 @@ int main(int argc, char** argv) {
         save(out, "49-menu-tuile.ppm");
         ui.renderTileMenu(0, true, false);
         save(out, "50-menu-tuile-epinglee.ppm");
-        // Bibliothèque : toutes les tuiles, filtres des sortes présentes (presets, favoris, Qobuz) ; les notées
-        // d'abord (5 et 2 étoiles)
+        // Bibliothèque : toutes les tuiles, filtres des sortes présentes (presets, favoris, Qobuz) ; la liste
+        // « Favoris Qobuz » d'abord, puis les notées (5 et 2 étoiles)
         ui.setLibraryStars({2, 0, 0, 5, 0});
-        ui.renderLibrary({3, 0, 1, 2, 4}, {-1, 0, 1, 2, 3}, -1, 0);  // les quatre sortes : 800x480 aussi
+        ui.renderLibrary({4, 3, 0, 1, 2}, {-1, 0, 1, 2, 3}, -1, 0);  // les quatre sortes : 800x480 aussi
         save(out, "51-bibliotheque.ppm");
         ui.renderLibrary({2, 3}, {-1, 0, 1, 2}, 1, 0, 2);  // filtre Favoris, tuile enfoncée
         save(out, "52-bibliotheque-favoris.ppm");

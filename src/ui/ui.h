@@ -49,7 +49,9 @@ public:
     void begin(const Settings& s);
 
     // Liste des presets (revient à la première page)
-    void setPresets(const std::vector<wr::Preset>& presets);
+    // Tuiles : `presets` toutes (Bibliothèque, menu d'une tuile) ; la bande montre les `strip` premières (-1 : toutes)
+    void setPresets(const std::vector<wr::Preset>& presets, int strip = -1);
+    int stripCount() const { return stripCount_; }
     // Image du preset i (nullptr : pas d'image). L'image doit rester valide.
     void setPresetArt(int index, const ArtImage* img);
     // Preset en cours de lecture (-1 : aucun), marqué d'un contour et d'une icône
@@ -199,6 +201,7 @@ private:
     void volumePill(const UiState& st, int pressed);
     void tile(int slot, int index, bool pressed);
     std::vector<std::pair<int, wr::Rect>> libTiles_;  // tuiles de la Bibliothèque à l'écran (indice, rectangle)
+    int stripCount_ = 0;                               // tuiles de la bande : les premières de presets_
     std::vector<int> libStars_;                        // notes des tuiles (setLibraryStars)
     wr::Rect tileStars_{};                             // carte des étoiles du menu d'une tuile (vide : menu pas montré)
     void drawTileStars(int rating);
