@@ -5,6 +5,15 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [0.5.1-beta] — 2026-11-22 — Test of Install
+
+**Tab5:** the same firmware as v0.5.0-beta. This version is here so that **Install** has a newer version to
+offer: on a Tab5 with v0.5.0-beta, open ⚙ › Update and touch **Install**. If the download or the restart fails,
+send the Journal lines that start with `Mise à jour GitHub`. v0.5.0-beta still works.
+
+### Changed
+- **Release notes** on GitHub say that ⚙ › Update › **Install** downloads the firmware from v0.5.0-beta on.
+
 ## [0.5.0-beta] — 2026-11-21 — Update from GitHub, navigation bar
 
 **Tab5:** checked in the simulator only: not checked on a Tab5 yet. Install this version one time from a phone or a
