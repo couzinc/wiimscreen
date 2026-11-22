@@ -56,7 +56,7 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `lib/core/src/dsp.*` | FFT spectrum bands, visualizer smoothing, motion detector |
 | `lib/core/src/voice.*` | WAV header for the dictation; still declares the text and Deezer functions through its includes |
 | `lib/core/src/tiles.*` | Tile kind (`tileKind`: Library filters) and tile history and order: `TileStats` (last play as a counter, play count, pins, ratings 0–5; `played`, `setPin`, `setRating`, `rename`), `tileKey` (presets: `station:<name>`; `migratePresetKeys` moves the old `preset:<slot>` entries once), text file format (rating column only when set), `tileOrder` (pinned, then last played, then the given order), `ratingOrder` (Library: most stars first) |
-| `lib/core/src/appstate.*` | Main-loop timing decisions without hardware: wrap-safe `expired`, `idleAction` (ambient, dim, screen off, sleep), `musicSettled` |
+| `lib/core/src/appstate.*` | Main-loop timing decisions without hardware: wrap-safe `expired`, `idleAction` (ambient, dim, screen off, sleep), `musicSettled`, `bootNote` (rollback report, `kBootTrialMs`) |
 | `lib/core/src/keys.*` | Key input without hardware: `NavKey`, `KeyEvent`, `KeyTracker` (raw down/up → press, long press on OK, repeat on arrows/Backspace; wrap-safe), key names for scripts |
 | `lib/core/src/decisions.*` | App decisions without hardware: pending-command confirmation, what to do after a search through a WiiM queue, queue stability, track index in a queue, dictation clean-up |
 | `lib/core/src/firmware.*` | OTA stream filter (accepts app-only or merged images); GitHub release list (`parseLatestRelease`: tag, file URL, SHA-256, size) and version order (`compareVersions`, `releaseOffer`) |
@@ -92,6 +92,7 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `src/net/ca_bundle.h` | Embedded Mozilla root certificates |
 | `src/device/portal.*` / `src/device/ota.*` | Setup portal (Wi-Fi AP + captive DNS) / Update screen: OTA upload page, and the GitHub check (own task, on open) and **Install** (download written while it arrives, size + SHA-256 checked before `Update.end`) |
 | `src/device/web_style.h` | Shared self-contained CSS for both web pages (no external resources: the phone is offline on the AP) |
+| `src/device/boot_check.*` | Automatic rollback: `verifyRollbackLater()` keeps a new version on trial (bootloader rollback); `bootcheck::begin` (start of `setup()`, Journal + message after a rollback), `bootcheck::confirm` after `wr::kBootTrialMs` or before a wanted restart |
 | `src/device/sound.*` | Taps and beeps on the speaker |
 | `src/device/key_input.*` | `takeKey()`: key events for the app (`loop()` reads them: `serviceKeys()` in `main.cpp`). `key_input.cpp` = Tab5, none; PC: `platform/pc/pc_platform_keys.cpp` |
 | `src/storage/settings.*` | NVS-backed settings (+ LittleFS backup copy); one table `kFields` lists every setting for both |
@@ -177,6 +178,10 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
   summary to the Journal; resolve the addresses with `riscv32-esp-elf-addr2line` and the `.elf` of the same build
   (CI paths: `-ffile-prefix-map=<repo>=/home/runner/work/wiimscreen/wiimscreen` and
   `~/.platformio=/home/runner/.platformio`, `FW_VERSION` = the tag, give the same code).
+- **Automatic rollback** (`src/device/boot_check.*`): a version installed by an update stays "on trial" until
+  `bootcheck::confirm()`; any restart before that boots the previous slot. Every restart or power-off we ask for
+  (`ESP.restart()`, `M5.Power.powerOff()`) calls `bootcheck::confirm(...)` first, else a setup-mode restart in the
+  first 45 s would undo the update. The Arduino core's own early confirmation is off (`verifyRollbackLater()`).
 - **Never call the WiiM from the main loop.** Each request opens a TLS connection (1–3 s on the P4); doing it in
   `loop()` froze the screen and dropped taps. Use `g_worker.command()` (non-blocking), update `g_state`
   optimistically, and let `serviceWiim()` apply reports and errors. `WiimClient` keeps the TLS connection open

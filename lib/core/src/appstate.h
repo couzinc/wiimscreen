@@ -3,6 +3,7 @@
 // Timing decisions of the main loop (screen, sleep, waiting rings), without hardware: unit-tested in test/test_core.
 
 #include <cstdint>
+#include <string>
 
 #include "core.h"
 
@@ -41,5 +42,16 @@ IdleAction idleAction(const IdleInput& in, const IdleTimes& t = IdleTimes());
 // what already plays, or a radio without title, never gives one: it also counts as confirmed when the WiiM plays (not
 // loading) after it was seen loading, or readyMs after the command reached the WiiM.
 bool musicSettled(const PlayerStatus& now, bool sawLoading, uint32_t sinceReadyMs, uint32_t readyMs = 4000);
+
+// After an update the Tab5 runs the new version "on trial" until it has run kBootTrialMs without stopping (or
+// restarts on purpose); a restart before that makes the bootloader go back to the previous version. The version on
+// trial stores its name first, so that the version that comes back can say which one stopped.
+constexpr uint32_t kBootTrialMs = 45000;
+enum class BootNote {
+    None,        // nothing stored, or this version is the one on trial
+    RolledBack,  // another version was on trial and this one runs: that version stopped during its trial
+    Stale,       // the stored name is this version's own (trial ended without the mark, USB flash…): forget it
+};
+BootNote bootNote(bool onTrial, const std::string& stored, const std::string& running);
 
 }  // namespace wr

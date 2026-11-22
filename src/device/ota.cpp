@@ -13,6 +13,7 @@
 #include <atomic>
 #include <functional>
 
+#include "device/boot_check.h"
 #include "firmware.h"
 #include "i18n.h"
 #include "app/log.h"
@@ -404,6 +405,7 @@ void runUpdateMode(Ui& ui) {
         if (done) {
             draw(100, result);
             delay(1500);  // laisse partir la réponse au navigateur
+            bootcheck::confirm("mise \xC3\xA0 jour install\xC3\xA9" "e");
             ESP.restart();
         }
         if (offer.state == GithubOffer::Checking && g_check.done) {

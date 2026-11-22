@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "device/boot_check.h"
 #include "storage/favorites.h"
 #include "i18n.h"
 #include "voice.h"
@@ -466,6 +467,7 @@ void runSetupPortal(Settings& s, Ui& ui, const String& reason) {
             fav::eraseAll();
             server.send(200, "text/html; charset=utf-8", wipedPage());
             delay(1500);
+            bootcheck::confirm("configuration");
             ESP.restart();
             return;
         }
@@ -539,6 +541,7 @@ void runSetupPortal(Settings& s, Ui& ui, const String& reason) {
         saveSettings(next);
         server.send(200, "text/html; charset=utf-8", donePage(next.ssid));
         delay(1500);
+        bootcheck::confirm("configuration");
         ESP.restart();
     });
 
@@ -563,6 +566,7 @@ void runSetupPortal(Settings& s, Ui& ui, const String& reason) {
             ui.showInfo(wr::L("Setup", "Configuration"),
                         wr::L("Cancelled: restarting\xE2\x80\xA6", "Annul\xC3\xA9" "e : red\xC3\xA9marrage\xE2\x80\xA6"));
             delay(400);
+            bootcheck::confirm("configuration");
             ESP.restart();
         }
         delay(2);

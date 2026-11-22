@@ -174,10 +174,12 @@ approximately $0.003 for each minute of sound when we wrote this file.
 2. Connect a phone or a computer to the same Wi-Fi network. Scan the QR code, or type the address (`http://`).
 3. Type the code, select the new `.bin` file, then click **Install**.
 
-If the page does not open on a phone, turn off mobile data. On an iPhone with a browser other than Safari, allow
+The page works only while the Tab5 shows the Update screen. The code changes each time. If the page does not open
+on a phone, turn off mobile data. On an iPhone with a browser other than Safari, allow
 "Local Network" for this browser.
 
-An update keeps your settings and favorites. A full USB flash at `0x0` also keeps them: the Tab5 keeps a copy and
+If a new version stops during its first 45 seconds, the Tab5 restarts on the previous version and tells you (from
+v0.6.4-beta). An update keeps your settings and favorites. A full USB flash at `0x0` also keeps them: the Tab5 keeps a copy and
 puts it back. To erase everything, use **Advanced** › **Erase everything** in the setup page.
 
 </details>

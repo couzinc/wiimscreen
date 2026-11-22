@@ -43,6 +43,7 @@
 #include "dsp.h"
 #include "storage/favorites.h"
 #include "app/log.h"
+#include "device/boot_check.h"
 #include "device/ota.h"
 #include "device/portal.h"
 #include "storage/settings.h"
@@ -382,6 +383,7 @@ static void restartIntoPortal(const String& reason) {
     g_ui.showInfo(wr::L("Setup", "Configuration"),
                   wr::L("The Tab5 is restarting in setup mode\xE2\x80\xA6", "Le Tab5 red\xC3\xA9marre en mode configuration\xE2\x80\xA6"));
     delay(600);
+    bootcheck::confirm("mode configuration");
     ESP.restart();
 }
 
@@ -400,6 +402,7 @@ static void goToSleep(const char* why) {
     setBrightness(kBrightOn);
     delay(2500);
     setBrightness(0);
+    bootcheck::confirm("mise en veille");
     M5.Power.powerOff();  // ne revient pas (coupure, ou sommeil profond)
 }
 
@@ -1770,6 +1773,9 @@ void setup() {
     auto cfg = M5.config();
     M5.begin(cfg);
     Serial.begin(115200);
+    // Version à l'essai après une mise à jour : confirmée après 45 s sans arrêt, sinon la précédente revient
+    char stopped[40] = {};
+    const bool rolledBack = bootcheck::begin(FW_VERSION, stopped, sizeof stopped);
     // Avant tout appel Wi-Fi (y compris le portail de configuration)
     WiFi.setPins(kSdioClk, kSdioCmd, kSdioD0, kSdioD1, kSdioD2, kSdioD3, kSdioRst);
     setBrightness(kBrightOn);
@@ -1818,6 +1824,11 @@ void setup() {
     g_state.online = true;  // jusqu'au premier relevé (une seconde environ)
     g_state.battery = batteryLevel();
     g_idle.lastTouch = g_idle.lastPlayingAt = millis();
+    if (rolledBack)
+        setMessage(String(wr::L("Version ", "La version ")) + stopped +
+                       wr::L(" stopped at start: the previous version is back.",
+                             " s'est arr\xC3\xAAt\xC3\xA9" "e au d\xC3\xA9marrage : la version d'avant est remise."),
+                   15000);
     show();
 }
 

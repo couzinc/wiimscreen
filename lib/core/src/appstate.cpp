@@ -24,4 +24,9 @@ bool musicSettled(const PlayerStatus& now, bool sawLoading, uint32_t sinceReadyM
     return now.playing && !now.loading && (sawLoading || sinceReadyMs >= readyMs);
 }
 
+BootNote bootNote(bool onTrial, const std::string& stored, const std::string& running) {
+    if (onTrial || stored.empty()) return BootNote::None;
+    return stored == running ? BootNote::Stale : BootNote::RolledBack;
+}
+
 }  // namespace wr

@@ -87,8 +87,17 @@ static void test_app_music_settled() {
     TEST_ASSERT_FALSE(musicSettled(st, true, 9000));
 }
 
+static void test_app_boot_note() {
+    TEST_ASSERT_TRUE(bootNote(true, "", "v2") == BootNote::None);
+    TEST_ASSERT_TRUE(bootNote(true, "v1", "v2") == BootNote::None);  // à l'essai : il écrira son propre nom
+    TEST_ASSERT_TRUE(bootNote(false, "", "v1") == BootNote::None);
+    TEST_ASSERT_TRUE(bootNote(false, "v2", "v1") == BootNote::RolledBack);
+    TEST_ASSERT_TRUE(bootNote(false, "v1", "v1") == BootNote::Stale);
+}
+
 void run_appstate_tests() {
     RUN_TEST(test_app_expired);
     RUN_TEST(test_app_idle);
     RUN_TEST(test_app_music_settled);
+    RUN_TEST(test_app_boot_note);
 }

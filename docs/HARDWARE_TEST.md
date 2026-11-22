@@ -98,6 +98,8 @@ The Journal masks tokens and passwords, but check anyway.
 | 6.4 | Touch **Installer**. | Progress bar « Téléchargement de vX depuis GitHub… » (about 3 MB); the Tab5 restarts on vX (bottom of the Settings menu). Settings and favorites kept. |
 | 6.5 | Again ⚙ › **Mise à jour** on the latest version. | « À jour », no **Installer** button. |
 | 6.6 | Optional: ⚙ › **Mise à jour** on an older version, **Installer**, then **Annuler** during the download. | « Téléchargement annulé : rien n'a changé. »; the old version still runs after Annuler. |
+| 6.7 | From v0.6.4-beta on: after an update, wait 1 minute, then open ⚙ › **Journal**. | `Nouvelle version à l'essai : confirmée après 45 s sans arrêt`, then `Nouvelle version confirmée (45 s sans arrêt)`. |
+| 6.8 | Optional (rollback): install the next version, then within 30 s after it starts press the Tab5 reset button (or unplug it with the battery off). | The Tab5 starts the version you had before (bottom of the Settings menu). From a v0.6.4-beta or later starting again: the message « … stopped at start: the previous version is back » and `Retour automatique : …` in the Journal. Install it again and wait 1 minute: it stays. |
 
 ## 7. Microphone and sound (only if you use them)
 

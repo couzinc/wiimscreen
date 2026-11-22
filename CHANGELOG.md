@@ -5,10 +5,18 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Added
+- **Automatic return to the previous version**: after an update, the new version runs on trial for 45 seconds. If it
+  stops before (a crash, a restart loop like v0.6.1-beta), the Tab5 starts the previous version again. The next
+  start says so on the main screen and in the Journal (`Retour automatique : …`). A restart you ask for (setup
+  mode, sleep, another update) ends the trial first. This protects updates from v0.6.4-beta on.
+
 ### Fixed
 - **Ratings, pins and play history of WiiM presets** now follow the station (its name), not the preset number: a
   new station in a slot no longer gets the stars of the old one. The history of older versions moves over once, to
   the station that is in that slot now.
+- **Update page "unreachable"**: the page answers only while the Tab5 shows ⚙ › Update (by design: it needs the
+  code on the screen). The README now says so.
 
 ## [0.6.3-beta] — 2026-11-22 — Restart loop fixed
 
