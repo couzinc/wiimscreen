@@ -66,9 +66,17 @@ static void applyPresets(const std::vector<wr::Preset>& list) {
 }
 
 // Tuiles : presets du WiiM, puis favoris enregistrés sur la télécommande
+static void saveTileStats();
+
 void refreshTiles() {
     g_tiles.favs = g_tiles.favOk ? fav::list() : std::vector<wr::Favorite>();
     std::vector<wr::Preset> list = g_tiles.wiimPresets;
+    // Historique d'avant 0.6.4 (presets par numéro) : repris par le nom de la station qui occupe ce numéro, une fois
+    if (wr::migratePresetKeys(g_tiles.stats, list)) {
+        wr::migratePresetKeys(g_tiles.shown, list);
+        saveTileStats();
+        logEvent("Historique des tuiles : les presets suivent maintenant leur station (nom), plus leur num\xC3\xA9ro");
+    }
     for (size_t i = 0; i < g_tiles.favs.size(); ++i) {
         wr::Preset p;
         p.slot = 100 + (int)i;

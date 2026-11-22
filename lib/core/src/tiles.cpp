@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cstdlib>
 
+#include "text.h"
+
 namespace wr {
 
 static bool storableKey(const std::string& k) {
@@ -77,8 +79,27 @@ int TileStats::rating(const std::string& key) const {
 }
 
 std::string tileKey(const Preset& p) {
-    std::string k = p.favId.empty() ? "preset:" + std::to_string(p.slot) : p.favId;
-    return storableKey(k) ? k : std::string();
+    if (!p.favId.empty()) return storableKey(p.favId) ? p.favId : std::string();
+    const std::string name = trim(p.label);
+    if (!name.empty() && storableKey("station:" + name)) return "station:" + name;
+    return "preset:" + std::to_string(p.slot);
+}
+
+bool TileStats::rename(const std::string& from, const std::string& to) {
+    if (from == to || !storableKey(to) || find(to)) return false;
+    for (TileUse& u : uses)
+        if (u.key == from) {
+            u.key = to;
+            return true;
+        }
+    return false;
+}
+
+bool migratePresetKeys(TileStats& s, const std::vector<Preset>& presets) {
+    bool changed = false;
+    for (const Preset& p : presets)
+        if (p.favId.empty() && s.rename("preset:" + std::to_string(p.slot), tileKey(p))) changed = true;
+    return changed;
 }
 
 TileKind tileKind(const Preset& p) {

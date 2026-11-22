@@ -55,7 +55,7 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `lib/core/src/catalog.h` | `QobuzAlbum`, shared by the Qobuz and Deezer album parsers |
 | `lib/core/src/dsp.*` | FFT spectrum bands, visualizer smoothing, motion detector |
 | `lib/core/src/voice.*` | WAV header for the dictation; still declares the text and Deezer functions through its includes |
-| `lib/core/src/tiles.*` | Tile kind (`tileKind`: Library filters) and tile history and order: `TileStats` (last play as a counter, play count, pins, ratings 0–5; `played`, `setPin`, `setRating`), `tileKey`, text file format (rating column only when set), `tileOrder` (pinned, then last played, then the given order), `ratingOrder` (Library: most stars first) |
+| `lib/core/src/tiles.*` | Tile kind (`tileKind`: Library filters) and tile history and order: `TileStats` (last play as a counter, play count, pins, ratings 0–5; `played`, `setPin`, `setRating`, `rename`), `tileKey` (presets: `station:<name>`; `migratePresetKeys` moves the old `preset:<slot>` entries once), text file format (rating column only when set), `tileOrder` (pinned, then last played, then the given order), `ratingOrder` (Library: most stars first) |
 | `lib/core/src/appstate.*` | Main-loop timing decisions without hardware: wrap-safe `expired`, `idleAction` (ambient, dim, screen off, sleep), `musicSettled` |
 | `lib/core/src/keys.*` | Key input without hardware: `NavKey`, `KeyEvent`, `KeyTracker` (raw down/up → press, long press on OK, repeat on arrows/Backspace; wrap-safe), key names for scripts |
 | `lib/core/src/decisions.*` | App decisions without hardware: pending-command confirmation, what to do after a search through a WiiM queue, queue stability, track index in a queue, dictation clean-up |

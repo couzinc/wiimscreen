@@ -14,6 +14,10 @@ static void test_tile_key() {
     Preset p;
     p.slot = 3;
     TEST_ASSERT_EQUAL_STRING("preset:3", tileKey(p).c_str());
+    p.label = "  FIP ";  // preset nommé : la station, pas le numéro
+    TEST_ASSERT_EQUAL_STRING("station:FIP", tileKey(p).c_str());
+    p.label = "a\tb";  // nom non enregistrable : le numéro
+    TEST_ASSERT_EQUAL_STRING("preset:3", tileKey(p).c_str());
     p.favId = "qobuz-album:42";
     TEST_ASSERT_EQUAL_STRING("qobuz-album:42", tileKey(p).c_str());
     p.favId = "a\tb";
@@ -151,6 +155,35 @@ static void test_tile_rating() {
     TEST_ASSERT_EQUAL(0, (int)ratingOrder({}, o).size());
 }
 
+static void test_tile_migrate() {
+    // Fichier d'une version 0.6.3 : presets par numéro
+    TileStats s = tileStatsFromText("seq\t3\npreset:1\t3\t4\t1\npreset:2\t2\t1\t0\npreset:5\t1\t1\t0\nrate\tpreset:1\t4\n");
+    std::vector<Preset> presets(3);
+    presets[0].slot = 1;
+    presets[0].label = "FIP";
+    presets[1].slot = 2;  // sans nom : garde son numéro
+    presets[2].slot = 5;
+    presets[2].label = "FIP";  // même nom que le 1 : la clé est déjà prise, il garde la sienne
+    TEST_ASSERT_TRUE(migratePresetKeys(s, presets));
+    TEST_ASSERT_NULL(s.find("preset:1"));
+    TEST_ASSERT_EQUAL(4, s.rating("station:FIP"));
+    TEST_ASSERT_TRUE(s.pinned("station:FIP"));
+    TEST_ASSERT_EQUAL(4u, s.find("station:FIP")->count);
+    TEST_ASSERT_NOT_NULL(s.find("preset:2"));
+    TEST_ASSERT_NOT_NULL(s.find("preset:5"));
+    TEST_ASSERT_FALSE(migratePresetKeys(s, presets));  // une fois
+    // Le preset change de place : la note suit la station
+    presets[0].slot = 4;
+    TEST_ASSERT_EQUAL(4, s.rating(tileKey(presets[0])));
+    // Un nouveau preset au numéro 1 n'a pas la note de l'ancien
+    Preset other;
+    other.slot = 1;
+    other.label = "Radio Nova";
+    TEST_ASSERT_EQUAL(0, s.rating(tileKey(other)));
+    TEST_ASSERT_FALSE(s.rename("absent", "x"));
+    TEST_ASSERT_FALSE(s.rename("preset:2", "a\tb"));
+}
+
 static void test_tile_kind() {
     Preset p;
     TEST_ASSERT_TRUE(tileKind(p) == TileKind::Preset);
@@ -173,4 +206,5 @@ void run_tiles_tests() {
     RUN_TEST(test_tile_stats_text);
     RUN_TEST(test_tile_stats_full);
     RUN_TEST(test_tile_rating);
+    RUN_TEST(test_tile_migrate);
 }

@@ -32,11 +32,18 @@ struct TileStats {
     bool setRating(const std::string& key, int stars);
     int rating(const std::string& key) const;                         // 0 when none
     int toggledRating(const std::string& key, int stars) const;       // a star touched: its rating, or 0 if it is the current one
+    // The entry `from` takes the key `to` (history, pin and rating kept). False when `from` is absent or `to` is
+    // already there or not storable.
+    bool rename(const std::string& from, const std::string& to);
 };
 
-// Key of a tile in the history: the favorite id ("qobuz-album:…", a saved queue, a list), else "preset:<slot>"
-// (a WiiM preset keeps its number). Empty when the key cannot be stored (tab or new line in it).
+// Key of a tile in the history: the favorite id ("qobuz-album:…", a saved queue, a list); for a WiiM preset
+// "station:<name>", so that its history, pin and rating stay with the station when the presets change (two presets
+// of the same name share them), or "preset:<slot>" when it has no name. Empty when a favorite id cannot be stored.
 std::string tileKey(const Preset& p);
+// Versions before 0.6.4 kept presets as "preset:<slot>": each such entry goes to the key of the preset now in that
+// slot (once: the old key is gone after it). True when an entry changed (the file is then written again).
+bool migratePresetKeys(TileStats& s, const std::vector<Preset>& presets);
 
 // Text file: "seq\t<n>", one "key\tlast\tcount\tpin" line per tile, then one "rate\tkey\t<1..5>" line per rated tile
 // (versions before 0.6 skip the "rate" lines and keep the tile lines, pins included). Bad lines are skipped.

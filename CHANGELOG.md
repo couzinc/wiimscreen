@@ -5,6 +5,11 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Fixed
+- **Ratings, pins and play history of WiiM presets** now follow the station (its name), not the preset number: a
+  new station in a slot no longer gets the stars of the old one. The history of older versions moves over once, to
+  the station that is in that slot now.
+
 ## [0.6.3-beta] — 2026-11-22 — Restart loop fixed
 
 **Tab5:** if v0.6.1-beta or v0.6.2-beta restarts in a loop, flash v0.6.0-beta by USB, then install this one from
