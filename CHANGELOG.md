@@ -5,6 +5,11 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [0.6.3-beta] — 2026-11-22 — Restart loop fixed
+
+**Tab5:** if v0.6.1-beta or v0.6.2-beta restarts in a loop, flash v0.6.0-beta by USB, then install this one from
+the upload page (⚙ › Update, QR code). From v0.6.0-beta, the upload page is the safe way too.
+
 ### Fixed
 - **Restart loop after the Wi-Fi connection** (v0.6.1-beta and v0.6.2-beta on a Tab5): two network tasks opened
   their first secure connection at the same moment, and the system stopped (`abort()` in the AES set-up of
