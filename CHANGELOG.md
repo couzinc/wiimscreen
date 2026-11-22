@@ -5,6 +5,11 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [0.6.2-beta] — 2026-11-22 — Instant screen changes, favorites lists in the Library
+
+**Tab5:** from v0.6.1-beta, open ⚙ › Update and touch **Install** (the first test of the fixed download). Then
+check HARDWARE_TEST row 5.9 and send the `Écran : copie matérielle` Journal line.
+
 ### Changed
 - **Screen changes on the Tab5 at once**: a new screen is copied to the display by the Tab5's graphics accelerator
   (PPA) in a few milliseconds, instead of the sweep of v0.6.0-beta. Its setting is learned once from the first full
