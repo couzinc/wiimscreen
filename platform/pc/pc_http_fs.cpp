@@ -77,6 +77,7 @@ int HTTPClient::request(const char* method, const uint8_t* body, size_t n) {
         std::string location;
         bool chunked = false;
         size_ = -1;
+        answer_.clear();
         size_t p = 0;
         while ((p = head.find("\r\n", p)) != std::string::npos) {
             p += 2;
@@ -85,6 +86,7 @@ int HTTPClient::request(const char* method, const uint8_t* body, size_t n) {
             const std::string k = head.substr(p, c - p);
             std::string v = raw.substr(c + 1, (e == std::string::npos ? he : e) - c - 1);
             while (!v.empty() && v[0] == ' ') v.erase(0, 1);
+            answer_.push_back({k, v});
             if (k == "content-length") size_ = std::atoi(v.c_str());
             else if (k == "transfer-encoding" && lower(v).find("chunked") != std::string::npos) chunked = true;
             else if (k == "location") location = v;
@@ -102,6 +104,13 @@ int HTTPClient::request(const char* method, const uint8_t* body, size_t n) {
         return code;
     }
     return -1;
+}
+
+String HTTPClient::header(const char* name) const {
+    const std::string k = lower(name);
+    for (auto& h : answer_)
+        if (h.first == k) return String(h.second.c_str());
+    return String();
 }
 
 int HTTPClient::writeToStream(Stream* s) {

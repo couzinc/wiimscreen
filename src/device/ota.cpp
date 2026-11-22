@@ -4,7 +4,9 @@
 #include <Update.h>
 #include <WebServer.h>
 #include <WiFi.h>
+#include <esp_heap_caps.h>
 #include <esp_random.h>
+#include <lwip/sockets.h>
 #include <mbedtls/sha256.h>
 
 #include <algorithm>
@@ -146,6 +148,20 @@ struct GithubCheck {
 };
 static GithubCheck g_check;
 
+// Sockets encore libres (au plus CONFIG_LWIP_MAX_SOCKETS) : ouverts puis refermés aussitôt, sans connexion. Pour le
+// Journal : la page locale et le téléchargement ont besoin chacun d'un socket ; une fuite ailleurs les bloquerait.
+static int freeSockets() {
+    int fds[CONFIG_LWIP_MAX_SOCKETS];
+    int n = 0;
+    while (n < CONFIG_LWIP_MAX_SOCKETS) {
+        const int s = lwip_socket(AF_INET, SOCK_STREAM, 0);
+        if (s < 0) break;
+        fds[n++] = s;
+    }
+    for (int i = 0; i < n; ++i) lwip_close(fds[i]);
+    return n;
+}
+
 static void githubCheckTask(void*) {
     wr::ReleaseInfo info;
     String note;
@@ -172,7 +188,7 @@ static void startGithubCheck() {
 
 // Téléchargement depuis GitHub vers le Flasher : empreinte SHA-256 calculée au passage, progression à l'écran,
 // Annuler écouté entre deux morceaux (écrire moins que demandé arrête le transfert).
-class GithubSink : public Stream {
+class GithubSink : public ghrelease::DownloadSink {
 public:
     GithubSink(Flasher& flasher, size_t size, std::function<void(int)> progress, std::function<bool()> cancelled)
         : flasher_(flasher), size_(size), progress_(std::move(progress)), cancelled_(std::move(cancelled)) {
@@ -210,6 +226,11 @@ public:
         char hex[65];
         for (int i = 0; i < 32; ++i) snprintf(hex + 2 * i, 3, "%02x", h[i]);
         return got_ == size_ && sha256 == hex;
+    }
+    size_t received() const override { return got_; }
+    bool refused() override {  // entre deux essais : Annuler touché pendant l'attente compte aussi
+        if (!stop && cancelled_()) stop = cancel = true;
+        return stop;
     }
     bool stop = false, cancel = false;
 
@@ -258,6 +279,7 @@ void runUpdateMode(Ui& ui) {
     };
 
     server.on("/", HTTP_GET, [&] {
+        logEvent("Mise \xC3\xA0 jour : page ouverte par un navigateur");
         server.send(200, "text/html; charset=utf-8", updatePage());
     });
     server.on(
@@ -342,7 +364,7 @@ void runUpdateMode(Ui& ui) {
                 return key || (t.wasPressed() && ui.hitUpdateCancel(t.x, t.y));
             });
         String note;
-        const bool ok = ghrelease::download(info.url, sink, note);
+        const bool ok = ghrelease::download(info.url, sink, (size_t)info.size, note);
         downloading = false;
         if (sink.cancel) {
             gh.abort();
@@ -369,6 +391,9 @@ void runUpdateMode(Ui& ui) {
     };
 
     server.begin();
+    logEvent("Mise \xC3\xA0 jour : \xC3\xA9" "cran ouvert, sockets libres %d/%d, m\xC3\xA9moire interne %u (bloc %u), en marche depuis %lu min",
+             freeSockets(), CONFIG_LWIP_MAX_SOCKETS, (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+             (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL), (unsigned long)(millis() / 60000));
     draw(-1, "");
 
     const uint32_t start = millis();

@@ -66,6 +66,10 @@ public:
     void setInsecure() { insecure_ = true; }      // the relay/OpenSSL checks public servers; the WiiM is pinned by the app
     void setCACertBundle(const uint8_t*, size_t) {}
     void setHandshakeTimeout(int) {}
+    int lastError(char* buf, size_t n) {  // erreur TLS d'ESP-IDF : aucune ici (la connexion dit seulement non)
+        if (n) buf[0] = 0;
+        return 0;
+    }
     bool getFingerprintSHA256(uint8_t out[32]) const {
         if (hasFingerprint_) std::memcpy(out, fingerprint_, 32);
         return hasFingerprint_;

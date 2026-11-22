@@ -5,6 +5,15 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Fixed
+- **Install from GitHub**: the download stopped with "Download failed (network)" or "(transfer stopped)" on a Tab5.
+  Each redirect now gets its own new connection, a network error gets one more try, and a connection cut during the
+  download resumes where it stopped (as long as each try gets further). When it still fails, the message gives the
+  error number, and the Journal gives the server name, the bytes received and the free memory.
+- **Update page on the local network** (⚙ › Update, QR code): reported unreachable after a first use. Not fixed yet:
+  the Journal now says when the screen opens (free sockets, free memory, time since start) and when a browser
+  opens the page, to find the cause.
+
 ## [0.6.0-beta] — 2026-11-22 — Ratings, cleaner screen changes
 
 **Tab5:** from v0.5.0-beta or v0.5.1-beta, open ⚙ › Update and touch **Install**. Then check the screen changes

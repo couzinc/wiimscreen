@@ -27,6 +27,8 @@ public:
     int GET() { return request("GET", nullptr, 0); }
     int POST(uint8_t* body, size_t n) { return request("POST", body, n); }
     int POST(const String& body) { return request("POST", reinterpret_cast<const uint8_t*>(body.c_str()), body.length()); }
+    void collectHeaders(const char* [], size_t) {}  // every response header is kept here
+    String header(const char* name) const;
     int getSize() const { return size_; }
     String getString() const { return String(body_); }
     int writeToStream(Stream* s);
@@ -35,7 +37,7 @@ private:
     int request(const char* method, const uint8_t* body, size_t n);
     WiFiClient* client_ = nullptr;
     std::string url_, agent_ = "ESP32HTTPClient", body_;
-    std::vector<std::pair<std::string, std::string>> headers_;
+    std::vector<std::pair<std::string, std::string>> headers_, answer_;  // request headers, response headers (lower-case names)
     int connectMs_ = 5000, size_ = -1, redirects_ = 3;
     uint32_t timeoutMs_ = 5000;
     bool follow_ = false;

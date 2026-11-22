@@ -18,8 +18,16 @@ constexpr const char* kAsset = "wiim-remote-tab5.bin";  // fichier du firmware d
 // courte dans `note` ("HTTP 403", "réseau", "pas de firmware").
 bool latest(wr::ReleaseInfo& out, String& note);
 
-// Télécharge `url` vers `sink`. Le transfert s'arrête quand sink.write() écrit moins que demandé. Faux, avec une
-// raison courte dans `note`, si la réponse n'est pas 200 ou si le transfert s'arrête avant la fin.
-bool download(const std::string& url, Stream& sink, String& note);
+// Fichier reçu par morceaux. write() écrit moins que demandé pour arrêter le transfert (annulé, erreur d'écriture).
+class DownloadSink : public Stream {
+public:
+    virtual size_t received() const = 0;  // octets acceptés jusqu'ici : une reprise demande la suite (Range)
+    virtual bool refused() = 0;           // a arrêté le transfert lui-même (ou Annuler touché) : pas de reprise
+};
+
+// Télécharge `url` (`size` octets) vers `sink`. Une connexion coupée en route reprend où elle en était (nouvelle
+// redirection, Range), tant que chaque essai avance. Faux, avec une raison courte dans `note`, sinon ; détail au
+// Journal.
+bool download(const std::string& url, DownloadSink& sink, size_t size, String& note);
 
 }  // namespace ghrelease
