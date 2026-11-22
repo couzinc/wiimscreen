@@ -5,6 +5,11 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [0.6.1-beta] — 2026-11-22 — Install fixes
+
+**Tab5:** install this one from the upload page (⚙ › Update, QR code): **Install** in v0.5.x and v0.6.0-beta has
+the download problem fixed here. The next release tests **Install** from this one.
+
 ### Fixed
 - **Install from GitHub**: the download stopped with "Download failed (network)" or "(transfer stopped)" on a Tab5.
   Each redirect now gets its own new connection, a network error gets one more try, and a connection cut during the
