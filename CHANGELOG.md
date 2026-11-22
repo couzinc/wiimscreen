@@ -6,6 +6,10 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 ## [Unreleased]
 
 ### Changed
+- **Screen changes on the Tab5 at once**: a new screen is copied to the display by the Tab5's graphics accelerator
+  (PPA) in a few milliseconds, instead of the sweep of v0.6.0-beta. Its setting is learned once from the first full
+  screen drawn the old way; if no setting gives exactly the same picture, the old way stays. The Journal says which
+  (`Écran : copie matérielle …`, with the time per screen).
 - **Qobuz favorites and Deezer favorites** are no longer on the main strip: open the Library, touch **Qobuz** (or
   **Deezer**), and the favorites panel comes first.
 

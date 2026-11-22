@@ -10,6 +10,140 @@
 
 static auto& D = M5.Display;
 
+#if defined(CONFIG_IDF_TARGET_ESP32P4)
+#include <driver/ppa.h>
+#include <lgfx/v1/platforms/esp32p4/Panel_DSI.hpp>
+#include <esp_cache.h>
+#include <esp_heap_caps.h>
+#include <esp_timer.h>
+
+#include <cstring>
+
+#include "app/log.h"
+
+// Tab5 : image entière copiée dans la mémoire d'image de l'écran par le PPA (accélérateur graphique du P4 : rotation,
+// ordre des octets) en quelques millisecondes, au lieu de M5GFX qui la tourne pixel par pixel pendant que l'écran
+// la lit (balayage visible). Le réglage du PPA n'est pas deviné : la première image complète passe par M5GFX, puis le
+// PPA refait la même image dans un tampon à part avec chaque réglage possible ; un seul doit donner exactement les
+// octets de M5GFX. Sinon (image trop symétrique : on réessaie à l'image suivante ; aucun réglage juste ou PPA
+// indisponible : M5GFX reste), rien ne change pour l'écran.
+namespace {
+struct FastPush {
+    int state = 0;  // 0 : à régler, 1 : prêt, -1 : M5GFX seulement
+    int tries = 0;  // images examinées pour le réglage
+    ppa_client_handle_t client = nullptr;
+    void* fb = nullptr;  // mémoire d'image de l'écran (portrait natif)
+    uint32_t fbW = 0, fbH = 0, fbBytes = 0;
+    int cw = 0, ch = 0;  // taille du canevas au réglage (une autre orientation : nouveau réglage)
+    ppa_srm_rotation_angle_t angle = PPA_SRM_ROTATION_ANGLE_0;
+    bool mirror = false, swap = false;
+};
+FastPush g_fast;
+
+esp_err_t ppaCopy(M5Canvas& c, void* out, ppa_srm_rotation_angle_t angle, bool mirror, bool swap) {
+    ppa_srm_oper_config_t op = {};
+    op.in.buffer = c.getBuffer();
+    op.in.pic_w = op.in.block_w = (uint32_t)c.width();
+    op.in.pic_h = op.in.block_h = (uint32_t)c.height();
+    op.in.srm_cm = PPA_SRM_COLOR_MODE_RGB565;
+    op.out.buffer = out;
+    op.out.buffer_size = g_fast.fbBytes;
+    op.out.pic_w = g_fast.fbW;
+    op.out.pic_h = g_fast.fbH;
+    op.out.srm_cm = PPA_SRM_COLOR_MODE_RGB565;
+    op.rotation_angle = angle;
+    op.scale_x = op.scale_y = 1.0f;
+    op.mirror_x = mirror;
+    op.byte_swap = swap;
+    op.mode = PPA_TRANS_MODE_BLOCKING;
+    const esp_err_t err = ppa_do_scale_rotate_mirror(g_fast.client, &op);
+    esp_cache_msync(out, g_fast.fbBytes, ESP_CACHE_MSYNC_FLAG_DIR_M2C);  // le processeur relira la mémoire, pas son cache
+    return err;
+}
+
+// Prépare le PPA (une fois) ; faux si le Tab5 n'en a pas l'usage (autre carte, pas de mémoire d'image)
+bool fastInit() {
+    if (g_fast.client) return true;
+    const auto board = M5.getBoard();
+    if (board != m5::board_t::board_M5Tab5 && board != m5::board_t::board_M5Tab5X) return false;
+    auto* panel = static_cast<lgfx::Panel_DSI*>(D.getPanel());  // ILI9881C ou ST7123 : tous deux des Panel_DSI
+    g_fast.fb = panel ? panel->config_detail().buffer : nullptr;
+    if (!g_fast.fb) return false;
+    g_fast.fbW = panel->config().panel_width;
+    g_fast.fbH = panel->config().panel_height;
+    g_fast.fbBytes = g_fast.fbW * g_fast.fbH * 2;
+    ppa_client_config_t cfg = {};
+    cfg.oper_type = PPA_OPERATION_SRM;
+    cfg.max_pending_trans_num = 1;
+    return ppa_register_client(&cfg, &g_fast.client) == ESP_OK;
+}
+
+// Après une image complète envoyée par M5GFX : cherche le réglage du PPA qui donne les mêmes octets
+void fastCalibrate(M5Canvas& c) {
+    if (g_fast.state < 0) return;
+    if (!fastInit()) {
+        g_fast.state = -1;
+        logEvent("\xC3\x89" "cran : copie mat\xC3\xA9rielle indisponible, envoi par M5GFX");
+        return;
+    }
+    if ((uint32_t)c.width() * (uint32_t)c.height() != g_fast.fbW * g_fast.fbH) return;
+    constexpr uint32_t kAlign = 128;  // lignes des caches L1 et L2
+    void* scratch = heap_caps_aligned_alloc(kAlign, (g_fast.fbBytes + kAlign - 1) / kAlign * kAlign, MALLOC_CAP_SPIRAM);
+    if (!scratch) return;  // mémoire pleine à cet instant : prochaine image
+    static const ppa_srm_rotation_angle_t kAngles[] = {PPA_SRM_ROTATION_ANGLE_0, PPA_SRM_ROTATION_ANGLE_90,
+                                                       PPA_SRM_ROTATION_ANGLE_180, PPA_SRM_ROTATION_ANGLE_270};
+    int found = 0;
+    int64_t us = 0;
+    FastPush best = g_fast;
+    for (int a = 0; a < 4; ++a) {
+        const bool quarter = a % 2 == 1;  // 90° / 270° : largeur et hauteur échangées
+        if ((uint32_t)(quarter ? c.height() : c.width()) != g_fast.fbW) continue;
+        for (int m = 0; m < 2; ++m)
+            for (int sw = 0; sw < 2; ++sw) {
+                const int64_t t0 = esp_timer_get_time();
+                if (ppaCopy(c, scratch, kAngles[a], m, sw) != ESP_OK) continue;
+                us = esp_timer_get_time() - t0;
+                if (std::memcmp(scratch, g_fast.fb, g_fast.fbBytes) != 0) continue;
+                ++found;
+                best.angle = kAngles[a];
+                best.mirror = m;
+                best.swap = sw;
+            }
+    }
+    heap_caps_free(scratch);
+    ++g_fast.tries;
+    if (found == 1) {
+        g_fast.angle = best.angle;
+        g_fast.mirror = best.mirror;
+        g_fast.swap = best.swap;
+        g_fast.cw = c.width();
+        g_fast.ch = c.height();
+        g_fast.state = 1;
+        logEvent("\xC3\x89" "cran : copie mat\xC3\xA9rielle pr\xC3\xAAte (rotation %d\xC2\xB0, miroir %d, octets %d), %d ms par image",
+                 (int)best.angle * 90, (int)best.mirror, (int)best.swap, (int)(us / 1000));
+    } else if (found == 0 && g_fast.tries >= 3) {
+        g_fast.state = -1;
+        logEvent("\xC3\x89" "cran : aucun r\xC3\xA9glage de la copie mat\xC3\xA9rielle ne donne la m\xC3\xAAme image, envoi par M5GFX");
+    }
+    // plusieurs réglages justes (image symétrique) : image suivante
+}
+
+// Image complète par le PPA ; faux s'il n'est pas (ou plus) réglé pour ce canevas
+bool fastPresent(M5Canvas& c) {
+    if (g_fast.state != 1) return false;
+    if (c.width() != g_fast.cw || c.height() != g_fast.ch) {  // orientation changée : nouveau réglage
+        g_fast.state = 0;
+        g_fast.tries = 0;
+        return false;
+    }
+    if (ppaCopy(c, g_fast.fb, g_fast.angle, g_fast.mirror, g_fast.swap) == ESP_OK) return true;
+    g_fast.state = -1;
+    logEvent("\xC3\x89" "cran : la copie mat\xC3\xA9rielle a \xC3\xA9" "chou\xC3\xA9, envoi par M5GFX");
+    return false;
+}
+}  // namespace
+#endif
+
 #ifdef PC_SCALED_FONTS
 #include <cmath>
 
@@ -106,7 +240,13 @@ void Ui::presentRect(const wr::Rect& r) {
 void Ui::present() {
     focusRing();  // en dernier, par-dessus l'écran
 #if defined(CONFIG_IDF_TARGET_ESP32P4)
-    // Tab5 : l'écran lit sa mémoire d'image en continu, et M5GFX ne la vide du cache qu'à la fin de l'écriture
+    // Tab5 : par le PPA quand il est réglé (l'écran change d'un coup, fastPresent)
+    if (fastPresent(canvas_)) {
+        ++presents_;
+        lastPresentMs_ = millis();
+        return;
+    }
+    // Sinon M5GFX. L'écran lit sa mémoire d'image en continu, et M5GFX ne la vide du cache qu'à la fin de l'écriture
     // (endWrite). En une fois, l'image arrivait donc à l'écran par morceaux dans le désordre (blocs du cache) ;
     // par bandes, chacune vidée aussitôt, elle passe d'un bord à l'autre avec un bord net. Mêmes octets en tout.
     // Bandes dans le sens des lignes de la dalle (portrait 720×1280) : des colonnes quand l'écran est tourné en paysage
@@ -123,6 +263,7 @@ void Ui::present() {
         D.clearClipRect();
         D.endWrite();  // vide cette bande du cache : l'écran la montre tout de suite
     }
+    fastCalibrate(canvas_);  // réglage du PPA sur cette image (tant qu'il n'est pas fait)
 #else
     D.startWrite();
     canvas_.pushSprite(&D, 0, 0);
