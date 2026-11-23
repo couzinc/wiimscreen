@@ -5,6 +5,16 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-11-23 — First stable version
+
+**Tab5:** open ⚙ › Update and touch **Install** (from v0.5.0-beta on), or flash it from the project page:
+<https://couzinc.github.io/wiimscreen/>. From v0.6.4-beta on, a new version that does not start puts the previous
+one back by itself.
+
+The same firmware as v0.6.5-beta. 1.0 means: the Tab5 firmware is used every day on a real Tab5 and WiiM Pro, it
+updates itself from GitHub, and the settings, favorites and tile files stay readable by every later 1.x version.
+Only the M5Stack Tab5 is tested; the computer versions (Windows, Raspberry Pi, Linux, macOS) stay experimental.
+
 ## [0.6.5-beta] — 2026-11-23 — Faster Qobuz search, full-screen button
 
 **Tab5:** from v0.6.4-beta, open ⚙ › Update and touch **Install**. Then try a Qobuz search and send the Journal line

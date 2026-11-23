@@ -16,7 +16,8 @@ une télécommande ou une manette. Voir [docs/DESKTOP.md](docs/DESKTOP.md) (en a
 > téléphone) › **Language / Langue** › **Français**, puis **Save and restart**. Les noms de boutons de ce guide sont
 > ceux de l'interface en français. Le Journal reste en français dans les deux langues.
 
-> **Version bêta (la 1.0 arrive).** Seul le M5Stack Tab5 est testé ; les versions pour ordinateur restent expérimentales.
+> **Version 1.0.** Seul le M5Stack Tab5 est testé ; les versions pour ordinateur restent expérimentales. Installation
+> depuis le navigateur : [page du projet](https://couzinc.github.io/wiimscreen/).
 
 ![Écran principal](docs/apercu.png)
 
