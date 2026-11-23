@@ -6,6 +6,10 @@ Please **do not open a public issue** for security problems. Use GitHub's
 [private vulnerability reporting](../../security/advisories/new) for this repository. You will get an answer as soon
 as possible; this is a hobby project maintained on a best-effort basis.
 
+## Supported versions
+
+Only the latest release gets fixes. The Tab5 shows a new version in ⚙ › Update and installs it from there.
+
 ## Threat model in short
 
 wiimscreen runs on a home network and talks to a WiiM player, a few HTTPS services and the user's phone/browser.

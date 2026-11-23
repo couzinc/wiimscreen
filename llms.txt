@@ -4,7 +4,7 @@
 
 Tested hardware: only the M5Stack Tab5 (ESP32-P4, 5" 1280x720 touchscreen, ESP32-C6 Wi-Fi) so far. Other ESP32-S3/ESP32-P4 boards with a touchscreen and PSRAM should be portable (see docs/DEVELOPERS.md, "Other ESP32 boards"); none has been tested. An experimental computer version (Raspberry Pi, Linux, macOS, Windows; docs/DESKTOP.md) runs the same app with SDL2 and OpenSSL, and a PC simulator (tools/sim) runs it with a fake WiiM or through a relay to a real one.
 
-Status: beta — builds and passes native unit tests; UI rendered and checked on PC; hardware testing in progress on the Tab5. On-screen text is in English (default) or French; code comments are mostly French.
+Status: 1.0 — used daily on a real M5Stack Tab5 with a WiiM Pro; updates itself from GitHub with automatic rollback; unit tests, simulator and golden-screen checks in CI. Computer versions are experimental. On-screen text is in English (default) or French; code comments are mostly French.
 
 ## Support
 

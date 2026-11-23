@@ -16,6 +16,8 @@ une télécommande ou une manette. Voir [docs/DESKTOP.md](docs/DESKTOP.md) (en a
 > téléphone) › **Language / Langue** › **Français**, puis **Save and restart**. Les noms de boutons de ce guide sont
 > ceux de l'interface en français. Le Journal reste en français dans les deux langues.
 
+> **Version 1.0.** Seul le M5Stack Tab5 est testé ; les versions pour ordinateur restent expérimentales.
+
 ![Écran principal](docs/apercu.png)
 
 - **En cours de lecture** : grande pochette ; à côté, source et qualité audio en pastilles (« Spotify », « 16 bits · 44,1 kHz », « EN DIRECT » pour une radio), titre, artiste, album, progression, lecture/pause et volume regroupés près de ce qu'ils commandent
