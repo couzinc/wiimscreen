@@ -5,6 +5,12 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [0.6.4-beta] — 2026-11-23 — Safe updates, ratings follow the station
+
+**Tab5:** from v0.6.3-beta, open ⚙ › Update and touch **Install** (the next test of the GitHub download), or use the
+upload page. Wait 1 minute, then check the Journal: `Nouvelle version confirmée (45 s sans arrêt)` (HARDWARE_TEST
+6.7). If the Tab5 goes back to v0.6.3-beta after a restart, report it.
+
 ### Added
 - **Automatic return to the previous version**: after an update, the new version runs on trial for 45 seconds. If it
   stops before (a crash, a restart loop like v0.6.1-beta), the Tab5 starts the previous version again. The next
