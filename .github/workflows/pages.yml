@@ -1,0 +1,88 @@
+# Project page on GitHub Pages (site/index.html): install from the browser (ESP Web Tools), screenshots, features.
+# The firmware is copied into the page (a release file on github.com cannot be read by a web page: no CORS).
+# Firmware: the latest stable release; while there is none, the newest pre-release.
+# Runs after each tag build (workflow "firmware"), on a change of the page, or by hand (Actions > pages > Run).
+# One-time setting: repository Settings > Pages > Source: "GitHub Actions".
+name: pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["site/**", "docs/*.png", ".github/workflows/pages.yml"]
+  workflow_run:
+    workflows: [firmware]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # After the firmware workflow: only a successful tag build (a release was published)
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+
+      - name: Page, images and firmware
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p _site/img _site/firmware
+          cp site/index.html _site/
+          for f in apercu bibliotheque recherche ambiance favoris resultats social-preview; do cp "docs/$f.png" _site/img/; done
+          # Latest stable release; none yet: the newest release (pre-releases included)
+          TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName 2>/dev/null || true)
+          if [ -z "$TAG" ]; then
+            TAG=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName -q '.[0].tagName')
+          fi
+          echo "Firmware: $TAG"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern wiim-remote-tab5.bin --pattern SHA256SUMS.txt \
+            --dir _site/firmware
+          # Same file as the release says (SHA256SUMS.txt lists it as dist/wiim-remote-tab5.bin)
+          want=$(awk '$2 ~ /wiim-remote-tab5\.bin$/ {print $1}' _site/firmware/SHA256SUMS.txt)
+          got=$(sha256sum _site/firmware/wiim-remote-tab5.bin | cut -d' ' -f1)
+          [ -n "$want" ] && [ "$want" = "$got" ] || { echo "SHA-256 mismatch: $got, release says $want"; exit 1; }
+          rm _site/firmware/SHA256SUMS.txt
+          # ESP Web Tools manifest: one merged image at 0x0. new_install_prompt_erase: the user chooses (the default
+          # erases the whole flash, settings and favorites included).
+          cat > _site/manifest.json <<EOF
+          {
+            "name": "wiimscreen",
+            "version": "$TAG",
+            "new_install_prompt_erase": true,
+            "new_install_improv_wait_time": 0,
+            "builds": [
+              { "chipFamily": "ESP32-P4", "parts": [ { "path": "firmware/wiim-remote-tab5.bin", "offset": 0 } ] }
+            ]
+          }
+          EOF
+          sed -i "s/{{VERSION}}/$TAG/g" _site/index.html
+          ls -lR _site
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1

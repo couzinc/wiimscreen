@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wiimscreen</title>
+<meta name="description" content="A touchscreen remote control and now-playing display for WiiM music streamers. Open source, runs on the M5Stack Tab5. Install it from your browser.">
+<meta property="og:title" content="wiimscreen">
+<meta property="og:description" content="A touchscreen remote and now-playing display for WiiM streamers, on the M5Stack Tab5.">
+<meta property="og:image" content="img/social-preview.png">
+<meta name="theme-color" content="#0e141c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<!-- ESP Web Tools (Tasmota build: ESP32-P4 support), pinned -->
+<script type="module" src="https://unpkg.com/tasmota-esp-web-tools@12.3.2/dist/web/install-button.js?module"></script>
+<style>
+/* Layout: one column; the hero is the device itself (a Tab5 frame whose screen cycles through real screenshots),
+   then install, features, how it works. The palette is the app's own: night-blue glass, the accent blue of its
+   play button, white text. Single dark look on purpose (the device is dark). */
+:root {
+  --bg: #0e141c;          /* app background, bottom of its gradient */
+  --bg-top: #1c2a38;      /* app background, top */
+  --card: #17202b;        /* app cards (tiles, chips) */
+  --line: #263241;
+  --text: #eef2f6;
+  --text2: #9aa8b8;       /* app secondary text */
+  --accent: #5b9bd5;      /* app play button */
+  --accent-ink: #0b1219;
+  --bezel: #08090b;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; color: var(--text); font: 16px/1.6 var(--body);
+  background: radial-gradient(1200px 600px at 70% -10%, var(--bg-top), transparent 70%), var(--bg);
+  min-height: 100vh;
+}
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 20px; }
+.brand { font: 700 1.25rem var(--display); letter-spacing: -0.01em; color: var(--text); text-decoration: none; }
+.top nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.95rem; }
+.top nav a { color: var(--text2); text-decoration: none; }
+.top nav a:hover { color: var(--text); }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px; align-items: center;
+  padding-block: 40px 72px; }
+.hero h1 { font: 700 clamp(2rem, 4.2vw, 3.2rem)/1.08 var(--display); letter-spacing: -0.02em; margin: 0 0 18px;
+  text-wrap: balance; }
+.hero p.lede { color: var(--text2); font-size: 1.1rem; margin: 0 0 28px; max-width: 34em; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn { display: inline-block; font: 600 1rem var(--body); text-decoration: none; border-radius: 999px;
+  padding: 12px 22px; border: 0; cursor: pointer; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+.meta { color: var(--text2); font-size: 0.85rem; margin-top: 14px; }
+.meta code { font-family: var(--mono); color: var(--text); }
+
+/* The Tab5: 5" 1280x720 panel in a dark bezel; screens crossfade */
+.device { position: relative; aspect-ratio: 1376 / 816; max-width: 100%; background: var(--bezel);
+  border-radius: 22px; padding: 3.4% 3.4%; box-shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 0 0 1px #1d2229; }
+.device::after { /* camera dot */ content: ""; position: absolute; top: 50%; right: 1.6%; width: 6px; height: 6px;
+  border-radius: 50%; background: #1a1f26; transform: translateY(-50%); }
+.screen { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 4px; background: #000; }
+.screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0;
+  animation: show 20s infinite; }
+.screen img:nth-child(1) { animation-delay: 0s; }
+.screen img:nth-child(2) { animation-delay: 5s; }
+.screen img:nth-child(3) { animation-delay: 10s; }
+.screen img:nth-child(4) { animation-delay: 15s; }
+@keyframes show { 0% { opacity: 0 } 3% { opacity: 1 } 25% { opacity: 1 } 28% { opacity: 0 } 100% { opacity: 0 } }
+.caption { display: flex; justify-content: center; gap: 18px; margin-top: 14px; color: var(--text2); font-size: 0.8rem;
+  flex-wrap: wrap; }
+.caption span { position: relative; padding-left: 14px; }
+.caption span::before { content: ""; position: absolute; left: 0; top: 50%; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--line); transform: translateY(-50%); animation: dot 20s infinite; }
+.caption span:nth-child(2)::before { animation-delay: 5s; }
+.caption span:nth-child(3)::before { animation-delay: 10s; }
+.caption span:nth-child(4)::before { animation-delay: 15s; }
+@keyframes dot { 0%, 27% { background: var(--accent) } 28%, 100% { background: var(--line) } }
+@media (prefers-reduced-motion: reduce) {
+  .screen img, .caption span::before { animation: none; }
+  .screen img:first-child { opacity: 1; }
+}
+
+/* Sections */
+section { padding-block: 56px; border-top: 1px solid var(--line); }
+h2 { font: 600 clamp(1.5rem, 2.6vw, 2rem)/1.2 var(--display); letter-spacing: -0.01em; margin: 0 0 10px; text-wrap: balance; }
+.sub { color: var(--text2); margin: 0 0 28px; max-width: 40em; }
+
+/* Install */
+.install { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 14px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
+ol.steps li::before { content: counter(s); width: 34px; height: 34px; border-radius: 50%; background: var(--card);
+  border: 1px solid var(--line); display: grid; place-items: center; font: 600 0.9rem var(--display); color: var(--accent); }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; min-width: 0; }
+.panel h3 { font: 600 1.1rem var(--display); margin: 0 0 8px; }
+.panel p { margin: 0 0 14px; color: var(--text2); }
+.panel .note { font-size: 0.85rem; }
+esp-web-install-button { display: block; margin: 6px 0 16px; --esp-tools-button-color: var(--accent);
+  --esp-tools-button-text-color: var(--accent-ink); }
+.warn { color: #f0c36b; }
+
+/* Features */
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.feat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; min-width: 0; }
+.feat h3 { font: 600 1.05rem var(--display); margin: 0 0 6px; }
+.feat p { margin: 0; color: var(--text2); font-size: 0.95rem; }
+.shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
+.shots figure { margin: 0; }
+.shots img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.shots figcaption { color: var(--text2); font-size: 0.85rem; margin-top: 8px; }
+
+/* How it works */
+.flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.flow div { border-left: 2px solid var(--accent); padding-left: 16px; }
+.flow h3 { font: 600 1rem var(--display); margin: 0 0 6px; }
+.flow p { margin: 0; color: var(--text2); font-size: 0.95rem; }
+
+footer { border-top: 1px solid var(--line); padding-block: 28px 48px; color: var(--text2); font-size: 0.85rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 860px) {
+  .hero, .install { grid-template-columns: minmax(0, 1fr); }
+  .hero { gap: 32px; padding-block: 16px 48px; }
+  .grid, .flow { grid-template-columns: minmax(0, 1fr); }
+  .shots { grid-template-columns: minmax(0, 1fr); }
+  .top nav { gap: 14px; }
+}
+</style>
+</head>
+<body>
+<header class="top wrap">
+  <a class="brand" href="#">wiimscreen</a>
+  <nav aria-label="Main">
+    <a href="#install">Install</a>
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="https://github.com/couzinc/wiimscreen">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <h1>A touchscreen remote for your WiiM</h1>
+      <p class="lede">Album art, controls, your presets and favorites, Qobuz and Deezer search, on a 5-inch screen beside
+        your streamer. Open source. No cloud, no phone app.</p>
+      <div class="cta">
+        <a class="btn primary" href="#install">Install on a Tab5</a>
+        <a class="btn ghost" href="https://github.com/couzinc/wiimscreen">Source on GitHub</a>
+      </div>
+      <p class="meta">Version <code>{{VERSION}}</code> · M5Stack Tab5 (ESP32-P4) · also on Windows</p>
+    </div>
+    <div>
+      <div class="device" role="img" aria-label="The wiimscreen app on an M5Stack Tab5: now playing, Library, search and ambient view">
+        <div class="screen">
+          <img src="img/apercu.png" alt="" width="1280" height="720">
+          <img src="img/bibliotheque.png" alt="" width="1280" height="720" loading="lazy">
+          <img src="img/recherche.png" alt="" width="1280" height="720" loading="lazy">
+          <img src="img/ambiance.png" alt="" width="1280" height="720" loading="lazy">
+        </div>
+      </div>
+      <div class="caption" aria-hidden="true"><span>Now playing</span><span>Library</span><span>Search</span><span>Ambient view</span></div>
+    </div>
+  </div>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Install from this page</h2>
+      <p class="sub">You flash the Tab5 over USB one time. After that, the Tab5 updates itself over Wi-Fi from GitHub.</p>
+      <div class="install">
+        <ol class="steps">
+          <li><div>Use <strong>Chrome or Edge</strong> on a computer. Connect the Tab5 with a USB-C <strong>data</strong> cable.</div></li>
+          <li><div>Push the power button one time to turn on the Tab5. Then push and hold it until the green LED flashes (download mode).</div></li>
+          <li><div>Click <strong>Install</strong> and select the port of the Tab5. When the browser asks, leave <strong>Erase device</strong> off: your settings and favorites stay.</div></li>
+          <li><div>When the install is complete, push the power button. Scan the QR code on the screen with your phone to set up Wi-Fi and your WiiM.</div></li>
+        </ol>
+        <div class="panel">
+          <h3>wiimscreen <span>{{VERSION}}</span> for the M5Stack Tab5</h3>
+          <p>One file, written at address 0x0. The browser does everything: no software to install.</p>
+          <esp-web-install-button manifest="manifest.json">
+            <button slot="activate" class="btn primary" type="button">Install</button>
+            <span slot="unsupported" class="warn">This browser cannot talk to USB devices. Open this page in Chrome or Edge on a computer.</span>
+            <span slot="not-allowed" class="warn">The install needs a secure page (https).</span>
+          </esp-web-install-button>
+          <p class="note">Prefer a tool? Download <a href="firmware/wiim-remote-tab5.bin">wiim-remote-tab5.bin</a> and write it at <code>0x0</code> with
+            <a href="https://esp.huhn.me/">ESPWebTool</a> or <code>esptool --chip esp32p4 write-flash 0x0 wiim-remote-tab5.bin</code>.</p>
+          <p class="note">Windows app: <a href="https://github.com/couzinc/wiimscreen/releases/latest">wiimscreen-windows-x64.zip</a> on the release page.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>What it does</h2>
+      <p class="sub">Everything goes through your WiiM on your own network. The WiiM plays Qobuz and Deezer with its own login.</p>
+      <div class="grid">
+        <div class="feat"><h3>Now playing</h3><p>Large album art, title, artist, source and quality (16 bits · 44.1 kHz). The colors follow the cover. Touch the bar to seek.</p></div>
+        <div class="feat"><h3>Tiles and Library</h3><p>WiiM presets and the albums you save with the heart. Rate them with 1 to 5 stars, pin them, filter them in the Library.</p></div>
+        <div class="feat"><h3>Qobuz</h3><p>Search tracks, open your Qobuz favorites, Play all or Shuffle. The WiiM does the search with its own account.</p></div>
+        <div class="feat"><h3>Deezer</h3><p>Search the catalog, keep Flow as a tile, play the favorites of a public profile.</p></div>
+        <div class="feat"><h3>Ambient view</h3><p>After a minute, or with one touch: a full-screen cover that you can read from across the room.</p></div>
+        <div class="feat"><h3>Safe updates</h3><p>New versions install from GitHub on the device. If one does not start, the Tab5 goes back to the previous one.</p></div>
+      </div>
+      <div class="shots">
+        <figure><img src="img/favoris.png" alt="Main screen with album art, controls and a row of preset and favorite tiles" width="1280" height="720" loading="lazy"><figcaption>Presets and favorites on the main screen</figcaption></figure>
+        <figure><img src="img/resultats.png" alt="Search results with covers, titles and artists" width="1280" height="720" loading="lazy"><figcaption>Search results, with covers</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="sub">Only the local interfaces of the WiiM. Some are not documented by WiiM, so a WiiM firmware update can change them.</p>
+      <div class="flow">
+        <div><h3>HTTP API</h3><p>Status, track, volume, presets and commands, over HTTPS. The Tab5 pins the WiiM's certificate on first contact.</p></div>
+        <div><h3>UPnP play queues</h3><p>The service the WiiM Home app uses. It plays albums, playlists, favorites and search results.</p></div>
+        <div><h3>Nothing in the cloud</h3><p>No account and no password on the device. Only album art, searches and the update check leave your network.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>wiimscreen · MIT license · not affiliated with WiiM or Linkplay</span>
+    <span><a href="https://github.com/couzinc/wiimscreen">GitHub</a> · <a href="https://github.com/couzinc/wiimscreen/blob/main/CHANGELOG.md">Changelog</a> · <a href="https://github.com/couzinc/wiimscreen/issues">Report a problem</a></span>
+  </div>
+</footer>
+</body>
+</html>
