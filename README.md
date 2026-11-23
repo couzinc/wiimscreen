@@ -24,8 +24,8 @@ Open source · runs on ESP32 · tested on the M5Stack Tab5
   the public Deezer catalog.
 - **English or French.** Select the language in the setup page.
 
-> **Status: 1.0.** Only the [M5Stack Tab5](https://docs.m5stack.com/en/core/Tab5) is tested. The computer versions are
-> experimental. The checklist for real hardware is in [docs/HARDWARE_TEST.md](docs/HARDWARE_TEST.md). If you find a problem, please
+> **Status: beta (1.0 is next).** Only the [M5Stack Tab5](https://docs.m5stack.com/en/core/Tab5) is tested. The computer
+> versions are experimental. The checklist for real hardware is in [docs/HARDWARE_TEST.md](docs/HARDWARE_TEST.md). If you find a problem, please
 > [open an issue](../../issues).
 
 ## Features
