@@ -13,7 +13,7 @@ Open source · runs on ESP32 · tested on the M5Stack Tab5
 [![Firmware build](https://github.com/couzinc/wiimscreen/actions/workflows/firmware.yml/badge.svg)](https://github.com/couzinc/wiimscreen/actions/workflows/firmware.yml)
 ![Tested on: M5Stack Tab5](https://img.shields.io/badge/tested%20on-M5Stack%20Tab5-black)
 
-*Version française : [LISEZMOI.md](LISEZMOI.md)*
+**[Project page and install from your browser](https://couzinc.github.io/wiimscreen/)** · *Version française : [LISEZMOI.md](LISEZMOI.md)*
 
 ![Now playing on the M5Stack Tab5](docs/apercu.png)
 
@@ -25,7 +25,7 @@ Open source · runs on ESP32 · tested on the M5Stack Tab5
 - **English or French.** Select the language in the setup page.
 
 > **Status: 1.0.** Only the [M5Stack Tab5](https://docs.m5stack.com/en/core/Tab5) is tested. The computer versions are
-> experimental. Install it from the [project page](https://couzinc.github.io/wiimscreen/). The checklist for real hardware is in [docs/HARDWARE_TEST.md](docs/HARDWARE_TEST.md). If you find a problem, please
+> experimental. The checklist for real hardware is in [docs/HARDWARE_TEST.md](docs/HARDWARE_TEST.md). If you find a problem, please
 > [open an issue](../../issues).
 
 ## Features
@@ -57,20 +57,29 @@ The images come from the real UI code ([tools/preview](tools/preview/)).
 
 ## Quick start (M5Stack Tab5)
 
-**1. Get the firmware.** Download `wiim-remote-tab5.bin` from the [latest release](../../releases), or from the
-latest [Actions](../../actions) run (artifact `wiim-remote-tab5`).
-
-**2. Flash it.** The Tab5 needs this USB flash only one time: later updates go over Wi-Fi (refer to "Update the
-firmware"). Use Chrome or Edge. You do not have to install software.
+**1. Flash it from your browser.** The Tab5 needs this USB flash only one time: later updates go over Wi-Fi (refer
+to "Update the firmware"). Use Chrome or Edge on a computer. You do not have to install software.
 
 1. Connect the Tab5 to the computer with a USB-C **data** cable.
 2. Push the power button one time to turn on the Tab5.
 3. Push and hold the power button until the green LED flashes (download mode).
-4. Open <https://esp.huhn.me/> (ESPWebTool) and click **Connect**. Select the port of the Tab5 (not COM1).
-5. Select the file, set its offset to **`0x0`** and click **Program**.
+4. Open the project page, <https://couzinc.github.io/wiimscreen/>, and click **Install**. Select the port of the
+   Tab5 (not COM1).
+5. If the browser asks to erase the device, do not erase it. Your settings and favorites stay.
 6. When the operation is complete, push the power button to start the Tab5.
 
+<details><summary>Flash with ESPWebTool instead</summary>
+
+1. Download `wiim-remote-tab5.bin` from the [latest release](../../releases). Test builds are in the latest
+   [Actions](../../actions) run (artifact `wiim-remote-tab5`).
+2. Put the Tab5 in download mode (steps 1 to 3 above).
+3. Open <https://esp.huhn.me/> (ESPWebTool) and click **Connect**. Select the port of the Tab5 (not COM1).
+4. Select the file, set its offset to **`0x0`** and click **Program**.
+5. When the operation is complete, push the power button to start the Tab5.
+
 Note: Espressif removed its online flashing page (esptool-js, 2026). Old guides that link to it do not work.
+
+</details>
 
 <details><summary>Flash with esptool (command line) instead</summary>
 
@@ -82,7 +91,8 @@ Use `esptool`, the flashing tool from Espressif (Python 3.8 or later).
    python3 -m pip install --upgrade esptool
    ```
 
-2. Put the Tab5 in download mode (steps 1 to 3 above).
+2. Download `wiim-remote-tab5.bin` from the [latest release](../../releases), then put the Tab5 in download mode
+   (steps 1 to 3 above).
 3. Write the file at address `0x0`. Replace the path with the path of your file. Add `--port COM5` (Windows) or
    `--port /dev/ttyACM0` (Linux) if esptool does not find the Tab5.
 
@@ -94,7 +104,7 @@ Use `esptool`, the flashing tool from Espressif (Python 3.8 or later).
 
 </details>
 
-**3. Set it up.**
+**2. Set it up.**
 
 1. Scan the QR code on the screen with your phone.
 2. Select your Wi-Fi network and type its password.

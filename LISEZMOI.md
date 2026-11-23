@@ -40,67 +40,28 @@ une télécommande ou une manette. Voir [docs/DESKTOP.md](docs/DESKTOP.md) (en a
 - **TLS épinglé** : le certificat auto-signé du WiiM est enregistré à la première connexion, puis comparé (SHA-256) avant chaque requête
 - **Réglages conservés** lors des mises à jour du firmware (mémoire NVS), et même après un flash USB complet (le Tab5 en garde une copie et la remet)
 
-## 1. Obtenir le firmware
+## 1. Flasher depuis le navigateur (une seule fois)
 
-Télécharge `wiim-remote-tab5.bin` depuis la [dernière version publiée](../../releases) (fichier non zippé). Les
-versions de test sont aussi dans l'onglet **Actions** > dernière exécution > artefact **wiim-remote-tab5** (à dézipper).
+Ensuite, les mises à jour passent par le Wi-Fi (section 2). Rien à installer :
 
-## 2. Flasher en USB (une seule fois)
-
-Ensuite, les mises à jour passent par le Wi-Fi (section 5). Rien à installer :
-
-1. Ouvre **Chrome ou Edge** (Firefox ne gère pas le port série web) sur https://esp.huhn.me/ (ESPWebTool).
+1. Ouvre **Chrome ou Edge** sur un ordinateur (Firefox ne gère pas le port série web).
 2. Branche le Tab5 en USB-C (câble **de données**). Appuie une fois sur le bouton d'alimentation pour l'allumer, puis maintiens-le appuyé jusqu'à ce que la LED **verte clignote** (mode téléchargement).
-3. Clique **Connect** et choisis le port qui apparaît.
-4. Choisis `wiim-remote-tab5.bin`, mets son *offset* à **0x0**, clique **Program**.
+3. Ouvre la [page du projet](https://couzinc.github.io/wiimscreen/), clique **Install** et choisis le port du Tab5.
+4. Si le navigateur propose d'effacer l'appareil, refuse : tes réglages et tes favoris restent.
 5. À la fin, appuie sur le bouton d'alimentation pour démarrer le Tab5.
 
-La page web d'Espressif (esptool-js) n'existe plus (2026). Autre possibilité, en ligne de commande avec **esptool**
-(Python 3.8 ou plus récent ; sous Windows, remplace `python3` par `py`) : `python3 -m pip install --upgrade esptool`,
-Tab5 en mode téléchargement, puis `python3 -m esptool --chip esp32p4 write-flash 0x0 wiim-remote-tab5.bin`
-(ajoute `--port COM5` sous Windows si le Tab5 n'est pas trouvé) ; quand esptool affiche « Hard resetting », appuie
-sur le bouton d'alimentation.
+**Autres façons.** Télécharge `wiim-remote-tab5.bin` depuis la [dernière version publiée](../../releases) (les
+versions de test sont dans l'onglet **Actions** > dernière exécution > artefact **wiim-remote-tab5**, à dézipper),
+puis, Tab5 en mode téléchargement :
 
-Pas de batterie ? Le Tab5 fonctionne très bien branché en USB-C. La batterie (type Sony NP-F550, 7,4 V) est vendue à part ; sans elle, l'indicateur de batterie n'apparaît pas.
+- **ESPWebTool** : https://esp.huhn.me/ › **Connect** › choisis le port › choisis le fichier, *offset* **0x0** ›
+  **Program**. La page web d'Espressif (esptool-js) n'existe plus (2026).
+- **esptool** en ligne de commande (Python 3.8 ou plus récent ; sous Windows, remplace `python3` par `py`) :
+  `python3 -m pip install --upgrade esptool`, puis `python3 -m esptool --chip esp32p4 write-flash 0x0 wiim-remote-tab5.bin`
+  (ajoute `--port COM5` sous Windows si le Tab5 n'est pas trouvé) ; quand esptool affiche « Hard resetting », appuie
+  sur le bouton d'alimentation.
 
-## 3. Configurer avec ton téléphone
-
-Au premier démarrage, l'écran affiche « Configuration » avec un QR code.
-
-1. Scanne le QR code (ou rejoins le Wi-Fi `WiiM-Remote-XXXX` avec le mot de passe affiché).
-2. La page de configuration s'ouvre ; sinon va sur **http://192.168.4.1**.
-3. Renseigne :
-   - ton **Wi-Fi** (2,4 GHz) : choisis-le dans la liste et tape son mot de passe. Astuce Android : **Paramètres > Wi-Fi > ton réseau > Partager** affiche le mot de passe sous le QR code
-   - l'**IP du WiiM** : **laisse vide**. Le Tab5 cherche les WiiM sur ton Wi-Fi ; il te montre ceux qu'il trouve et tu touches celui à commander (par son nom dans l'app WiiM Home), même s'il n'y en a qu'un. Si son adresse change plus tard, le Tab5 retrouve le même WiiM tout seul
-   - les **presets** : laisse vide pour reprendre ceux de l'app WiiM Home (noms et images). Sinon, une ligne par bouton, `numéro=nom` (12 max) :
-   ```
-   1=Radio Swiss Jazz
-   2=Couleur 3
-   ```
-4. **Enregistrer** : la télécommande redémarre, se connecte et affiche l'interface. Le premier échange enregistre le certificat du WiiM (« Certificat du WiiM enregistré »).
-
-## 4. Recherche à la voix (facultatif)
-
-![Dictée dans le champ de recherche](docs/dictee.png)
-
-La transcription de la voix est faite par OpenAI : le Tab5 seul ne sait pas reconnaître du français libre (le moteur hors ligne d'Espressif ne connaît que des commandes en anglais et en chinois).
-
-1. Crée un compte sur https://platform.openai.com, ajoute quelques dollars de crédit, puis crée une clé API (*API keys* > *Create new secret key*).
-2. Ouvre la configuration du Tab5 (bouton ⚙ en bas de la barre de gauche → **Configuration**) et colle la clé dans **Dictée de la recherche : clé API OpenAI**.
-3. Un bouton micro apparaît dans le champ de l'écran de recherche (loupe de la barre de gauche).
-
-**Coût** : modèle `gpt-4o-mini-transcribe`, facturé à la durée d'audio (environ 0,3 centime de dollar la minute au moment de l'écriture) ; une phrase dure quelques secondes, soit quelques centimes par mois même en usage quotidien.
-
-**Ce qui est envoyé** : uniquement le son enregistré pendant l'écoute (8 s au plus), à OpenAI ; puis le texte cherché, au WiiM (Qobuz) ou à Deezer. Le micro est coupé le reste du temps. La clé reste dans la mémoire du Tab5 et n'est jamais réaffichée dans la page de configuration.
-
-**Utilisation** : sur l'écran de recherche, touche le micro, attends le bip, dis un artiste, un morceau ou un album, puis touche le **bouton rouge** pour finir. Le texte entendu s'écrit dans le champ et la recherche part. 🏠 ou ⚙ abandonnent. Pendant l'écoute, la musique est baissée puis remise à son volume.
-
-Exemples : « Stromae », « Daft Punk Discovery », « Ma meilleure ennemie ». Les résultats s'affichent comme pour une
-recherche tapée au clavier ; touche celui à écouter.
-
-**Reconfigurer plus tard** : bouton ⚙ (barre de gauche), puis **Configuration**.
-
-## 5. Mettre à jour par le Wi-Fi
+## 2. Mettre à jour par le Wi-Fi
 
 Une fois ce firmware installé par USB, les versions suivantes s'installent sans câble.
 
