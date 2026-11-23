@@ -62,13 +62,20 @@ std::string searchUndoText(const SearchUndo& u);
 bool parseSearchUndo(const std::string& text, SearchUndo& out);  // false: nothing to undo (empty, unreadable)
 
 // A queue filled by the WiiM (search, favorites, album) grows step by step (1-2 tracks after 1 s, 7 after 6 s):
-// it is complete when the same non-zero count comes back 4 more times in a row and at least 3 s have passed.
+// it is complete when a non-zero count has not changed for kQueueQuietMs and at least 3 s have passed. With
+// `enough` > 0, it is also done as soon as it holds that many tracks (a search: the WiiM goes on adding pages up to
+// 1000 tracks, the first ones are what a person looks at).
+constexpr uint32_t kQueueQuietMs = 2000;
+constexpr int kSearchEnough = 20;  // tracks read and shown for a Qobuz search through a WiiM queue
 class QueueStability {
 public:
-    bool feed(int tracks, uint32_t elapsedMs);  // true when stable
+    explicit QueueStability(int enough = 0) : enough_(enough) {}
+    bool feed(int tracks, uint32_t elapsedMs);  // true when stable, or enough
 
 private:
-    int last_ = -1, same_ = 0;
+    int enough_;
+    int last_ = -1;
+    uint32_t changedAt_ = 0;
 };
 
 // 1-based place of `title` in the queue (as PlayQueueWithIndex counts), 0 if absent. loose: compare with

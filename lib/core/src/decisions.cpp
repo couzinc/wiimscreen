@@ -41,13 +41,13 @@ RestoreAction restoreAction(const PlaybackBefore& before, const PlayerStatus& no
 }
 
 bool QueueStability::feed(int tracks, uint32_t elapsedMs) {
-    if (tracks > 0 && tracks == last_) {
-        if (++same_ >= 4 && elapsedMs >= 3000) return true;
-    } else {
-        same_ = 0;
+    if (enough_ > 0 && tracks >= enough_) return true;
+    if (tracks != last_) {
+        last_ = tracks;
+        changedAt_ = elapsedMs;
+        return false;
     }
-    last_ = tracks;
-    return false;
+    return tracks > 0 && elapsedMs - changedAt_ >= kQueueQuietMs && elapsedMs >= 3000;
 }
 
 bool searchTryNext(bool found, bool relevant, int empties, bool severalWords) {

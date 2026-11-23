@@ -15,7 +15,7 @@
 using namespace wiimq;
 
 static bool readQueueStable(WiimWorker* w, const std::string& control, const std::string& name, int seconds,
-                            wr::QueueInfo& out, bool poll = false);
+                            wr::QueueInfo& out, bool poll = false, int enough = 0);
 
 // ---------------------------------------------------------------------------
 // Recherche Qobuz sans clé : le WiiM lit lui-même les résultats d'une file dont l'adresse est une
@@ -23,19 +23,20 @@ static bool readQueueStable(WiimWorker* w, const std::string& control, const std
 
 static const char* kSearchQueue = "wiimscreen-recherche";
 
-// Le WiiM ajoute les pistes peu à peu (1 ou 2 après 1 s, 7 après 6 s) : on relit la file jusqu'à ce que
-// leur nombre ne bouge plus (deux lectures égales), dans la limite de `seconds`
+// Le WiiM ajoute les pistes peu à peu (1 ou 2 après 1 s, 7 après 6 s) : on relit la file (toutes les 0,4 s)
+// jusqu'à ce que leur nombre ne bouge plus, ou qu'il y en ait `enough`, dans la limite de `seconds`
 static bool readQueueStable(WiimWorker* w, const std::string& control, const std::string& name, int seconds,
-                            wr::QueueInfo& out, bool poll) {
-    wr::QueueStability stability;  // règle : lib/core/src/decisions.h
+                            wr::QueueInfo& out, bool poll, int enough) {
+    wr::QueueStability stability(enough);  // règle : lib/core/src/decisions.h
     const uint32_t start = millis(), until = start + seconds * 1000UL;
     while ((int32_t)(millis() - until) < 0) {
-        w->pause(700, poll);
+        w->pause(400, poll);
         std::string back;
         if (browseQueue(control, name, back) != 200 || back.empty()) continue;
         wr::QueueInfo q = wr::parseQueueContext(back);
-        if (stability.feed(q.tracks, millis() - start)) break;
-        out = q;
+        const bool done = stability.feed(q.tracks, millis() - start);
+        out = q;  // la dernière lecture (la plus complète)
+        if (done) break;
     }
     return out.tracks > 0;
 }
@@ -329,7 +330,7 @@ void WiimWorker::runSearch(const String& query) {
     }
     // Résultats relus ; d'abord sans lancer la lecture, puis en la lançant si la file reste vide
     auto readBack = [&](const std::string& name, int seconds, wr::QueueInfo& out) {
-        return readQueueStable(this, control, name, seconds, out);
+        return readQueueStable(this, control, name, seconds, out, false, wr::kSearchEnough);
     };
     // Façons d'écrire les espaces dans l'adresse : on passe à la suivante si les résultats n'ont
     // aucun mot de la recherche (le WiiM a pu mal lire la requête)
@@ -394,21 +395,33 @@ void WiimWorker::runSearch(const String& query) {
         if (!found) ++empties;
         if (!wr::searchTryNext(found, relevant, empties, severalWords)) break;
     }
-    searchGuardEnd(control, guard, error);  // le WiiM lance la file de recherche dès sa création
-    logTagged("search.done", "created=%d | Recherche : termin\xC3\xA9" "e en %lu ms%s", created,
-              (unsigned long)(millis() - t0), created ? "" : " (file de recherche refus\xC3\xA9" "e par le WiiM)");
-    // Aucune file créée : erreur, pas « aucun résultat ». Musique d'avant non remise : dit seulement sans résultat
-    // (la liste des résultats reste utile).
-    ev.ok = created > 0 && (best.tracks > 0 || error.isEmpty());
-    if (!created) ev.text = wr::L("the WiiM refused the search queue", "le WiiM a refus\xC3\xA9 la file de recherche");
-    else ev.text = error;
-    ev.tracks = best.items;
+    // Les premiers morceaux seulement : la file continue de grandir sur le WiiM (jusqu'à 1000)
+    if (best.items.size() > (size_t)wr::kSearchEnough) best.items.resize(wr::kSearchEnough);
     searchTitles_.clear();
     searchAlbums_.clear();
     for (auto& t : best.items) {
         searchTitles_.push_back(t.title);
         searchAlbums_.push_back(t.albumId);
     }
+    // Des résultats : montrés tout de suite ; la musique d'avant revient pendant qu'on les lit (un résultat touché
+    // entre-temps attend la fin de la remise : la tâche fait une chose à la fois)
+    const bool early = best.tracks > 0;
+    if (early) {
+        ev.ok = true;
+        ev.tracks = best.items;
+        logEvent("Recherche : %u r\xC3\xA9sultat(s) montr\xC3\xA9s apr\xC3\xA8s %lu ms", (unsigned)best.items.size(),
+                 (unsigned long)(millis() - t0));
+        push(std::move(ev));
+    }
+    searchGuardEnd(control, guard, error);  // le WiiM lance la file de recherche dès sa création
+    logTagged("search.done", "created=%d | Recherche : termin\xC3\xA9" "e en %lu ms%s", created,
+              (unsigned long)(millis() - t0), created ? "" : " (file de recherche refus\xC3\xA9" "e par le WiiM)");
+    if (early) return;
+    // Aucune file créée : erreur, pas « aucun résultat ». Musique d'avant non remise : dit seulement sans résultat
+    // (la liste des résultats reste utile).
+    ev.ok = created > 0 && error.isEmpty();
+    if (!created) ev.text = wr::L("the WiiM refused the search queue", "le WiiM a refus\xC3\xA9 la file de recherche");
+    else ev.text = error;
     push(std::move(ev));
 }
 

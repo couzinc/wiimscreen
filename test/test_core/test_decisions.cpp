@@ -106,13 +106,19 @@ static void test_decisions() {
         if (loopWithShuffle(l) >= 0) TEST_ASSERT_EQUAL(l, loopWithoutShuffle(loopWithShuffle(l)));
 
     QueueStability st;
-    TEST_ASSERT_FALSE(st.feed(0, 700));
-    TEST_ASSERT_FALSE(st.feed(2, 1400));
-    for (int k = 0; k < 4; ++k) TEST_ASSERT_FALSE(st.feed(7, 2100 + 700 * k));
-    TEST_ASSERT_TRUE(st.feed(7, 4900));  // 4 répétitions du même nombre, plus de 3 s
+    TEST_ASSERT_FALSE(st.feed(0, 400));
+    TEST_ASSERT_FALSE(st.feed(0, 2800));  // vide : jamais complète
+    TEST_ASSERT_FALSE(st.feed(2, 3200));
+    TEST_ASSERT_FALSE(st.feed(7, 3600));
+    for (int k = 1; k <= 4; ++k) TEST_ASSERT_FALSE(st.feed(7, 3600 + 400 * k));  // 1,6 s sans changement
+    TEST_ASSERT_TRUE(st.feed(7, 5600));  // 2 s sans changement, plus de 3 s
     QueueStability quick;
     for (int k = 0; k < 4; ++k) TEST_ASSERT_FALSE(quick.feed(3, 100 * k));  // trop tôt
     TEST_ASSERT_TRUE(quick.feed(3, 3000));
+    QueueStability search(kSearchEnough);  // recherche : assez de morceaux, sans attendre la fin
+    TEST_ASSERT_FALSE(search.feed(5, 400));
+    TEST_ASSERT_FALSE(search.feed(19, 800));
+    TEST_ASSERT_TRUE(search.feed(23, 1200));
 
     QueueInfo q;
     q.items = {{"So What", "", "", "", ""}, {"Blue in Green", "", "", "", ""}};

@@ -20,6 +20,10 @@ computer versions (Windows, Raspberry Pi, Linux, macOS) stay experimental.
   ambient view (large album art) at once, without the 60 s wait. A touch brings back the controls, as before.
 
 ### Changed
+- **Faster Qobuz search** (without the direct option): the results show as soon as the WiiM has 20 tracks, or
+  when its list stops growing, instead of waiting for the end; the queue is read every 0.4 s; the music from before
+  comes back while you read the results. The list shows the first 20 tracks. The Journal gives the time
+  (`Recherche : N résultat(s) montrés après … ms`).
 - **Documentation** checked against the code: the French guide (LISEZMOI) has the same how-to as the English one,
   new screenshots (Library), the hardware checklist names the real files and labels.
 
