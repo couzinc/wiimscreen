@@ -308,11 +308,12 @@ paused), a search result played inside its album.
 **Simulator `simreal` with a real WiiM (user report, 2026-11-16):** relay (`--wiim`, WSL NAT mode) and the WiiM status shown.
 **Tab5, v0.5–0.6 (user reports, 2026-11-21/22):** the tap dispatcher and navigation bar of v0.3+ in daily use; upload
 page updates (v0.6.0 diag, v0.6.3); **Install** from GitHub failed on v0.5.x/v0.6.0 ("network", then "transfer
-stopped"; fixed in 0.6.1 with fresh connections per redirect and resume, not yet seen succeeding); v0.6.1/v0.6.2 boot
+stopped"; fixed in 0.6.1 with fresh connections per redirect and resume; **seen working from v0.6.3-beta to
+v0.6.4-beta, 2026-11-23**); v0.6.1/v0.6.2 boot
 loop after Wi-Fi (AES interrupt race, decoded from the core dump; fixed in 0.6.3); the update page "unreachable"
 when the Update screen is not open (by design).
 
-**Not yet confirmed on hardware:** v0.6.3+ starting without the loop, a successful **Install** from GitHub, the
+**Not yet confirmed on hardware:** the
 trial confirmation and automatic rollback (`boot_check`), the PPA screen copy (`Écran : copie matérielle`), Library
 and ratings, the move of preset history to station names, the full-screen button, Deezer *Play all*, Deezer search screen and playback at a track, queues over 200 tracks, microphones (visualizer, voice search), speaker volume levels, choice between several WiiMs,
 the restart into setup mode, the partial-redraw speed-up, factory reset, taps handled during long worker jobs,
