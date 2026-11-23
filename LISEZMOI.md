@@ -35,19 +35,19 @@ une télécommande ou une manette. Voir [docs/DESKTOP.md](docs/DESKTOP.md) (en a
 - **Aucune appli à installer** : tout se règle depuis un téléphone, via un portail Wi-Fi affiché à l'écran (avec QR code)
 - **API locale du WiiM** (`httpapi.asp`), aucun cloud
 - **TLS épinglé** : le certificat auto-signé du WiiM est enregistré à la première connexion, puis comparé (SHA-256) avant chaque requête
-- **Réglages conservés** lors des mises à jour du firmware (mémoire NVS)
+- **Réglages conservés** lors des mises à jour du firmware (mémoire NVS), et même après un flash USB complet (le Tab5 en garde une copie et la remet)
 
 ## 1. Obtenir le firmware
 
-La compilation se lance toute seule à chaque envoi sur GitHub :
-onglet **Actions** > dernière exécution > artefact **wiim-remote-tab5**. Tu y trouves `wiim-remote-tab5.bin`.
+Télécharge `wiim-remote-tab5.bin` depuis la [dernière version publiée](../../releases) (fichier non zippé). Les
+versions de test sont aussi dans l'onglet **Actions** > dernière exécution > artefact **wiim-remote-tab5** (à dézipper).
 
 ## 2. Flasher en USB (une seule fois)
 
 Ensuite, les mises à jour passent par le Wi-Fi (section 5). Rien à installer :
 
 1. Ouvre **Chrome ou Edge** (Firefox ne gère pas le port série web) sur https://esp.huhn.me/ (ESPWebTool).
-2. Branche le Tab5 en USB-C (câble **de données**), puis passe-le en **mode téléchargement** : appui long (~2 s) sur le bouton d'alimentation/reset jusqu'à ce que la LED **verte clignote rapidement**.
+2. Branche le Tab5 en USB-C (câble **de données**). Appuie une fois sur le bouton d'alimentation pour l'allumer, puis maintiens-le appuyé jusqu'à ce que la LED **verte clignote** (mode téléchargement).
 3. Clique **Connect** et choisis le port qui apparaît.
 4. Choisis `wiim-remote-tab5.bin`, mets son *offset* à **0x0**, clique **Program**.
 5. À la fin, appuie sur le bouton d'alimentation pour démarrer le Tab5.
@@ -105,14 +105,14 @@ Une fois ce firmware installé par USB, les versions suivantes s'installent sans
 
 **Depuis un téléphone ou un ordinateur :**
 
-1. Télécharge l'artefact **wiim-remote-tab5** de la dernière exécution (onglet **Actions** de GitHub) et dézippe-le.
+1. Télécharge `wiim-remote-tab5.bin` depuis la [dernière version publiée](../../releases).
 2. Sur le Tab5 : bouton ⚙ (barre de gauche) → **Mise à jour**. L'écran affiche un QR code, une adresse (`http://192.168.x.x`) et un code à 6 chiffres.
 3. Sur un téléphone ou un ordinateur du même Wi-Fi, scanne le QR code ou ouvre cette adresse, saisis le code, choisis le fichier `.bin`, **Installer**.
 4. Une barre de progression s'affiche sur le téléphone (ou l'ordinateur) et sur le Tab5, puis il redémarre sur la nouvelle version (affichée en bas du menu Réglages).
 
 La page ne répond que pendant que le Tab5 affiche l'écran Mise à jour ; le code change à chaque fois. La page ne s'ouvre pas sur le téléphone ? Coupe les données mobiles et vérifie qu'il est sur le Wi-Fi de la maison (pas un réseau invité). L'adresse doit commencer par `http://` et non `https://`. Sur iPhone avec un autre navigateur que Safari : Réglages › ce navigateur › autoriser « Réseau local ».
 
-C'est le même fichier que pour le flash USB : le Tab5 n'en garde que la partie utile. Le nouveau firmware est écrit à côté de l'ancien et vérifié avant d'être utilisé : un fichier incomplet, pour un autre appareil ou interrompu en route laisse l'ancien en place. Une nouvelle version qui s'arrête dans ses 45 premières secondes est remplacée par la précédente au redémarrage, et le Tab5 le dit (à partir de v0.6.4-beta). Le mode mise à jour se ferme avec **Annuler**, après 5 codes faux ou au bout de 10 minutes.
+C'est le même fichier que pour le flash USB : le Tab5 n'en garde que la partie utile. Le nouveau firmware est écrit à côté de l'ancien et vérifié avant d'être utilisé : un fichier incomplet, pour un autre appareil ou interrompu en route laisse l'ancien en place. Une nouvelle version qui s'arrête dans ses 45 premières secondes est remplacée par la précédente au redémarrage, et le Tab5 le dit (à partir de v0.6.4-beta). Le mode mise à jour se ferme avec **Annuler** ou au bout de 10 minutes ; après un code faux, il faut attendre un peu plus à chaque fois.
 
 ## Utilisation
 
@@ -124,19 +124,48 @@ C'est le même fichier que pour le flash USB : le Tab5 n'en garde que la partie 
 | Haut-parleur (à gauche du volume) | Couper / rétablir le son |
 | Tuiles du bas | Lancer le preset (au relâcher) |
 | Doigt tenu sur une tuile | Menu de la tuile : note (1 à 5 étoiles ; la même étoile retouchée l'efface), épingler en tête / désépingler, retirer des favoris |
-| Grille (2ᵉ bouton de la barre de gauche) | Bibliothèque : toutes les tuiles sur un écran, filtres Presets / Favoris / Qobuz / Deezer ; les tuiles notées d'abord (★ et leur note sur l'image) ; toucher une tuile la lance, doigt tenu : son menu |
+| Bibliothèque (2ᵉ bouton de la barre de gauche : deux pochettes et un cœur) | Bibliothèque : toutes les tuiles sur un écran, filtres Presets / Favoris / Qobuz / Deezer ; les tuiles notées d'abord (★ et leur note sur l'image) ; toucher une tuile la lance, doigt tenu : son menu |
 | « Favoris Qobuz » / « Favoris Deezer » (Bibliothèque › Qobuz / Deezer, en premier ; plus sur la bande) | Liste des morceaux favoris : toucher un morceau, **Tout lire** ou **Aléatoire** (Deezer : pas encore vérifié sur un WiiM) |
 | Glisser sur les tuiles, ou toucher les points | Page de presets suivante / précédente |
 | − / + (bouts de la barre de volume) | Volume (pas réglable) |
 | ◀◀ / ▶▶ | Piste précédente / suivante |
 | ▶ / II | Lecture / pause |
 | Cœur (à gauche de ◀◀) | Ajouter l'album ou la playlist en cours aux favoris (ou l'en retirer) |
+| Plein écran (quatre coins, à droite de ▶▶) | Vue ambiance tout de suite (un appui ramène les commandes) |
 | 🏠 en haut de la barre de gauche | Accueil : écran principal (première page de presets) |
-| Loupe au milieu de la barre de gauche | Recherche Qobuz : taper un artiste ou un morceau, puis toucher un résultat |
-| ⚙ en bas de la barre de gauche | Réglages : configuration, mise à jour, test tactile, journal |
+| Loupe (3ᵉ bouton de la barre de gauche) | Recherche Qobuz ou Deezer : taper un artiste ou un morceau, puis toucher un résultat |
+| ⚙ en bas de la barre de gauche | Réglages : configuration, mise à jour, test tactile, journal, mise en veille |
 | Pochette ou titre, 3 s | Réglages (même menu) |
 | Maison (en haut à droite), ou n'importe où, en vue ambiance | Revenir à l'écran principal |
 | Soulever / déplacer le Tab5 | Rallumer l'écran, revenir aux commandes |
+
+## Comment faire
+
+**Chercher sur Qobuz.** Le WiiM doit avoir ton compte Qobuz (app WiiM Home › Qobuz). Lance une fois un album Qobuz
+depuis l'app WiiM Home : le Tab5 y copie les réglages Qobuz du WiiM. Ensuite : loupe › **Qobuz** › tape un artiste
+ou un morceau › **Chercher**. Compte environ 10 s : c'est le WiiM qui cherche, la musique s'arrête pendant la
+recherche puis revient. Touche un résultat pour le lancer. Avec l'option **Recherche Qobuz directe**, la recherche
+prend 1 s (voir [Interfaces non officielles](#interfaces-non-officielles)).
+
+**Chercher sur Deezer.** Le WiiM doit avoir ton compte Deezer. Lance une fois un album Deezer ou Flow depuis l'app
+WiiM Home. Ensuite : loupe › **Deezer** › tape un artiste ou un morceau › **Chercher**. Un résultat touché lance son
+album à partir de ce morceau.
+
+**Flow Deezer.** Lance Flow une fois depuis l'app WiiM Home : une tuile **Flow** apparaît toute seule. Elle relance
+Flow avec de nouveaux morceaux. Si tu la retires, touche le cœur pendant que Flow joue pour la remettre.
+
+**Favoris d'un profil Deezer.** Sur deezer.com, ouvre ton profil (public) et copie le numéro à la fin de l'adresse.
+Colle-le dans la configuration (⚙ › **Configuration** › **Profil Deezer**). Puis Bibliothèque › **Deezer** ›
+**Favoris Deezer**, ou une tuile d'album.
+
+**Mise en veille.** ⚙ › **Mise en veille** éteint le Tab5 ; la configuration peut aussi régler une mise en veille
+automatique. Le bouton d'alimentation le rallume (un appui sur l'écran ne le réveille pas).
+
+**Tout effacer.** Page de configuration › **Avancé** › **Tout effacer** : réglages, favoris et historique des tuiles
+disparaissent, le Tab5 redémarre en mode configuration.
+
+**Version Windows.** Télécharge `wiimscreen-windows-x64.zip` depuis la dernière version publiée, dézippe-le et
+lance `wiimscreen.exe` (non signé : « Informations complémentaires » › « Exécuter quand même »).
 
 ## En cas de souci
 
@@ -150,8 +179,8 @@ C'est le même fichier que pour le flash USB : le Tab5 n'en garde que la partie 
 - **L'écran se rallume tout seul** : le Tab5 est peut-être posé sur un meuble qui vibre fort ; désactive le réveil par mouvement dans la configuration.
 - **« Clé OpenAI refusée »** : clé mal collée ou supprimée → recolle-la dans la configuration. **« Quota OpenAI dépassé »** : plus de crédit sur le compte OpenAI.
 - **« Je n'ai rien entendu »** : parle plus près du Tab5 ; si la musique est très forte, baisse-la d'abord.
-- **Pas de favoris Deezer** : indique le numéro de ton profil Deezer dans la configuration (**Favoris Deezer**) ; ton profil doit être public. Un lien court (`link.deezer.com/…`) ne contient pas le numéro : ouvre-le d'abord dans un navigateur. Le Journal (lignes « Deezer : » et « Favoris Deezer : ») dit ce qui a échoué.
-- **Journal** : moniteur série à 115200 bauds (`pio device monitor`).
+- **Pas de favoris Deezer** : indique le numéro de ton profil Deezer dans la configuration (**Profil Deezer**) ; ton profil doit être public. Un lien court (`link.deezer.com/…`) ne contient pas le numéro : ouvre-le d'abord dans un navigateur. Le Journal (lignes « Deezer : » et « Favoris Deezer : ») dit ce qui a échoué.
+- **Journal** : ⚙ › **Journal** sur l'écran (avec **File du WiiM** pour lire les files de lecture du WiiM), ou moniteur série à 115200 bauds (`pio device monitor`). Après un plantage, le démarrage suivant écrit des lignes `Plantage …` : joins-les à un signalement de bug, sans ton adresse IP.
 
 ## Développement
 
@@ -164,13 +193,13 @@ pio run -e tab5 -t upload
 
 ### Aperçu de l'interface sur PC
 
-Pour retoucher l'interface sans l'appareil : le vrai `src/ui/ui.cpp` est compilé pour le PC (M5GFX + SDL2) et les écrans sont enregistrés en PNG.
+Pour retoucher l'interface sans l'appareil : les vrais `src/ui/ui*.cpp` sont compilés pour le PC (M5GFX + SDL2) et les écrans sont enregistrés en PNG.
 
 ```bash
 sudo apt install libsdl2-dev          # Linux ; macOS : brew install sdl2
 pio run -e preview
-# images/ : cover.jpg, et preset1..6 en .jpg ou .png (facultatifs)
-SDL_VIDEODRIVER=dummy .pio/build/preview/program images/ apercu/
+# tools/preview/images/ : pochette et images des presets utilisées par les écrans d'exemple
+SDL_VIDEODRIVER=dummy .pio/build/preview/program tools/preview/images apercu/
 python tools/preview/topng.py apercu/*.ppm
 ```
 
@@ -193,6 +222,9 @@ src/device/                  services de l'appareil
   portal.*                   portail de configuration (point d'accès + DNS + formulaire)
   ota.*                      mise à jour par le Wi-Fi (page web + code affiché à l'écran, ou depuis GitHub)
   sound.*                    sons (M5.Speaker) ; le bus audio est partagé avec le micro
+  boot_check.*               retour automatique à la version précédente si une mise à jour ne démarre pas
+  key_input.*                touches (aucune sur le Tab5 ; clavier et manette sur ordinateur)
+  web_style.h                CSS commun aux deux pages web
 src/storage/                 stockage sur l'appareil
   settings.*                 réglages en NVS (+ copie de secours en LittleFS)
   favorites.*                favoris (copies de files du WiiM) en LittleFS
@@ -214,7 +246,8 @@ python tools/make_vlw.py fonts/DejaVuSans.ttf 56 font_ui_56 src/ui/fonts/font_ui
 Mettre à jour les certificats racines (une fois par an environ) :
 ```bash
 curl -o certs/cacrt_all.pem https://raw.githubusercontent.com/espressif/esp-idf/master/components/mbedtls/esp_crt_bundle/cacrt_all.pem
-python tools/make_ca_bundle.py certs/cacrt_all.pem certs/x509_crt_bundle.bin
+python tools/make_ca_bundle.py certs/cacrt_all.pem certs/extra_roots.pem certs/x509_crt_bundle.bin
+python tools/check_ca_bundle.py certs/cacrt_all.pem certs/extra_roots.pem   # vérifie les serveurs utilisés
 ```
 
 ## Interfaces non officielles
@@ -238,7 +271,7 @@ partage en UPnP (`GetUserInfo`), ce que Qobuz n'a pas approuvé. À toi de chois
 - Mise à jour par le Wi-Fi : uniquement après un geste sur le Tab5 (menu Réglages), avec un code à 6 chiffres affiché seulement à l'écran, un délai qui double après chaque code faux, 10 minutes au plus ; l'image est vérifiée par l'ESP32 avant d'être activée. Depuis GitHub : HTTPS vérifié (certificats racines embarqués), seulement après un appui sur **Installer**, fichier refusé si sa taille ou son empreinte SHA-256 diffère de celles annoncées par GitHub.
 - Clé OpenAI : refusée si elle contient des espaces ou des retours à la ligne (elle va dans un en-tête HTTP) ; jamais réaffichée ni écrite dans le journal.
 - Micro : actif uniquement pendant la dictée d'une recherche ou en vue ambiance avec le visualiseur activé ; chaque bloc de 32 ms est réduit à 24 niveaux de fréquence puis effacé. Aucun son n'est conservé ni transmis.
-- Réponses du WiiM plafonnées à 64 Ko.
+- Réponses du WiiM plafonnées : 64 Ko pour l'API HTTP, 3 Mo pour les files de lecture (UPnP).
 - Images (pochettes, presets) : certificat du serveur vérifié (certificats racines Mozilla) pour les adresses HTTPS ; taille plafonnée à 768 Ko ; seuls JPEG et PNG sont décodés, après vérification de leur signature.
 
 ## Remerciements et projets voisins

@@ -15,11 +15,11 @@ The Journal masks tokens and passwords, but check anyway.
 | # | Do | Expected |
 |---|---|---|
 | 0.1 | Install the firmware with the update page (⚙ › **Mise à jour**). | The Tab5 restarts. |
-| 0.2 | Open ⚙ › **Journal**. | `Démarrage, version local-…` with the version you installed. A line `Mémoire : interne … ko (min …), PSRAM … ko, pile WiiM … o`. Note the four numbers. |
+| 0.2 | Open ⚙ › **Journal**. | `Démarrage, version …` with the version you installed. A line `Mémoire : interne … ko (min …), PSRAM … ko, pile WiiM … o`. Note the four numbers. |
 | 0.3 | In the WiiM Home app, play a Qobuz album once. If you use Deezer, also play a Deezer album once. | The Tab5 shows the music. (The remote copies a model of these queues; Qobuz and Deezer features need it.) |
 | 0.4 | Touch **File du WiiM** in the Journal. | `File : services liés …` lists Qobuz (and Deezer if linked). |
 
-## 1. Quick fixes (firmware `bd76a4f` and later)
+## 1. Quick fixes
 
 | # | Do | Expected | Journal |
 |---|---|---|---|
@@ -32,7 +32,7 @@ The Journal masks tokens and passwords, but check anyway.
 
 | # | Do | Expected | Journal |
 |---|---|---|---|
-| 2.0 | Default settings (direct Qobuz search **off**): search ⌕ › Qobuz › « miles davis » › ↵. | The **Albums** choice is not shown. Results after about 10 s; the music stops during the search and comes back. No `Qobuz : accès…` line in the Journal. Then turn on setup page › **Advanced** › **Direct Qobuz search** for tests 2.1–2.11. | `Recherche Qobuz par une file du WiiM (recherche directe non choisie)` |
+| 2.0 | Default settings (direct Qobuz search **off**): search ⌕ › Qobuz › « miles davis » › ↵. | The **Albums** choice is not shown. Results after about 10 s; the music stops during the search and comes back. No `Qobuz : accès…` line in the Journal. Then turn on setup page › **Avancé** › **Recherche Qobuz directe** for tests 2.1–2.11. | `Recherche Qobuz par une file du WiiM (recherche directe non choisie)` |
 | 2.1 | Look at the Journal after the start. | `Qobuz : accès par le WiiM obtenu (GetUserInfo 200)`. If it says `indisponible`, note the code: many tests below then use the slower fallback. | `Qobuz : accès …` |
 | 2.2 | Same Journal. | `Qobuz : albums favoris 200, N`. N = number of favorite **albums** in your Qobuz account. On the WiiM tested with the simulator (2026-11-16), Qobuz refuses this (no other way found, see WIIM_API_NOTES): `albums favoris 401, 0 (Qobuz refuse l'accès du WiiM aux favoris…)`. Note which one you get. | `Qobuz : albums favoris …` |
 | 2.3 | 🏠 › swipe the tiles. | If N > 0: album tiles with covers after the presets. With 401: no album tiles. The **Favoris Qobuz** panel is not on the strip: it is first in the Library › **Qobuz** (also on a new Tab5: the model is copied from the WiiM's queues). | `Qobuz : modèle de file enregistré` |
@@ -53,11 +53,10 @@ The Journal masks tokens and passwords, but check anyway.
 |---|---|---|---|
 | 3.1 | Search ⌕ › switch to **Deezer** › type an artist › ↵. | Results; no music change. | `Recherche Deezer « … » : 200, N morceau(x)` |
 | 3.2 | Touch a result. | « chargement de l'album… », then the album of this track plays, at this track if possible. | `Deezer ▶ « … » (piste k) : CreateQueue 200, Play 200` |
-| 3.3 | Setup page › **Favoris Deezer** › paste your profile number (deezer.com › your profile › number at the end of the address) › save. | After the restart: Deezer album tiles (if you have favorite albums); the **Favoris Deezer** panel is first in the Library › **Deezer** (not on the strip). | `Deezer : albums favoris 200, N` |
+| 3.3 | Setup page › **Profil Deezer** › paste your profile number (deezer.com › your profile › number at the end of the address) › save. | After the restart: Deezer album tiles (if you have favorite albums); the **Favoris Deezer** panel is first in the Library › **Deezer** (not on the strip). | `Deezer : albums favoris 200, N` |
 | 3.4 | Library › **Deezer** › touch **Favoris Deezer**. | The list of your favorite tracks; no music change before you choose. | `Favoris Deezer : 200, N morceau(x)` |
 | 3.4b | In the list of 3.4, touch **Play all**. **Not checked yet on any WiiM.** | Your favorite tracks play from the first one. If nothing plays, note the Journal lines: the WiiM may refuse the playlist address. | `Favoris Deezer : playlist des coups de cœur 200 <n>`, `[favlist.play] deezer=1 … ok=…` |
 | 3.5 | Touch a track, then a Deezer album tile. | The album of the track plays at this track; the album tile plays the album. | `Deezer ▶ …`, `Album Deezer ▶ …` |
-
 | 3.6 | In WiiM Home, start Deezer **Flow**. Wait for the next track on the Tab5 (or restart it). Play something else, then touch the **Flow** tile. | A **Flow** tile with the Flow picture appears by itself; the heart is filled while Flow plays. The tile starts Flow again (a new track). Remove it with ♥: it does not come back by itself. | `Flow vu sur le WiiM : tuile « Flow » ajoutée automatiquement : OK`, `Favori ▶ « Flow » : CreateQueue 200, 1 piste(s), PlayQueueWithIndex 200` |
 
 ## 4. Favorites saved on the Tab5
@@ -68,11 +67,12 @@ The Journal masks tokens and passwords, but check anyway.
 | 4.2 | Play something else. Touch the new tile. | The saved album plays again. | `Favori ▶ « … » : CreateQueue 200, PlayQueueWithIndex 200` |
 | 4.3 | Touch ♥ again while this album plays. | The favorite is removed (tile gone). | `Favori retiré (…)` |
 | 4.4 | Hold a finger on a tile for about 1 s. | A menu opens with the tile's image and name; the tile does not start. | `Menu de la tuile : …` |
-| 4.5 | In that menu, touch **Pin to the front**. | Back to the main screen; the tile is first. Hold it again: the menu says **Unpin**. | `Tuile épinglée : …` |
+| 4.5 | In that menu, touch **Épingler en tête**. | Back to the main screen; the tile is first. Hold it again: the menu says **Désépingler**. | `Tuile épinglée : …` |
 | 4.6 | Touch a tile on page 2, then do not touch the screen for 1 min. | The tile does not move at once; after 1 min it is first after the pinned tiles. Restart the Tab5: the order stays. | |
 | 4.7 | Hold a favorite tile (small ♥ in its corner) › **Remove from favorites**. | The tile goes away. A Qobuz/Deezer album tile or a WiiM preset has no Remove choice. | `Favori retiré depuis sa tuile (…) : OK` |
 | 4.7b | Hold a tile › touch the 4th star, then the 4th star again, then the 3rd star › **Close**. Open the Library. Restart the Tab5 and open the Library again. | The stars light up to the one touched; the same star again clears them. In the Library the tile shows ★ 3 and comes first. The rating is still there after the restart. The strip on the main screen does not change its order. | `Note de la tuile : 4 étoile(s), …`, then `0 …`, then `3 …` |
-| 4.8 | Touch the grid button (2nd in the side bar). Touch each filter; hold a tile, then **Close**; touch a tile. | All the tiles on one screen, same order as the strip; each filter shows only its kind. After Close: back in the Library, same filter. The touched tile plays and the main screen comes back. | `Bibliothèque : N tuile(s)`, `Menu de la tuile : …`, `Preset … : …` |
+| 4.8 | Touch the Library button (2nd in the side bar: two covers with a heart). Touch each filter; hold a tile, then **Close**; touch a tile. | All the tiles on one screen, same order as the strip; each filter shows only its kind. After Close: back in the Library, same filter. The touched tile plays and the main screen comes back. | `Bibliothèque : N tuile(s)`, `Menu de la tuile : …`, `Preset … : …` |
+| 4.9 | Rate a WiiM preset tile (3 stars). In WiiM Home, put another station in that preset number. Wait for the Tab5 to show the new station. | The new station has no stars; if the old station is in another preset number, it keeps its 3 stars. | `Note de la tuile : …` |
 
 ## 5. Screen and touch
 
@@ -81,26 +81,26 @@ The Journal masks tokens and passwords, but check anyway.
 | 5.1 | Search ⌕ › type fast on the keyboard. | Each key lights at once; no missed letters. |
 | 5.2 | Touch ⏮ / ⏭ / ⏯. | A ring turns on the button until the WiiM changes; the progress bar moves every second without flicker. |
 | 5.3 | ⚙ › **Test tactile**. Touch the corners. | The circle follows the finger everywhere. |
+| 5.4 | Navigation bar: 🏠, ⌕, ⚙ from each screen (main, search, results, Journal, menu). | 🏠 always goes to the main screen with the tiles. |
 | 5.5 | Put a finger on the volume bar and slide it left and right. | The knob follows the finger; the WiiM volume follows within about 1 s; Journal: `Volume glissé : N` once, at release. |
 | 5.6 | Touch and hold − or + of the volume for 2 s. | After a short delay the volume changes step by step and the button stays lit; Journal: `Volume maintenu : N` at release. |
 | 5.7 | Touch − / +, the speaker, ⏯, then a tile and slide off it. | Each button lights at once, without a flicker of the whole screen. After 20 touches, the Journal shows `Réactivité : image … ms après l'appui …`: note the numbers in the results. |
 | 5.8 | Pause the music. Wait until the screen dims (10 min without a touch), then touch ⏯. | The light comes back and the music plays with the same touch. While music plays, the ambient view shows instead: a touch there only brings back the controls. When the screen is off (20 min, nothing playing), a touch only turns it on. |
-| 5.10 | Touch the full-screen button (four corners, right of ⏭). Then touch the screen. | The ambient view (large album art) shows at once; the touch brings back the controls. |
 | 5.9 | Open ⚙, the Library, Search and the Journal one after the other, then 🏠. Look at how each new screen appears. Do 20 touches and read the `Réactivité` line. | Each screen appears at once: no sweep, no scattered blocks or pixels. The Journal says `Écran : copie matérielle prête (…), N ms par image` after the first screen (else `… envoi par M5GFX`: the old sweep stays; send the line). The `Réactivité` numbers for a full image are lower than before (note them). |
-| 5.4 | Navigation bar: 🏠, ⌕, ⚙ from each screen (main, search, results, Journal, menu). | 🏠 always goes to the main screen with the tiles. |
+| 5.10 | Touch the full-screen button (four corners, right of ⏭). Then touch the screen. | The ambient view (large album art) shows at once; the touch brings back the controls. |
 
-## 6. Update page (firmware `cb22222` and later)
+## 6. Updates
 
 | # | Do | Expected |
 |---|---|---|
 | 6.1 | ⚙ › **Mise à jour**. Scan the QR code with the phone (phone on the same Wi-Fi, mobile data off). | The update page opens. |
-| 6.2 | Choose the `-ota.bin` file on the phone. | The file is not greyed out. Progress on the phone and on the Tab5; restart; new version in the Journal. |
+| 6.2 | Choose the `wiim-remote-tab5.bin` file on the phone. | The file is not greyed out. Progress on the phone and on the Tab5; restart; new version in the Journal. |
 | 6.3 | ⚙ › **Mise à jour** (Tab5 on an older version than the latest GitHub release). Wait a few seconds. | « Nouvelle version : vX » and an **Installer** button. Journal: `Mise à jour GitHub : dernière version vX (installée : …)`. |
 | 6.4 | Touch **Installer**. | Progress bar « Téléchargement de vX depuis GitHub… » (about 3 MB); the Tab5 restarts on vX (bottom of the Settings menu). Settings and favorites kept. |
 | 6.5 | Again ⚙ › **Mise à jour** on the latest version. | « À jour », no **Installer** button. |
 | 6.6 | Optional: ⚙ › **Mise à jour** on an older version, **Installer**, then **Annuler** during the download. | « Téléchargement annulé : rien n'a changé. »; the old version still runs after Annuler. |
 | 6.7 | From v0.6.4-beta on: after an update, wait 1 minute, then open ⚙ › **Journal**. | `Nouvelle version à l'essai : confirmée après 45 s sans arrêt`, then `Nouvelle version confirmée (45 s sans arrêt)`. |
-| 6.8 | Optional (rollback): install the next version, then within 30 s after it starts press the Tab5 reset button (or unplug it with the battery off). | The Tab5 starts the version you had before (bottom of the Settings menu). From a v0.6.4-beta or later starting again: the message « … stopped at start: the previous version is back » and `Retour automatique : …` in the Journal. Install it again and wait 1 minute: it stays. |
+| 6.8 | Optional (rollback): install the next version, then within 30 s after it starts press the Tab5 reset button (or unplug it with the battery off). | The Tab5 starts the version you had before (bottom of the Settings menu). From a v0.6.4-beta or later starting again: the message « … s'est arrêtée au démarrage : la version d'avant est remise » and `Retour automatique : …` in the Journal. Install it again and wait 1 minute: it stays. |
 
 ## 7. Microphone and sound (only if you use them)
 
@@ -125,11 +125,11 @@ Do these last: some restart or erase the Tab5.
 | 9.1 | ⚙ › **Mise en veille**. Then press the power button. | The Tab5 turns off; the power button turns it on. Note if it was on battery or USB (on USB it may not turn off fully). | `Mise en veille (…)` |
 | 9.2 | ⚙ › **Configuration**, then touch the Tab5 screen without using the phone. | Setup mode starts after a restart; a touch cancels it and the Tab5 restarts normally with the same settings. | `Configuration : redémarrage en mode configuration` |
 | 9.3 | Optional (you lose all settings): setup page › **Avancé** › tick **Tout effacer** › confirm. | « Tout est effacé »; the Tab5 restarts in setup mode with a new Wi-Fi password, no favorites. | — |
-| 9.4 | Optional (needs a computer and USB): flash the full image (without `-ota`) at `0x0` with ESPWebTool (esp.huhn.me) or `python3 -m esptool --chip esp32p4 write-flash 0x0 <file>` (no erase). | After the start, the settings are back (Wi-Fi, WiiM, OpenAI key). | `Réglages remis depuis la copie de secours …` |
+| 9.4 | Optional (needs a computer and USB): flash `wiim-remote-tab5.bin` at `0x0` with ESPWebTool (esp.huhn.me) or `python3 -m esptool --chip esp32p4 write-flash 0x0 <file>` (no erase). | After the start, the settings are back (Wi-Fi, WiiM, OpenAI key). | `Réglages remis depuis la copie de secours …` |
 
 ## Results
 
-Firmware version: `local-……`  Date: `……`  WiiM model / firmware: `……`
+Firmware version: `……`  Date: `……`  WiiM model / firmware: `……`
 
 | Test | Result | Notes (what you saw, Journal line) |
 |---|---|---|
@@ -150,9 +150,13 @@ Firmware version: `local-……`  Date: `……`  WiiM model / firmware: `……
 | 3.4b Deezer Play all (playlist) | | |
 | 3.6 Deezer Flow tile | | |
 | 4.1–4.3 Tab5 favorites | | |
-| 4.4–4.8 tile menu, ratings, order, Library | | |
+| 4.4–4.9 tile menu, ratings, order, Library | | |
 | 5.x screen and touch | | |
-| 6.x update page from phone | | |
+| 5.9 instant screen changes (`Écran : copie matérielle`) | | |
+| 5.10 full-screen button | | |
+| 6.1–6.2 update page from phone | | |
+| 6.3–6.6 Install from GitHub | | |
+| 6.7–6.8 trial and automatic rollback | | |
 | 7.x microphone and sound | | |
 | 8.1 several WiiMs | | |
 | 9.1 sleep | | |
@@ -165,14 +169,14 @@ Firmware version: `local-……`  Date: `……`  WiiM model / firmware: `……
 A Claude Code session on a computer on the same network can do this part. Copy this prompt into it:
 
 > Goal: a 24-hour test of the wiimscreen firmware, and a prototype of better WiiM status reading. Repo
-> github.com/couzinc/wiimscreen, branch `claude/gifted-cannon-ayyn0z` — pull it first; read
+> github.com/couzinc/wiimscreen, branch `main` — pull it first; read
 > AGENTS.md, docs/WIIM_API_NOTES.md and docs/HARDWARE_TEST.md.
 >
 > 1. The Tab5 is on USB. Record its serial output (115200 baud, the Journal goes there too) for 24 hours to a file,
 >    with a timestamp on each line (for example a small Python script with pyserial). Do not stop it on errors.
 > 2. During this time, leave music playing for some hours, then paused, then stopped.
 > 3. After 24 h, summarize: every `Mémoire :` line (is the internal heap or the minimum going down?), the worker
->    stack, restarts (`Démarrage`), errors (`WiiM <- … : erreur`, `Relevé du WiiM … erreur`), reconnections,
+>    stack, restarts (`Démarrage`, and the `Plantage …` lines after it), errors (`WiiM <- … : erreur`, `Relevé du WiiM … erreur`), reconnections,
 >    and any crash dump (`Guru Meditation`, `Backtrace`). Decode backtraces with the `firmware.elf` built from
 >    the same commit (`pio run -e tab5`, then `riscv32-esp-elf-addr2line` from the PlatformIO toolchain; the
 >    ESP32-P4 is RISC-V).

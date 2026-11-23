@@ -12,9 +12,9 @@ the keyboard, sharp picture at 125 % display scaling). **Not yet tried on a Rasp
 
 | Works | Not on a computer (yet) |
 |---|---|
-| Now playing, covers, presets and tiles, search (Qobuz, Deezer), favorites, Journal, settings menu | Microphone (voice search) |
+| Now playing, covers, presets and tiles, Library and ratings, search (Qobuz, Deezer), favorites, Journal, settings menu | Microphone (voice search) |
 | WiiM discovery on the network (SSDP) and certificate pinning | Sound effects (taps, beeps) |
-| Window or full screen, mouse or touch screen, any screen size (800×480 and larger) | Setup page and update page (use the settings file and `git pull`) |
+| Window or full screen, mouse or touch screen, any screen size (800×480 and larger) | Setup page and firmware install (use the settings file; the Update screen only shows the latest version on GitHub) |
 | Settings and favorites in `~/.config/wiimscreen` (Windows: `%APPDATA%\wiimscreen`) | Battery level (not shown) |
 
 Small screens show less text: below 1280×720 the fonts do not get smaller (at 800×480 the artist line can be
@@ -93,7 +93,7 @@ Same as the Raspberry Pi steps 1 to 3. Then start it in a window:
 ## Windows
 
 **A simple port for now.** `wiimscreen.exe` is the computer version built for Windows, not a full Windows app yet:
-no installer, no icon, no code signature, no microphone or sounds, no setup or update page; updates are a new zip.
+no installer, no icon, no code signature, no microphone or sounds, no setup page; updates are a new zip (the Update screen tells you when a new version is out).
 It passed the self-test against a mock WiiM, and it works with a real WiiM Pro on Windows 11 (2026-11-19). A fuller
 Windows app may come later.
 
@@ -102,7 +102,7 @@ Windows 10 (version 1903 or later) or Windows 11, 64-bit. No installation, no ad
 1. Download `wiimscreen-windows-x64.zip`: from the latest release on GitHub (Releases), or for a test build from
    the Actions tab (run of the `firmware` workflow, artifact `wiimscreen-windows-x64`; you must be signed in to
    GitHub).
-2. Unzip the whole folder (right-click, *Extract All*). Keep `wiimscreen.exe` and `cacert.pem` together.
+2. Unzip the whole folder (right-click, *Extract All*). Keep `wiimscreen.exe`, `cacert.pem` and `DejaVuSans.ttf` together.
 3. Double-click `wiimscreen.exe`.
 4. The program is not signed, so Windows can show *Windows protected your PC*. Click **More info**, then
    **Run anyway**. Windows asks this only once.
@@ -119,7 +119,7 @@ and add them at the end of *Target*, for example `...\wiimscreen.exe --wiim 192.
 | Settings and favorites | `%APPDATA%\wiimscreen` (type it in the address bar of File Explorer): `settings.txt` and the `fs` folder |
 | Log of the last run | `%APPDATA%\wiimscreen\last.log` (the run before: `previous.log`). Send it when you report a problem. With `--console`, the messages show in a console window instead |
 | Screenshots (F12) | `%APPDATA%\wiimscreen\captures` |
-| Root certificates (Qobuz, Deezer, covers) | `cacert.pem` beside `wiimscreen.exe` |
+| Root certificates (Qobuz, Deezer, covers, GitHub version check) | `cacert.pem` beside `wiimscreen.exe` |
 
 **Display scaling (125 %, 150 %).** wiimscreen is DPI aware (manifest and SDL hint): Windows does not stretch its
 window, so the picture is sharp. The window is measured in screen pixels: on a 2560×1440 screen at 125 %, the
@@ -200,11 +200,11 @@ You can use the app with a keyboard, a remote or a game controller. The first ar
 ring around one button: that button has the focus. The arrow keys move the ring, OK presses the button. A tap or a
 click on the screen hides the ring; the next key shows it again, on the same button.
 
-| Key | Controls view | Settings menu, Journal, touch test | Search keyboard and results |
+| Key | Controls view | Settings menu, Library, tile menu, Journal, touch test | Search keyboard and results |
 |---|---|---|---|
-| up, down, left, right | Move the ring. Left from the content goes to the bar on the left (Home, Search, Settings). Left or right past the first or last preset tile shows the previous or next page of tiles (on the first page, Left goes to the bar) | Move the ring | Move the ring over the on-screen keys, the source buttons, the microphone, the results, their hearts, Previous, Next and Edit. Results: down from the last result of a page shows the next page (ring on its first result), up from the first result shows the previous page (ring on its last result). Album results: right goes to the heart, left back to the album |
+| up, down, left, right | Move the ring. Left from the content goes to the bar on the left (Home, Library, Search, Settings). Left or right past the first or last preset tile shows the previous or next page of tiles (on the first page, Left goes to the bar) | Move the ring | Move the ring over the on-screen keys, the source buttons, the microphone, the results, their hearts, Previous, Next and Edit. Results: down from the last result of a page shows the next page (ring on its first result), up from the first result shows the previous page (ring on its last result). Album results: right goes to the heart, left back to the album |
 | ok | Press the button with the ring | Press the button with the ring | Press the key or the button with the ring (as a tap). Results: play the result. During dictation: stop it and search |
-| ok, held 0.7 s | Settings menu (as a long press on the cover) | As ok | As ok |
+| ok, held 0.7 s | On a tile: its menu (rating, pin, remove), as a held finger. Elsewhere: Settings menu (as a long press on the cover) | Library: on a tile, its menu. Elsewhere: as ok | As ok |
 | back | Nothing | Close (back to the controls view) | Results: back to the keyboard. Keyboard: back to the controls view. During dictation: stop it |
 | menu | Settings menu | Settings menu (in the menu: close it) | Settings menu |
 | search | Search keyboard | Search keyboard | Results: back to the keyboard |

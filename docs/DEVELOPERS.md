@@ -25,6 +25,8 @@ problems, refer to [AGENTS.md](../AGENTS.md).
 │               MIPI-DSI panel, accent color   │
 │ voice_service OpenAI speech-to-text          │ ──▶ api.openai.com
 │ ota / portal  web pages for update & setup   │
+│ github_release latest release, firmware      │ ──▶ api.github.com, github.com
+│ boot_check    rollback of a failed update    │
 │ lib/core      pure C++ logic, unit-tested    │
 └──────────────────────────────────────────────┘
 ```
@@ -36,7 +38,7 @@ problems, refer to [AGENTS.md](../AGENTS.md).
   `src/main.cpp` is the entry point (`setup()` and `loop()`). The other files are in one folder for each role:
   `src/app/` (the parts of the app that `main.cpp` calls, the Journal, the version), `src/ui/` (drawing, hit tests,
   fonts), `src/net/` (all network code: WiiM worker and client, discovery, covers, transcription, root certificates),
-  `src/device/` (setup portal, update page, sounds) and `src/storage/` (settings and favorites on the device).
+  `src/device/` (setup portal, update page, automatic rollback after a failed update, sounds, key input) and `src/storage/` (settings and favorites on the device).
   Include a project header with its path from `src/`, for example `#include "net/wiim_worker.h"`.
 - **[WIIM_API_NOTES.md](WIIM_API_NOTES.md)** tells what we verified on a real WiiM, with the dates.
 
@@ -214,6 +216,10 @@ We tested only the Tab5. Other ESP32 boards need a small quantity of new code.
     built-in Wi-Fi.
   - The microphone and the speaker use the same I2S bus.
   - The `[env:tab5]` settings in `platformio.ini`.
+  - The full-screen copy by the PPA (`ui_core.cpp`, ESP32-P4 with a DSI panel only). On other boards it is not
+    compiled, and the screen goes through M5GFX.
+  - `ghrelease` (`src/net/github_release.*`) looks for the release file `wiim-remote-tab5.bin`. Another board needs
+    its own file name there.
 - **Memory**: the off-screen canvas uses 16 bits for each pixel. It needs approximately 1.8 MB at 1280×720 and
   300 KB at 480×320. Thus the board must have PSRAM.
 

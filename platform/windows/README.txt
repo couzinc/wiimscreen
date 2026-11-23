@@ -72,6 +72,8 @@ Files
 -----
 
   wiimscreen.exe   the program (no installation, no administrator rights)
-  cacert.pem       root certificates for the secure connections to Qobuz, Deezer
-                   and the cover servers (Mozilla list, as on the Tab5)
+  cacert.pem       root certificates for the secure connections to Qobuz, Deezer,
+                   the cover servers and GitHub (Mozilla list, as on the Tab5)
+  DejaVuSans.ttf   the font of the window (sharp text at any size)
+  LICENSE-DejaVu.txt  license of the font
   LICENSE.txt      MIT License

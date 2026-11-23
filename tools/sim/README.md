@@ -48,8 +48,8 @@ python tools/preview/topng.py .pio/sim-out/*.ppm
 ```
 
 CI runs `tools/sim/scripts/tour.txt` on every push (artifact `sim-screens`): a crash or a hang fails the build.
-It also runs `tools/sim/scripts/taps.txt`: a tap on every element of every screen (controls, Settings, Journal,
-touch test, update screen, search keyboard, dictation, results), which ends with Sleep. Without `--quiet`, the
+It also runs `tools/sim/scripts/taps.txt`: a tap on every element of every screen (controls with the full-screen
+button, Library, tile menu, Settings, Journal, touch test, update screen, search keyboard, dictation, results), which ends with Sleep. Without `--quiet`, the
 Journal lines show what each tap did: compare them before and after a change of the tap handling.
 `tools/sim/scripts/dpad.txt` drives the app with keys only (focus ring through the rail, the heart, the transport
 and volume buttons and the tiles with paging, OK, Back, Menu, a long OK, the media keys): the sim gate checks that

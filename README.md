@@ -36,20 +36,20 @@ Open source · runs on ESP32 · tested on the M5Stack Tab5
 | **Control** | Play, pause, next, previous, volume and mute. Slide the volume bar, or hold − or + to change the volume step by step. A ring turns on a button until the WiiM does the command. |
 | **Tiles** | Presets of the WiiM, your favorites and a **Flow** tile, with their images. Album tiles show the artist. The last played tiles come first. Swipe for the next page. |
 | **Favorites** | Touch the heart while an album or a playlist plays. One touch on its tile plays it again. Hold a tile to rate it (1 to 5 stars), pin it at the front or remove it. |
-| **Library** | The grid button in the side bar shows all the tiles on one screen. Filter them: presets, favorites, Qobuz, Deezer. Rated tiles come first, most stars first. |
+| **Library** | The Library button in the side bar (two covers with a heart) shows all the tiles on one screen. Filter them: presets, favorites, Qobuz, Deezer. Rated tiles come first, most stars first. |
 | **Qobuz** | Search tracks. Touch a result to play it. Your favorite tracks: open the Library, touch **Qobuz**, then the **Qobuz favorites** panel. Touch a track, **Play all** or **Shuffle**. Optional: album search with a heart to add an album as a tile (see [Unofficial interfaces](#unofficial-interfaces)). |
 | **Deezer** | Search the Deezer catalog. **Flow** becomes a tile automatically. Favorites of a public profile show as tiles. |
 | **Voice search** | Optional. Say an artist or a title. Uses OpenAI speech-to-text with your own key. |
 | **Ambient view** | After 60 s without a touch, or at once with the full-screen button (right of the controls): large album art and text, and an optional sound spectrum. |
-| **Setup and updates** | Set up from your phone with a QR code. Install new firmware over Wi-Fi. |
+| **Setup and updates** | Set up from your phone with a QR code. Install new firmware over Wi-Fi: from GitHub on the device, or from a phone. If a new version does not start, the previous version comes back. |
 | **Automatic** | Finds the WiiM on your network. Turns on the screen when you pick up the device. |
 | **Keyboard and remote** | Computers and Windows only. Type your search on the keyboard. Use the arrow keys, Enter and Esc to move between the buttons, or use a remote or a game controller. |
 
 ## Screenshots
 
-| Favorites and tiles | Search | Album results |
+| Favorites and tiles | Library | Search |
 |:---:|:---:|:---:|
-| ![Favorites](docs/favoris.png) | ![Search](docs/recherche.png) | ![Album results](docs/albums.png) |
+| ![Favorites](docs/favoris.png) | ![Library](docs/bibliotheque.png) | ![Search](docs/recherche.png) |
 | **Ambient view** | **Voice search** | **Settings** |
 | ![Ambient view](docs/ambiance.png) | ![Voice search](docs/dictee.png) | ![Settings](docs/menu.png) |
 
@@ -190,8 +190,9 @@ puts it back. To erase everything, use **Advanced** › **Erase everything** in 
 - **Language**: setup page › **Language / Langue**. The Log stays in French.
 - **Sleep**: ⚙ › **Sleep** turns off the Tab5. The setup page can also set an automatic sleep. Push the power button
   to turn it on again. A touch on the screen cannot wake it.
-- **Diagnostics**: ⚙ › **Log** shows the last events. **WiiM queue** reads the play queues of the WiiM. Put these
-  lines in bug reports, without your IP address.
+- **Diagnostics**: ⚙ › **Log** shows the last events. **WiiM queue** reads the play queues of the WiiM. After a
+  crash, the next start writes `Plantage …` lines with the cause. Put these lines in bug reports, without your IP
+  address.
 
 </details>
 
@@ -222,8 +223,8 @@ to the streaming services. The Tab5 downloads only the album art.
 
 ## Privacy and security
 
-- All data stays on your local network, except album art, the Deezer search, voice search and (with the option) the
-  direct Qobuz search.
+- All data stays on your local network, except album art, the Deezer search, voice search, the update check and
+  download (GitHub) and (with the option) the direct Qobuz search.
 - The device keeps the fingerprint of the WiiM certificate and checks it before each request.
 - Other HTTPS connections use the Mozilla root certificates.
 - With the direct Qobuz search option, the Qobuz access from the WiiM stays in memory only. The device does not

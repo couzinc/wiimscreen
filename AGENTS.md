@@ -62,7 +62,7 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `lib/core/src/firmware.*` | OTA stream filter (accepts app-only or merged images); GitHub release list (`parseLatestRelease`: tag, file URL, SHA-256, size) and version order (`compareVersions`, `releaseOffer`) |
 | `lib/core/src/upnp.*` | XML/SOAP helpers, UPnP description/SCPD parsing, WiiM PlayQueue `QueueContext` parsing, secret masking |
 | `lib/core/src/qobuz.*` | Qobuz tracks/albums parsing, `GetUserInfo` access parsing, Qobuz queue model and album URL/key |
-| `test/test_core/test_<module>.cpp` | Unity tests, one file per `lib/core` module, each with `run_<module>_tests()`; `test_main.cpp` calls them; shared helpers in `test_helpers.h` |
+| `test/test_core/test_<topic>.cpp` | Unity tests, one file per topic of `lib/core` (a module, or a group such as `test_qobuz_deezer`, `test_robust`), each with `run_<module>_tests()`; `test_main.cpp` calls them; shared helpers in `test_helpers.h` |
 | `src/main.cpp` | Setup, main loop (tap dispatch per screen, drawing, applying WiiM reports and events), ambient view, menus; defines all the app state objects |
 | `src/app/app_internal.h` | Internal to `main.cpp` and `app_*.cpp` only (namespace `app`): `enum class Screen` (`g_view.screen`), the app state grouped in structs (`g_pending`, `g_search`, `g_voice`, `g_tiles`, `g_img`…, one comment each), shared constants and the functions one file calls in another |
 | `src/app/app_search.cpp` | Search keyboard and results list (`openSearch`, `runSearchQuery`, `onSearchKey`, `renderResultsList`, `onSearchDone`), album hearts, "Qobuz/Deezer favorites" lists (`openFavoriteList`) |
@@ -71,9 +71,9 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `src/app/app_tiles.cpp` | Preset and favorite tiles (`refreshTiles`, `onPresets`, `currentFavorite`, `favoriteState`), tile history and order (`noteTilePlayed`, `pinTile`, `serviceTileOrder`), image downloads for the cover, tiles and result rows (`checkImages`, `retryImages`, `knownImage`) |
 | `src/app/log.*` | Journal: last 40 events in RAM, also on the serial port (`logEvent`) |
 | `src/app/version.h` | Firmware version (CI or `tools/version.py`) |
-| `src/ui/ui.h` / `src/ui/ui.cpp` | Class `Ui` (public interface) / Controls view and ambient view: drawing, partial redraws (`updateProgress`, `updateTransport`, `showLevels`), hit tests |
-| `src/ui/ui_core.cpp` | Canvases (off-screen M5Canvas in PSRAM → display), `present`/`presentRect`, background gradient, cover decoding, `beginScreen`, fonts (VLW arrays included only here) and `useFont` |
-| `src/ui/ui_widgets.cpp` | Shared icons (heart, mic, home, gear, search) and the navigation rail with its hit tests |
+| `src/ui/ui.h` / `src/ui/ui.cpp` | Class `Ui` (public interface) / Controls view and ambient view: drawing (the full-screen button `ambientButton`, `Layout::ambient`, `Act::Ambient`), partial redraws (`updateProgress`, `updateTransport`, `showLevels`), hit tests |
+| `src/ui/ui_core.cpp` | Canvases (off-screen M5Canvas in PSRAM → display), `present`/`presentRect` (full frames copied by the PPA on the ESP32-P4: `FastPush`, learned once from an M5GFX frame), background gradient, cover decoding, `beginScreen`, fonts (VLW arrays included only here) and `useFont` |
+| `src/ui/ui_widgets.cpp` | Shared icons (heart, mic, home, gear, search, Library) and the navigation rail with its hit tests |
 | `src/ui/ui_search.cpp` | Search keyboard, field, source chips, results list; `pressKey`, `updateSearchField`, `updateResultCover`; hit tests |
 | `src/ui/ui_screens.cpp` | Full-page screens: Settings menu, tile menu, Library grid, Journal, touch test, WiiM picker, update, info, setup portal; hit tests |
 | `src/ui/ui_internal.h` | Internal to `ui*.cpp` only: colours, font pointers, `useFont`, `mix` (never include it elsewhere; do not widen `ui.h`) |
@@ -297,15 +297,22 @@ tile, settings menu layout (preview). Qobuz favorite albums: refused by Qobuz (4
 navigation bar, Journal, UPnP PlayQueue (`BrowseQueue`, `CreateQueue`), Qobuz search through the WiiM
 (`track/search` queue), Qobuz favorite tracks query (1 track), Deezer album queue through airable, firmware updates, the Favoris Qobuz list.
 **Windows app (user report, 2026-11-19, Windows 11, 2560×1440 at 125 %, WiiM Pro):** discovery, playback, search typed on
-the keyboard, keys, sharp picture. The Tab5 tap dispatcher of v0.3.0-beta (remote navigation 4a) is not yet checked on hardware.
+the keyboard, keys, sharp picture.
 **Seen working on a real Tab5 + WiiM Pro (user report, 2026-11-18, build of v0.2.0-beta):** the WiiM picker with one WiiM, replay of a favorite tile saved
 before and after the update (saved without its tracks), the music put back after a Qobuz search left without a choice (playing, and
 paused), a search result played inside its album.
 **A WiiM that fills no queue** (nothing starts, WiiM Home app says "no internet" while `getStatusEx` reports `internet=1`): seen
 2026-11-17/18, cured by a power cycle of the WiiM; not a wiimscreen fault.
 **Simulator `simreal` with a real WiiM (user report, 2026-11-16):** relay (`--wiim`, WSL NAT mode) and the WiiM status shown.
+**Tab5, v0.5–0.6 (user reports, 2026-11-21/22):** the tap dispatcher and navigation bar of v0.3+ in daily use; upload
+page updates (v0.6.0 diag, v0.6.3); **Install** from GitHub failed on v0.5.x/v0.6.0 ("network", then "transfer
+stopped"; fixed in 0.6.1 with fresh connections per redirect and resume, not yet seen succeeding); v0.6.1/v0.6.2 boot
+loop after Wi-Fi (AES interrupt race, decoded from the core dump; fixed in 0.6.3); the update page "unreachable"
+when the Update screen is not open (by design).
 
-**Not yet confirmed on hardware:** Deezer search screen and playback at a track, queues over 200 tracks, microphones (visualizer, voice search), speaker volume levels, choice between several WiiMs,
+**Not yet confirmed on hardware:** v0.6.3+ starting without the loop, a successful **Install** from GitHub, the
+trial confirmation and automatic rollback (`boot_check`), the PPA screen copy (`Écran : copie matérielle`), Library
+and ratings, the move of preset history to station names, the full-screen button, Deezer *Play all*, Deezer search screen and playback at a track, queues over 200 tracks, microphones (visualizer, voice search), speaker volume levels, choice between several WiiMs,
 the restart into setup mode, the partial-redraw speed-up, factory reset, taps handled during long worker jobs,
 background transcription. Prefer small, testable changes and note what was verified
 on real hardware in commit messages.
