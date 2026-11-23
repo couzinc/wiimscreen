@@ -37,8 +37,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site/img _site/firmware
-          cp site/index.html _site/
-          for f in apercu bibliotheque recherche ambiance favoris resultats social-preview; do cp "docs/$f.png" _site/img/; done
+          cp site/index.html site/demo.webp site/demo-poster.jpg _site/
+          for f in apercu bibliotheque ambiance resultats social-preview; do cp "docs/$f.png" _site/img/; done
           # Latest stable release; none yet: the newest release (pre-releases included)
           TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName 2>/dev/null || true)
           if [ -z "$TAG" ]; then
