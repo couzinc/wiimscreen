@@ -457,6 +457,7 @@ void Ui::render(const UiState& st, int pressedPreset, int pressedTransport) {
     transport(st, pressedTransport);
     navRail(0);
     favButton();
+    ambientButton();
     volumePill(st, pressedTransport);
     for (size_t slot = 0; slot < layout_.presets.size(); ++slot) {
         int i = page_ * layout_.perPage + (int)slot;
@@ -502,6 +503,7 @@ void Ui::controlsTargets() {
         const bool vol = i == wr::kVolDown || i == wr::kVolUp;
         targets_.add(Act::Transport, i, r, vol ? r : padded(r, pad), i == wr::kPlayPause ? wr::kTargetDefault : 0);
     }
+    targets_.add(Act::Ambient, 0, layout_.ambient, padded(layout_.ambient, pad));
 }
 
 // Bande des presets vide : dire pourquoi, et comment la remplir
@@ -545,6 +547,22 @@ void Ui::favButton() {
     canvas_.fillCircle(f.x + f.w / 2, f.y + f.h / 2, f.w / 2, on ? accent_ : kCard);
     heartIcon(f.x + f.w / 2, f.y + f.h / 2, f.w / 4, on ? kBg : (favState_ == 3 ? kTrack : kText));
     if (!on) heartIcon(f.x + f.w / 2, f.y + f.h / 2 - 1, f.w / 4 - sc(4), favState_ == 3 ? kText2 : kCard);
+}
+
+// Plein écran (vue ambiance) : quatre coins d'un cadre, comme les lecteurs vidéo
+void Ui::ambientButton() {
+    const wr::Rect& b = layout_.ambient;
+    if (b.w <= 0) return;
+    auto& C = canvas_;
+    const int cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    C.fillCircle(cx, cy, b.w / 2, kCard);
+    const int h = b.w * 9 / 40, len = b.w / 6, t = std::max(2, sc(3));  // demi-côté du cadre, branche, trait
+    for (int sx : {-1, 1})
+        for (int sy : {-1, 1}) {
+            const int x = cx + sx * h, y = cy + sy * h;  // coin
+            C.fillRect(sx < 0 ? x : x - len + 1, sy < 0 ? y : y - t + 1, len, t, kText);  // branche horizontale
+            C.fillRect(sx < 0 ? x : x - t + 1, sy < 0 ? y : y - len + 1, t, len, kText);  // branche verticale
+        }
 }
 
 // Rangée des boutons de lecture seule (anneaux qui tournent pendant une attente) : bien moins coûteux qu'un

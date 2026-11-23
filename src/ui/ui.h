@@ -225,6 +225,7 @@ private:
     void heartIcon(int cx, int cy, int s, uint32_t color);
     void starIcon(int cx, int cy, int r, uint32_t color);  // étoile à cinq branches, r : rayon des pointes
     void favButton();
+    void ambientButton();
     void controlsTargets();  // inscrit les éléments touchables de la vue commandes (fin de render())
     void focusRing();        // anneau du focus sur canvas_ (ui_widgets.cpp), si la source le demande
     FocusSource focusSource_ = nullptr;

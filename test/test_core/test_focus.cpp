@@ -147,6 +147,8 @@ TargetList controlsList(int W, int H, int presets) {
         L.add(Act::Transport, i, r, vol ? r : Rect{r.x - pad, r.y - pad, r.w + 2 * pad, r.h + 2 * pad},
               i == kPlayPause ? kTargetDefault : 0);
     }
+    const Rect& a = lay.ambient;
+    L.add(Act::Ambient, 0, a, Rect{a.x - pad, a.y - pad, a.w + 2 * pad, a.h + 2 * pad});
     return L;
 }
 
@@ -472,11 +474,15 @@ static void test_rail_moves_controls() {
     TEST_ASSERT_TRUE(railMove(L, volDown, Dir::Left).target == at(Act::Search, 0));
     // Search is level with the first tile (rail buttons evenly spaced): Right -> that tile
     TEST_ASSERT_TRUE(railMove(L, at(Act::Search, 0), Dir::Right).target == at(Act::Preset, 0));
-    // Path: heart -> previous -> play -> next; play -> volume row -> tiles
+    // Path: heart -> previous -> play -> next -> full screen; play -> volume row -> tiles
+    const Target* full = at(Act::Ambient, 0);
     TEST_ASSERT_TRUE(railMove(L, fav, Dir::Right).target == prev);
     TEST_ASSERT_TRUE(railMove(L, prev, Dir::Right).target == play);
     TEST_ASSERT_TRUE(railMove(L, play, Dir::Right).target == next);
-    TEST_ASSERT_TRUE(railMove(L, next, Dir::Right).edge);
+    TEST_ASSERT_TRUE(railMove(L, next, Dir::Right).target == full);
+    TEST_ASSERT_TRUE(railMove(L, full, Dir::Right).edge);
+    TEST_ASSERT_TRUE(railMove(L, full, Dir::Left).target == next);
+    TEST_ASSERT_TRUE(railMove(L, full, Dir::Up).edge);  // only the texts (NoFocus) above
     TEST_ASSERT_TRUE(railMove(L, play, Dir::Down).target == mute);  // the volume row, not a tile under it
     TEST_ASSERT_TRUE(railMove(L, mute, Dir::Left).target == volDown);
     TEST_ASSERT_TRUE(railMove(L, mute, Dir::Right).target == volUp);  // over the volume bar (NoFocus)

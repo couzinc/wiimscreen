@@ -43,7 +43,8 @@ key right
 wait 200
 key ok
 wait 2500
-# Left past the first tile: previous page, ring on its last tile; Up: volume row, then transport row; OK
+# Left past the first tile: previous page, ring on its last tile; Up: volume row, then transport row (the
+# full-screen button, above vol+); Left: next; OK
 key left
 wait 100
 key left
@@ -53,6 +54,8 @@ wait 300
 key up
 wait 100
 key up
+wait 100
+key left
 wait 200
 shot dpad-05-suivant
 key ok

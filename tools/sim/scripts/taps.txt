@@ -1,4 +1,4 @@
-# Taps on every element of every screen (1280x720): controls, tile menu (stars), Settings menu, Journal, touch test, update screen,
+# Taps on every element of every screen (1280x720): controls (full-screen button too), tile menu (stars), Settings menu, Journal, touch test, update screen,
 # search keyboard (sources, keys, dictation), results (pages, Edit, a row), rail buttons on each screen, and Sleep at
 # the end (the program stops there). Run: .pio/build/sim/program --headless --reset --script tools/sim/scripts/taps.txt
 # The Journal lines on the terminal ("Appui ...", screens opened) are what a change of the tap dispatch must keep.
@@ -23,6 +23,12 @@ tap 1063 348
 wait 1500
 tap 803 348
 wait 1500
+# Full-screen button (right end of the transport row): ambient view at once; a tap brings back the controls
+tap 1216 348
+wait 800
+shot taps-01b-plein-ecran
+tap 640 360
+wait 800
 # Progress bar, header (short tap: nothing), then a long press on the cover: Settings
 tap 933 262
 wait 500

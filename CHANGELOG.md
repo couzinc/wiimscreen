@@ -5,6 +5,10 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+### Added
+- **Full-screen button** on the main screen, at the right end of the controls (opposite the heart): it opens the
+  ambient view (large album art) at once, without the 60 s wait. A touch brings back the controls, as before.
+
 ## [0.6.4-beta] — 2026-11-23 — Safe updates, ratings follow the station
 
 **Tab5:** from v0.6.3-beta, open ⚙ › Update and touch **Install** (the next test of the GitHub download), or use the

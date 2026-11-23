@@ -27,7 +27,7 @@ inline void checkLayout(int W, int H, int n) {
     auto inside = [&](const Rect& r) { return r.x >= 0 && r.y >= 0 && r.right() <= W && r.bottom() <= H; };
     // Blocs principaux : dans l'écran, sans chevauchement
     std::vector<Rect> blocks = {L.art, L.info, L.progress, L.transport[kPrev], L.transport[kPlayPause],
-                                L.transport[kNext], L.fav, L.volume, L.navHome, L.navSettings, L.navSearch,
+                                L.transport[kNext], L.fav, L.ambient, L.volume, L.navHome, L.navSettings, L.navSearch,
                                 L.navLibrary};
     blocks.push_back(L.strip);  // toujours là, même sans preset
     for (size_t i = 0; i < blocks.size(); ++i) {
@@ -65,6 +65,9 @@ inline void checkLayout(int W, int H, int n) {
     const int minTouch = 44 * std::min(W, H) / 540;
     for (int t = 0; t < kTransportCount; ++t) TEST_ASSERT_TRUE(L.transport[t].h >= minTouch * 9 / 10);
     TEST_ASSERT_TRUE(L.transport[kPlayPause].w >= L.transport[kPrev].w);  // lecture mise en avant
+    // Plein écran : au bout droit de la rangée, zones tactiles agrandies (sc(10)) séparées de « suivant »
+    TEST_ASSERT_TRUE(L.transport[kNext].right() + 20 * std::min(W, H) / 540 <= L.ambient.x);
+    TEST_ASSERT_EQUAL(L.transport[kNext].h, L.ambient.h);
     // Presets : une page de tuiles dans la bande, sans chevauchement
     TEST_ASSERT_EQUAL(std::min(n, L.perPage), (int)L.presets.size());
     for (size_t i = 0; i < L.presets.size(); ++i) {

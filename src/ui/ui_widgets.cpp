@@ -78,7 +78,7 @@ void Ui::focusRing() {
     if (!t) return;
     using wr::Act;
     const wr::Rect& r = t->r;
-    const bool round = t->act == Act::Transport || t->act == Act::Fav || t->act == Act::Mute || t->act == Act::Home ||
+    const bool round = t->act == Act::Transport || t->act == Act::Fav || t->act == Act::Ambient || t->act == Act::Mute || t->act == Act::Home ||
                        t->act == Act::Search || t->act == Act::Settings || t->act == Act::Library || t->act == Act::ResultHeart || t->act == Act::Mic;
     const int gap = sc(3), line = std::max(2, sc(3)), halo = std::max(2, sc(3));
     auto ring = [&](int o, uint32_t color) {

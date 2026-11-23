@@ -1061,6 +1061,11 @@ static void activateControls(const wr::Target& tg, const Press& at) {
             g_strip.preset = tg.act == wr::Act::Preset ? tg.arg : -1;
             showTile(g_strip.preset);  // tuile montrée enfoncée tant que le doigt reste (elle seule)
             return;
+        case wr::Act::Ambient:  // plein écran : grande pochette tout de suite (un appui la quitte)
+            logEvent("%s plein \xC3\xA9" "cran", how);
+            sound::tap();
+            enterAmbient();
+            return;
         case wr::Act::Fav: {  // ♥ : ajouter ce qui joue aux favoris, ou l'en retirer
             if (g_jobs.favorite) return;
             sound::tap();

@@ -40,7 +40,7 @@ Open source · runs on ESP32 · tested on the M5Stack Tab5
 | **Qobuz** | Search tracks. Touch a result to play it. Your favorite tracks: open the Library, touch **Qobuz**, then the **Qobuz favorites** panel. Touch a track, **Play all** or **Shuffle**. Optional: album search with a heart to add an album as a tile (see [Unofficial interfaces](#unofficial-interfaces)). |
 | **Deezer** | Search the Deezer catalog. **Flow** becomes a tile automatically. Favorites of a public profile show as tiles. |
 | **Voice search** | Optional. Say an artist or a title. Uses OpenAI speech-to-text with your own key. |
-| **Ambient view** | After 60 s without a touch: large album art and text, and an optional sound spectrum. |
+| **Ambient view** | After 60 s without a touch, or at once with the full-screen button (right of the controls): large album art and text, and an optional sound spectrum. |
 | **Setup and updates** | Set up from your phone with a QR code. Install new firmware over Wi-Fi. |
 | **Automatic** | Finds the WiiM on your network. Turns on the screen when you pick up the device. |
 | **Keyboard and remote** | Computers and Windows only. Type your search on the keyboard. Use the arrow keys, Enter and Esc to move between the buttons, or use a remote or a game controller. |

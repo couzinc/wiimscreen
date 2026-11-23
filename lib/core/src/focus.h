@@ -62,6 +62,8 @@ enum class Act : uint8_t {
     UpdateInstall,  // install the version found on GitHub
     // Tile menu (after the others: the order above is unchanged)
     TileRate,  // arg = stars (1..5) of the star touched
+    // Controls view (after the others: the order above is unchanged)
+    Ambient,  // full-screen button: the ambient view (large cover) at once
 };
 
 // Flags of a target

@@ -24,7 +24,7 @@ une télécommande ou une manette. Voir [docs/DESKTOP.md](docs/DESKTOP.md) (en a
 - **Retours visuels** : anneau qui tourne autour du bouton lecture pendant le chargement d'un preset, notifications posées sur la pochette sans cacher le titre, commandes grisées quand le WiiM est injoignable
 - **Recherche à la voix** (facultative) : sur l'écran de recherche, touche le micro dans le champ, dis un artiste, un morceau ou un album, puis touche le bouton rouge : le texte s'écrit et la recherche part (Qobuz ou Deezer)
 - **Gestes directs** : toucher ou glisser sur la barre de volume règle le volume, maintenir − ou + le change pas à pas, toucher la barre de progression avance ou recule dans le morceau, toucher le haut-parleur coupe le son
-- **Vue ambiance** : après 60 s sans appui pendant la lecture, grande pochette et grands textes, lisibles de loin ; un appui ramène les commandes
+- **Vue ambiance** : après 60 s sans appui pendant la lecture, ou tout de suite avec le bouton plein écran (à droite des commandes), grande pochette et grands textes, lisibles de loin ; un appui ramène les commandes
 - **Visualiseur** (expérimental, à activer dans la configuration) : en vue ambiance, un spectre animé suit la musique, capté par les micros du Tab5. Le son est analysé sur place (24 bandes de fréquence) : rien n'est enregistré ni envoyé. Le micro ne fonctionne qu'en vue ambiance
 - **Réveil par mouvement** : soulever ou déplacer le Tab5 rallume l'écran et affiche les commandes ; les petites vibrations (enceinte sur le même meuble) sont ignorées
 
