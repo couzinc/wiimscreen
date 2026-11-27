@@ -85,24 +85,7 @@ void refreshTiles() {
         p.favId = g_tiles.favs[i].id;
         list.push_back(p);
     }
-    // Favoris Qobuz du compte (ceux de l'app) : le WiiM les charge avec sa propre connexion Qobuz
-    if (g_tiles.favOk && fav::hasQobuzModel()) {
-        wr::Preset p;
-        p.slot = 99;
-        p.label = wr::L("Qobuz favorites", "Favoris Qobuz");
-        p.favId = kQobuzFavsId;
-        p.list = true;
-        list.push_back(p);
-    }
-    // Favoris Deezer (profil public indiqué dans la configuration) : il faut un modèle de file Deezer du WiiM
-    if (g_tiles.favOk && g_settings.deezerUser.length() && fav::hasDeezerModel()) {
-        wr::Preset p;
-        p.slot = 98;
-        p.label = wr::L("Deezer favorites", "Favoris Deezer");
-        p.favId = kDeezerFavsId;
-        p.list = true;
-        list.push_back(p);
-    }
+    // Morceaux favoris Qobuz / Deezer : pas des tuiles, une liste dans la Bibliothèque (filtre Qobuz / Deezer)
     // Albums favoris Qobuz, avec leur pochette
     for (size_t i = 0; i < g_tiles.qobuzAlbums.size() && i < 36; ++i) {
         wr::Preset p;

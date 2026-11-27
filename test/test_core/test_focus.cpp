@@ -563,6 +563,9 @@ static void test_focused_target() {
     // Names for logs (tools/check.sh greps them)
     TEST_ASSERT_EQUAL_STRING("transport", actName(Act::Transport));
     TEST_ASSERT_EQUAL_STRING("menuchoice", actName(Act::MenuChoice));
+    TEST_ASSERT_EQUAL_STRING("libpage", actName(Act::LibPage));
+    TEST_ASSERT_EQUAL_STRING("libfavrow", actName(Act::LibFavRow));
+    TEST_ASSERT_EQUAL_STRING("libfavall", actName(Act::LibFavAll));
     TEST_ASSERT_EQUAL_STRING("updatecancel", actName(Act::UpdateCancel));
     TEST_ASSERT_EQUAL_STRING("updateinstall", actName(Act::UpdateInstall));
     TEST_ASSERT_EQUAL_STRING("tilerate", actName(Act::TileRate));

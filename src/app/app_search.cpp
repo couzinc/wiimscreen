@@ -56,25 +56,32 @@ void runSearchQuery() {
 
 // Tuiles « Favoris Qobuz » / « Favoris Deezer » : morceaux favoris du compte (tâche WiiM), affichés comme des
 // résultats. source 0 : Qobuz, 1 : Deezer.
-void openFavoriteList(bool deezer) {
+void openFavoriteList(bool deezer) { loadFavoriteList(deezer, true); }
+
+bool loadFavoriteList(bool deezer, bool open) {
     if (g_jobs.search) {
+        if (!open) return false;
         setMessage(wr::L("Search in progress, try again in a moment",
                          "Recherche en cours, r\xC3\xA9" "essaie dans un instant"),
                    3000);
         show();  // message affiché, tuile relâchée
-        return;
+        return false;
     }
     g_jobs.search = true;
     g_jobs.since = millis();
     g_search.resultsTitle = deezer ? wr::L("Deezer favorites", "Favoris Deezer") : wr::L("Qobuz favorites", "Favoris Qobuz");
     g_search.resultsKind = deezer ? SearchKind::DeezerFavorites : SearchKind::QobuzFavorites;
     g_search.results.clear();
+    g_search.status = "";
     g_search.page = 0;
-    g_view.screen = Screen::Results;
-    g_focus.spot[(int)Screen::Results] = wr::FocusSpot{};  // anneau : la première ligne quand elle arrivera
-    showResultsNote(deezer ? wr::L("Loading your Deezer favorites\xE2\x80\xA6", "Chargement de tes favoris Deezer\xE2\x80\xA6")
-                           : wr::L("Loading your Qobuz favorites\xE2\x80\xA6", "Chargement de tes favoris Qobuz\xE2\x80\xA6"));
+    if (open) {
+        g_view.screen = Screen::Results;
+        g_focus.spot[(int)Screen::Results] = wr::FocusSpot{};  // anneau : la première ligne quand elle arrivera
+        showResultsNote(deezer ? wr::L("Loading your Deezer favorites\xE2\x80\xA6", "Chargement de tes favoris Deezer\xE2\x80\xA6")
+                               : wr::L("Loading your Qobuz favorites\xE2\x80\xA6", "Chargement de tes favoris Qobuz\xE2\x80\xA6"));
+    }
     g_worker.search(g_search.resultsTitle.c_str(), g_search.resultsKind);
+    return true;
 }
 
 void openSearch() {
@@ -198,6 +205,7 @@ void onSearchDone(const WiimEvent& ev) {
                                                               : wr::L("No track found for \xE2\x80\x9C",
                                                                       "Aucun morceau trouv\xC3\xA9 pour \xC2\xAB ")) +
                                       ev.name + wr::L("\xE2\x80\x9D", " \xC2\xBB");
+        if (g_view.screen == Screen::Library) renderLibrary();  // filtre Qobuz / Deezer : « aucun », échec
         if (g_view.screen == Screen::Results) {  // liste ouverte (favoris Qobuz) : le message s'y affiche
             g_search.results.clear();
             showResultsNote(!ev.ok ? String(wr::L("Failed: ", "Impossible : ")) + ev.text
@@ -215,6 +223,10 @@ void onSearchDone(const WiimEvent& ev) {
         g_focus.spot[(int)Screen::Results] = wr::FocusSpot{wr::Act::ResultRow, 0};
         logTagged("search.results", "count=%u | R\xC3\xA9sultats : %u", (unsigned)g_search.results.size(),
                   (unsigned)g_search.results.size());
+        if (g_view.screen == Screen::Library) {  // filtre Qobuz / Deezer : les morceaux favoris arrivés
+            renderLibrary();
+            return;
+        }
         // Toujours sur le clavier ou la liste : on montre les résultats
         if (g_view.screen == Screen::Search || g_view.screen == Screen::Results) {
             g_view.screen = Screen::Results;

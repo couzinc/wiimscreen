@@ -117,8 +117,15 @@ public:
     // appliqué, notées d'abord) ; filters : filtres proposés (wr::TileKind, -1 = toutes) ; filter : le choisi ;
     // pressed : tuile enfoncée (-1) ; follow : tuile dont la page est montrée à la place de `page` (-1, ou absente :
     // `page`). Éléments LibFilter, LibTile (arg = indice global), LibPage. Rend la page montrée (bornée).
+    // Filtre Qobuz / Deezer : section « Morceaux favoris » au-dessus des tuiles (quelques lignes, Tout lire, Aléatoire,
+    // Tout voir) ; tracks vide : note (chargement, aucun, échec). Éléments LibFavRow, LibFavPlay, LibFavAll.
+    struct LibFavSection {
+        const char* title = "";
+        const std::vector<wr::QueueTrack>* tracks = nullptr;
+        String note;
+    };
     int renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed = -1,
-                      int follow = -1);
+                      int follow = -1, const LibFavSection* fav = nullptr);
     // Notes des tuiles pour la Bibliothèque (étoiles sur l'image) : stars[i] pour la tuile i, 0 = aucune. À donner
     // avant renderLibrary ; gardées pour updateLibraryTile
     void setLibraryStars(std::vector<int> stars) { libStars_ = std::move(stars); }

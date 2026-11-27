@@ -182,7 +182,7 @@ void Ui::renderTileMenu(int index, bool pinned, bool removable, int rating) {
 // Bibliothèque : filtres en haut (pastilles), toutes les tuiles en grille (même taille et même ordre que la bande),
 // pages en bas si besoin. Un appui joue la tuile, un appui long ouvre son menu (main.cpp)
 int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed,
-                      int follow) {
+                      int follow, const LibFavSection* fav) {
     beginScreen(View::Other);
     auto& C = canvas_;
     background();
@@ -226,7 +226,72 @@ int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& fil
         C.setTextColor(on ? kBg : kText);
         C.drawString(chipText(c.first), r.x + r.w / 2, r.y + r.h / 2 + 1);
     }
-    const int top = (chips.empty() ? A.y + m + chipH : chips.back().second.bottom()) + sc(16);
+    int above = chips.empty() ? A.y + m + chipH : chips.back().second.bottom();
+    // Section des morceaux favoris (filtre Qobuz / Deezer) : en-tête (titre, Tout voir, Tout lire, Aléatoire), puis
+    // les premières lignes ; la place d'une rangée de tuiles reste en dessous s'il y a des albums
+    std::vector<std::pair<int, wr::Rect>> favRows;
+    wr::Rect favAll, favPlay, favMix;
+    if (fav) {
+        auto measure = [&](const std::string& s) { return (int)C.textWidth(s.c_str()); };
+        const int n = fav->tracks ? (int)fav->tracks->size() : 0;
+        const int hy = above + sc(16), bh = sc(48), pad = sc(18), bg2 = sc(10), rowH = sc(64), rg = sc(8);
+        useFont(C, kSmall);
+        C.setTextDatum(textdatum_t::middle_center);
+        int left = X + W;
+        if (n > 0) {
+            const char* mixText = wr::L("Shuffle", "Al\xC3\xA9" "atoire");
+            const char* playText = wr::L("Play all", "Tout lire");
+            const String allText = String(wr::L("All ", "Les ")) + String(n) + " \xE2\x80\xBA";
+            const int mw = (int)C.textWidth(mixText) + 2 * pad, pw = (int)C.textWidth(playText) + 2 * pad,
+                      aw = (int)C.textWidth(allText.c_str()) + 2 * pad;
+            favMix = wr::Rect{left - mw, hy, mw, bh};
+            favPlay = wr::Rect{favMix.x - bg2 - pw, hy, pw, bh};
+            favAll = wr::Rect{favPlay.x - bg2 - aw, hy, aw, bh};
+            left = favAll.x;
+            C.fillRoundRect(favPlay.x, favPlay.y, pw, bh, bh / 2, accent_);
+            C.setTextColor(kBg);
+            C.drawString(playText, favPlay.x + pw / 2, hy + bh / 2 + 1);
+            C.fillRoundRect(favMix.x, favMix.y, mw, bh, bh / 2, kCard);
+            C.fillRoundRect(favAll.x, favAll.y, aw, bh, bh / 2, kCard);
+            C.setTextColor(kText);
+            C.drawString(mixText, favMix.x + mw / 2, hy + bh / 2 + 1);
+            C.drawString(allText.c_str(), favAll.x + aw / 2, hy + bh / 2 + 1);
+        }
+        C.setTextDatum(textdatum_t::middle_left);
+        C.setTextColor(kText);
+        if (left - X - sc(12) >= sc(60))
+            C.drawString(wr::wrapText(fav->title, left - X - sc(12), 1, measure)[0].c_str(), X, hy + bh / 2 + 1);
+        above = hy + bh;
+        if (n == 0) {
+            C.setTextDatum(textdatum_t::top_left);
+            C.setTextColor(kText2);
+            C.drawString(wr::wrapText(fav->note.c_str(), W, 1, measure)[0].c_str(), X, above + sc(10));
+            above += sc(10) + C.fontHeight();
+        } else {
+            // Lignes montrées : la place restante, moins une rangée de tuiles s'il y a des albums (3 au plus, 8 sans)
+            const int avail = A.bottom() - m - above - sc(10) - (shown.empty() ? 0 : th + sc(16));
+            const int k = std::min(n, std::max(1, std::min(shown.empty() ? 8 : 3, (avail + rg) / (rowH + rg))));
+            for (int i = 0; i < k; ++i) {
+                const wr::Rect r{X, above + sc(10) + i * (rowH + rg), W, rowH};
+                const wr::QueueTrack& t = (*fav->tracks)[i];
+                C.fillRoundRect(r.x, r.y, r.w, r.h, sc(12), kCard);
+                const int tx = r.x + sc(18), rw = r.w - sc(36);
+                C.setTextDatum(textdatum_t::top_left);
+                useFont(C, kSmall);
+                C.setTextColor(kText);
+                C.drawString(wr::wrapText(t.title.empty() ? "?" : t.title, rw, 1, measure)[0].c_str(), tx, r.y + sc(6));
+                std::string under = t.artist;
+                if (!t.album.empty()) under += (under.empty() ? "" : " \xC2\xB7 ") + t.album;
+                useFont(C, kTiny);
+                C.setTextColor(kText2);
+                if (!under.empty()) C.drawString(wr::wrapText(under, rw, 1, measure)[0].c_str(), tx, r.y + r.h / 2 + sc(2));
+                favRows.push_back({i, r});
+            }
+            above = favRows.back().second.bottom();
+        }
+        useFont(C, kSmall);
+    }
+    const int top = above + sc(16);
     auto rowsFor = [&](int bottom) { return std::max(1, (bottom - top + g) / (th + g)); };
     int rows = rowsFor(A.bottom() - m);
     if ((int)shown.size() > cols * rows) rows = rowsFor(A.bottom() - m - navH - sc(10));  // place des pages
@@ -244,7 +309,7 @@ int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& fil
         tiles.push_back({i, r});
     }
     libTiles_ = tiles;
-    if (shown.empty()) {
+    if (shown.empty() && !fav) {
         C.setTextDatum(textdatum_t::middle_center);
         C.setTextColor(kText2);
         C.drawString(wr::L("No tile here yet", "Aucune tuile ici pour l'instant"), A.x + A.w / 2, top + sc(80));
@@ -271,8 +336,15 @@ int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& fil
     }
     // Touchables (la barre est inscrite par navRail) : filtres, tuiles (la première par défaut), pages
     for (auto& c : chips) targets_.add(wr::Act::LibFilter, c.first, c.second);
+    if (favAll.w > 0) {
+        targets_.add(wr::Act::LibFavAll, 0, favAll);
+        targets_.add(wr::Act::LibFavPlay, 0, favPlay);
+        targets_.add(wr::Act::LibFavPlay, 1, favMix);
+    }
+    for (size_t k = 0; k < favRows.size(); ++k)
+        targets_.add(wr::Act::LibFavRow, favRows[k].first, favRows[k].second, k == 0 ? wr::kTargetDefault : 0);
     for (size_t k = 0; k < tiles.size(); ++k)
-        targets_.add(wr::Act::LibTile, tiles[k].first, tiles[k].second, k == 0 ? wr::kTargetDefault : 0);
+        targets_.add(wr::Act::LibTile, tiles[k].first, tiles[k].second, k == 0 && favRows.empty() ? wr::kTargetDefault : 0);
     if (prev.w > 0) targets_.add(wr::Act::LibPage, -1, prev);
     if (next.w > 0) targets_.add(wr::Act::LibPage, 1, next);
     present();

@@ -38,6 +38,9 @@ enum class Act : uint8_t {
     LibFilter,  // arg = wr::TileKind filter (-1 = all)
     LibTile,    // arg = global tile index
     LibPage,    // arg -1 previous page, +1 next page
+    LibFavRow,   // Qobuz / Deezer filter: a row of the favorite tracks, arg = index in the list
+    LibFavPlay,  // Qobuz / Deezer filter: arg 0 "Play all" (in order), 1 "Shuffle"
+    LibFavAll,   // Qobuz / Deezer filter: the whole list of favorite tracks (Results screen)
     // WiiM picker
     PickDevice,  // arg = index in the list of players
     PickRetry,

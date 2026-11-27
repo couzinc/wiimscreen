@@ -61,8 +61,8 @@ gives new tracks each time.
 ### Qobuz
 
 **Default (official parts only).** The WiiM does the Qobuz requests itself. For a search, the Tab5 sends a queue
-whose `SearchUrl` is `track/search?query=…`; the WiiM fills it with its own Qobuz login. The **Qobuz favorites**
-list is the same with `favorite/getUserFavorites?type=tracks`. Because the WiiM starts a queue at once, the Tab5
+whose `SearchUrl` is `track/search?query=…`; the WiiM fills it with its own Qobuz login. The Qobuz favorite
+tracks list (Library, *Qobuz* filter) is the same with `favorite/getUserFavorites?type=tracks`. Because the WiiM starts a queue at once, the Tab5
 mutes the WiiM and then puts back the music that played before (same track, same position). The WiiM does not fill
 a queue from an album search, so album search needs the option below.
 
