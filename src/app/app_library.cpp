@@ -43,7 +43,6 @@ void renderLibrary(int pressed) {
         const bool deezer = g_lib.filter == kD;
         const SearchKind kind = deezer ? SearchKind::DeezerFavorites : SearchKind::QobuzFavorites;
         sec.title = wr::L("Favorite tracks", "Morceaux favoris");
-        const bool current = g_search.resultsKind == kind;  // la liste lue en dernier est celle-ci
         // Lue (à nouveau) à chaque appui sur le filtre, jamais à l'ouverture de la Bibliothèque ni à un rafraîchissement
         // (image arrivée…) : sans accès direct, la lecture passe par une file du WiiM (son coupé un moment)
         if (g_lib.favReload) {
