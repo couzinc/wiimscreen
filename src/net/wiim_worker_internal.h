@@ -52,7 +52,6 @@ std::vector<std::string> queueNames(const std::string& control, bool verbose);
 int createQueue(const std::string& control, const std::string& ctx);
 int playQueueAt(const std::string& control, const std::string& name, int index);
 int deleteQueue(const std::string& control, const std::string& name);
-int sendQueue(const std::string& control, const std::string& ctx, const std::string& listName, int& create);
 // Valeur ASCII stable pour les lignes étiquetées du journal (logTagged, src/app/log.h)
 const char* errorKey(WiimError e);
 

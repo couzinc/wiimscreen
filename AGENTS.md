@@ -79,7 +79,7 @@ Flashable image for USB (address `0x0`): see the merge step in `.github/workflow
 | `src/ui/ui_internal.h` | Internal to `ui*.cpp` only: colours, font pointers, `useFont`, `mix` (never include it elsewhere; do not widen `ui.h`) |
 | `src/ui/fonts/` | Generated VLW fonts (`tools/make_vlw.py`), included only by `ui_core.cpp` |
 | `src/net/wiim_worker.*` | Background task that owns all WiiM networking: `begin`, request mailbox (`command`, `search`, `playFavorite`…), `run`, polling (`pollOnce`), command queue, `pause`, events, rediscovery, identity |
-| `src/net/wiim_worker_playqueue.cpp` | UPnP PlayQueue transport (`upnpRequest`, `findPlayQueue`, `browseQueue`, `createQueue`, `playQueueAt`, `deleteQueue`, `sendQueue`), queue diagnostic (`runQueueCheck`) |
+| `src/net/wiim_worker_playqueue.cpp` | UPnP PlayQueue transport (`upnpRequest`, `findPlayQueue`, `browseQueue`, `createQueue`, `playQueueAt`, `deleteQueue`), queue diagnostic (`runQueueCheck`) |
 | `src/net/wiim_worker_search.cpp` | Search through a WiiM queue: `searchGuardBegin`/`End` (mute, shuffle off, restore), `snapshot`, `restoreAfterSearch`, `undoInterruptedSearch`, `runSearch`, `runPlaySearchResult`, `runQobuzFavoriteList` |
 | `src/net/wiim_worker_services.cpp` | Qobuz (`qobuzAccess`, `qobuzGet`, album search, favorites) and Deezer (public API search, profile favorites, album playback); queue models (`qobuzModel`, `deezerModel`, `scanModels`, `noteModel`) |
 | `src/net/wiim_worker_favorites.cpp` | Favorites: save/replay of queue copies, Qobuz album tiles, automatic Flow tile, `playAlbumAt` |

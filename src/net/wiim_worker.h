@@ -115,6 +115,9 @@ private:
     void runQobuzAlbumSearch(const String& query);
     std::vector<wr::QobuzAlbum> qobuzAlbums_;  // ResultsFrom::QobuzAlbums : albums trouvés
     void runPlayFavorite(const String& id);
+    void runPlayFavoriteNow(const String& id);
+    bool favMuteBegin();          // son coupé pendant le chargement d'un favori (noté comme une recherche)
+    void favMuteEnd(bool muted);  // son rétabli, note retirée
     void runQobuzFavoriteList(const String& title);
     // randomStart (title vide) : un morceau au hasard au lieu du premier
     bool playAlbumAt(const std::string& control, const std::string& templ, const std::string& url,

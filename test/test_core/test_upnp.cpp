@@ -146,8 +146,8 @@ static void test_favorites() {
     TEST_ASSERT_EQUAL_STRING("OnlineMusic|custom_radio", queueKey(r).c_str());
 
     std::vector<Favorite> list = {{"f1", "k1", "Babylon (Music from\tthe Motion Picture)", "Justin Hurwitz", "Qobuz",
-                                   "https://static.qobuz.com/a.jpg"},
-                                  {"f2", "k2", "Kind of Blue", "", "Qobuz", ""}};
+                                   "https://static.qobuz.com/a.jpg", "Coke Room"},
+                                  {"f2", "k2", "Kind of Blue", "", "Qobuz", "", ""}};
     std::string text = favoritesToText(list);
     auto back = favoritesFromText(text + "broken line\n\n");
     TEST_ASSERT_EQUAL(2, (int)back.size());
@@ -156,6 +156,13 @@ static void test_favorites() {
     TEST_ASSERT_EQUAL_STRING("https://static.qobuz.com/a.jpg", back[0].artUrl.c_str());
     TEST_ASSERT_EQUAL_STRING("", back[1].artist.c_str());
     TEST_ASSERT_EQUAL_STRING("k2", back[1].key.c_str());
+    TEST_ASSERT_EQUAL_STRING("Coke Room", back[0].track.c_str());  // morceau où reprend la lecture
+    TEST_ASSERT_EQUAL_STRING("", back[1].track.c_str());
+    // Index d'avant le morceau noté (6 champs) : toujours lu
+    auto old = favoritesFromText("f3\tk3\tBlue Train\tJohn Coltrane\tQobuz\t\n");
+    TEST_ASSERT_EQUAL(1, (int)old.size());
+    TEST_ASSERT_EQUAL_STRING("Blue Train", old[0].title.c_str());
+    TEST_ASSERT_EQUAL_STRING("", old[0].track.c_str());
 }
 
 static void test_queue_template() {

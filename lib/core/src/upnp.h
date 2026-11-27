@@ -84,8 +84,10 @@ struct Favorite {
     std::string artist;
     std::string source;  // SourceName (Qobuz…)
     std::string artUrl;  // cover
+    std::string track;   // title of the track that played when it was saved: the replay starts there
 };
 // Index file: one favorite per line, fields separated by tabs (tabs/newlines removed from values).
+// `track` is a 7th field, optional (indexes written before it have 6).
 std::string favoritesToText(const std::vector<Favorite>& list);
 std::vector<Favorite> favoritesFromText(const std::string& text);
 

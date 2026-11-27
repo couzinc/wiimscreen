@@ -109,6 +109,11 @@ TileKind tileKind(const Preset& p) {
     return TileKind::Favorite;
 }
 
+bool onStrip(const Preset& p) {
+    const TileKind k = tileKind(p);
+    return k == TileKind::Preset || k == TileKind::Favorite;
+}
+
 std::string tileStatsToText(const TileStats& s) {
     std::string out = "seq\t" + std::to_string(s.seq) + "\n";
     for (const TileUse& u : s.uses) {

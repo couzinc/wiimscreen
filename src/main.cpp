@@ -816,6 +816,14 @@ static void activateTileMenu(const wr::Target& tg, uint32_t now) {
     show();
 }
 
+// Favori choisi : la musique en cours s'arrête tout de suite, le favori met quelques secondes à se charger
+// (le son du WiiM reste coupé pendant ce chargement : WiimWorker::favMuteBegin)
+static void cutMusicForFavorite() {
+    if (!playingNow()) return;
+    g_worker.command("setPlayerCmd:pause");
+    g_state.player.playing = false;
+}
+
 static void playPreset(int p) {
     if (p < 0 || p >= (int)g_tiles.list.size()) return;
     logEvent("Preset %d : %s", g_tiles.list[p].slot, g_tiles.list[p].label.c_str());
@@ -830,6 +838,7 @@ static void playPreset(int p) {
     g_active.mode = -1;
     g_ui.setActivePreset(p);
     if (!g_tiles.list[p].favId.empty()) {
+        cutMusicForFavorite();
         g_worker.playFavorite(g_tiles.list[p].favId.c_str());  // file enregistrée
         markPending(wr::kPlayPause, Await::Music, true);
     } else {
@@ -1294,6 +1303,8 @@ static void activateSearch(const wr::Target& tg) {
             sound::tap();
             renderResultsList(r);  // ligne enfoncée
             logTagged("search.play", "row=%d | Recherche : lecture de %d (%s)", r, r + 1, g_search.results[r].title.c_str());
+            if (g_search.resultsKind == SearchKind::QobuzFavorites || g_search.resultsKind == SearchKind::DeezerFavorites)
+                cutMusicForFavorite();  // morceau d'une liste de favoris
             g_worker.playSearchResult(r);
             markPending(wr::kPlayPause, Await::Music, true);
             setMessage((std::string(wr::L("Playing: ", "Lecture : ")) + g_search.results[r].title +
@@ -1312,6 +1323,7 @@ static void activateSearch(const wr::Target& tg) {
             const bool shuffle = tg.arg == 1;
             sound::tap();
             logEvent("Favoris %s : %s", deezer ? "Deezer" : "Qobuz", shuffle ? "lecture al\xC3\xA9" "atoire" : "tout lire");
+            cutMusicForFavorite();
             g_worker.playFavorite((std::string(deezer ? kDeezerFavsId : kQobuzFavsId) + (shuffle ? ":shuffle" : ":all")).c_str());
             markPending(wr::kPlayPause, Await::Music, true);
             setMessage(shuffle ? wr::L("Shuffling your favorites\xE2\x80\xA6", "Tes favoris en al\xC3\xA9" "atoire\xE2\x80\xA6")
