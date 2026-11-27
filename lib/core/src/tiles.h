@@ -40,6 +40,9 @@ TileStats tileStatsFromText(const std::string& text);
 // streaming account (album or favorites list: ids "qobuz-…", "deezer-…").
 enum class TileKind { Preset = 0, Favorite, Qobuz, Deezer, Count };
 TileKind tileKind(const Preset& p);
+// Shown on the home strip: WiiM presets and favorites saved on the remote. The tiles of the streaming accounts
+// (Qobuz, Deezer: albums and favorites lists) are in the Library only (its Qobuz / Deezer filters).
+bool onStrip(const Preset& p);
 
 // Display order of the tiles (indexes into keys): pinned tiles first (by pin), then, with recentFirst, the played
 // ones (most recent first), then the others in their given order. Every index appears once.

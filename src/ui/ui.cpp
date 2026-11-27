@@ -10,8 +10,9 @@ static bool endsWithEllipsis(const std::vector<std::string>& lines) {
            lines.back().compare(lines.back().size() - ell.size(), ell.size(), ell) == 0;
 }
 
-void Ui::setPresets(const std::vector<wr::Preset>& presets) {
+void Ui::setPresets(const std::vector<wr::Preset>& presets, int stripCount) {
     presets_ = presets;
+    stripCount_ = stripCount < 0 ? (int)presets_.size() : std::min(stripCount, (int)presets_.size());
     presetArtSrc_.assign(presets_.size(), nullptr);
     thumbs_.clear();
     thumbs_.resize(presets_.size());
@@ -22,7 +23,7 @@ void Ui::setPresets(const std::vector<wr::Preset>& presets) {
 
 int Ui::pageCount() const {
     if (layout_.perPage <= 0) return 0;
-    return ((int)presets_.size() + layout_.perPage - 1) / layout_.perPage;
+    return (stripCount_ + layout_.perPage - 1) / layout_.perPage;
 }
 
 void Ui::setPage(int p) { page_ = std::max(0, std::min(pageCount() - 1, p)); }
@@ -142,7 +143,7 @@ void Ui::info(const UiState& st) {
         C.drawString(st.online ? wr::L("Nothing playing", "Rien en lecture") : wr::L("WiiM unreachable", "WiiM injoignable"), r.x, y);
         y += titleH;
         useFont(C, kSmall);
-        if (presets_.empty()) {
+        if (stripCount_ == 0) {
             C.drawString(fit(wr::L("Start the music from your phone.", "Lance la musique depuis ton t\xC3\xA9l\xC3\xA9phone."), r.w).c_str(), r.x, y + sc(6));
         } else {
             C.drawString(fit(wr::L("Choose a preset below.", "Choisis un preset ci-dessous."), r.w).c_str(), r.x, y + sc(6));
@@ -446,9 +447,9 @@ void Ui::render(const UiState& st, int pressedPreset, int pressedTransport) {
     volumePill(st, pressedTransport);
     for (size_t slot = 0; slot < layout_.presets.size(); ++slot) {
         int i = page_ * layout_.perPage + (int)slot;
-        if (i < (int)presets_.size()) tile((int)slot, i, i == pressedPreset);
+        if (i < stripCount_) tile((int)slot, i, i == pressedPreset);
     }
-    if (presets_.empty()) emptyStrip();
+    if (stripCount_ == 0) emptyStrip();
     pageDots();
     toast(st.message);
     controlsTargets();
@@ -478,9 +479,9 @@ void Ui::controlsTargets() {
     }
     for (size_t slot = 0; slot < layout_.presets.size(); ++slot) {
         int i = page_ * layout_.perPage + (int)slot;
-        if (i < (int)presets_.size()) targets_.add(Act::Preset, i, layout_.presets[slot]);
+        if (i < stripCount_) targets_.add(Act::Preset, i, layout_.presets[slot]);
     }
-    if (!presets_.empty()) targets_.add(Act::Strip, 0, layout_.strip, wr::kTargetNoFocus);
+    if (stripCount_ > 0) targets_.add(Act::Strip, 0, layout_.strip, wr::kTargetNoFocus);
     if (favState_ > 0) targets_.add(Act::Fav, 0, layout_.fav, padded(layout_.fav, pad));
     for (int i = 0; i < wr::kTransportCount; ++i) {
         const wr::Rect& r = layout_.transport[i];
@@ -568,7 +569,7 @@ bool Ui::updateVolume(const UiState& st, int pressed) {
 
 // Une tuile seule : enfoncée sous le doigt, puis relâchée (le reste de l'écran ne change pas)
 bool Ui::updateTile(int index, bool pressed) {
-    if (view_ != View::Controls || layout_.perPage <= 0 || index < 0 || index >= (int)presets_.size()) return false;
+    if (view_ != View::Controls || layout_.perPage <= 0 || index < 0 || index >= stripCount_) return false;
     const int slot = index - page_ * layout_.perPage;
     if (slot < 0 || slot >= (int)layout_.presets.size()) return false;
     const wr::Rect& r = layout_.presets[slot];

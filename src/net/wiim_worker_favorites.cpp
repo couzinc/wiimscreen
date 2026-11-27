@@ -58,6 +58,7 @@ void WiimWorker::runSaveFavorite(const FavRequest& r) {
     f.artist = r.artist.c_str();
     f.source = q.sourceName;
     f.artUrl = r.artUrl.c_str();
+    f.track = r.title.c_str();  // la lecture du favori reprendra à ce morceau (pas pour un Flow : liveFavorite)
     if (wr::isLiveQueue(q)) {
         liveFavorite(q, best, f);
     } else if (!q.searchUrl.empty()) {
@@ -82,6 +83,7 @@ void WiimWorker::liveFavorite(const wr::QueueInfo& q, std::string& ctx, wr::Favo
     f.key = wr::queueKey(q);
     f.title = ours ? wr::L("Deezer mix", "Mix Deezer") : q.listName;
     f.artist.clear();
+    f.track.clear();  // de nouvelles pistes à chaque lecture : pas de morceau où reprendre
     f.source = q.sourceName;
     if (!q.picUrl.empty()) f.artUrl = q.picUrl;
     ctx = wr::queueFromTemplate(ctx, q.listName, q.searchUrl);
@@ -188,11 +190,48 @@ void WiimWorker::runSaveAlbumFavorite(const AlbumFavRequest& r) {
     push(std::move(ev));
 }
 
+// Chargement d'un favori : CreateQueue lance la file à son début avant que le bon morceau soit choisi. Son coupé
+// de là au morceau voulu, noté comme pour une recherche (undoInterruptedSearch le rétablit si le Tab5 redémarre
+// entre-temps). Rien n'est coupé si une note d'avant n'est pas encore défaite ou si l'état est illisible.
+bool WiimWorker::favMuteBegin() {
+    wr::PlayerStatus st;
+    if (!undoChecked_ || client_.status(st) != WiimError::None || st.muted) return false;
+    if (client_.command("setPlayerCmd:mute:1") != WiimError::None) {
+        client_.command("setPlayerCmd:mute:0");  // au cas où la commande serait passée
+        return false;
+    }
+    Playback before;
+    before.known = true;
+    before.loop = st.loop;
+    noteSearchChanges(before, true, false);
+    return true;
+}
+
+void WiimWorker::favMuteEnd(bool muted) {
+    if (!muted) return;
+    pause(600, true);  // le morceau choisi a démarré
+    const WiimError e = client_.command("setPlayerCmd:mute:0");
+    logTagged("fav.unmute", "result=%s | Favori : son r\xC3\xA9tabli (%s)", errorKey(e), wiimErrorName(e));
+    if (e == WiimError::None) {
+        fav::saveSearchUndo("");
+    } else {
+        undoKeepsPlayback_ = true;  // au prochain relevé : rendre le son sans arrêter le favori
+        undoChecked_ = false;
+    }
+}
+
+// Favori choisi : la musique d'avant est déjà en pause (main.cpp) ; son coupé pendant le chargement
 void WiimWorker::runPlayFavorite(const String& id) {
     if (id.startsWith("qobuz-favoris:") || id.startsWith("deezer-favoris:")) {
         runPlayFavoriteList(id.startsWith("deezer"), id.endsWith(":shuffle"));
         return;
     }
+    const bool muted = favMuteBegin();
+    runPlayFavoriteNow(id);
+    favMuteEnd(muted);
+}
+
+void WiimWorker::runPlayFavoriteNow(const String& id) {
     if (id.startsWith("qobuz-album:")) {
         runPlayQobuzAlbum(id.substring(12).c_str());
         return;
@@ -216,26 +255,50 @@ void WiimWorker::runPlayFavorite(const String& id) {
             ctx = wr::queueFromTemplate(ctx, q.listName, q.searchUrl);
             loaded = 0;
         }
-        if (loaded > 0 || q.searchUrl.empty()) {
-            p = sendQueue(control, ctx, q.listName, c);  // pistes dans la copie : lecture tout de suite
-        } else {
-            // Album sans pistes (cœur de la recherche d'albums) : le WiiM les lit depuis SearchUrl. On attend
-            // qu'il en ait avant PlayQueueWithIndex ; les appuis (volume…) restent traités pendant l'attente.
-            std::string resp, back;
-            c = createQueue(control, ctx);
-            while (c == 200 && loaded == 0 && millis() - t0 < 10000) {
-                pause(500, true);
-                if (browseQueue(control, q.listName, back) == 200 && !back.empty())
-                    loaded = wr::parseQueueContext(back).tracks;
-            }
-            if (c == 200)
-                p = playQueueAt(control, q.listName, 1);
-        }
-        std::string name = q.listName;  // nom affiché : titre de la tuile, sinon nom de la file
+        std::string name = q.listName, track;  // nom affiché : titre de la tuile, sinon nom de la file
         for (auto& f : fav::list())
-            if (f.id == id.c_str() && !f.title.empty()) name = f.title;
-        logEvent("Favori \xE2\x96\xB6 \xC2\xAB %s \xC2\xBB : CreateQueue %d, %d piste(s), PlayQueueWithIndex %d (%lu ms)",
-                 name.c_str(), c, loaded, p, (unsigned long)(millis() - t0));
+            if (f.id == id.c_str()) {
+                if (!f.title.empty()) name = f.title;
+                track = f.track;
+            }
+        if (wr::isLiveQueue(q)) track.clear();
+        // Lancé au morceau qui jouait à l'enregistrement, cherché par son titre dans la file relue (l'ordre peut
+        // différer de la copie, lecture aléatoire) ; au premier pour un favori sans morceau noté (plus ancien,
+        // album de la recherche). Album sans pistes : le WiiM les lit depuis SearchUrl, on attend qu'il en ait ;
+        // les appuis (volume…) restent traités pendant l'attente.
+        c = createQueue(control, ctx);
+        int index = 0;
+        for (bool first = true; c == 200 && index == 0 && millis() - t0 < 10000; first = false) {
+            if (track.empty() && (loaded > 0 || q.searchUrl.empty())) {
+                index = 1;  // pistes dans la copie : lecture tout de suite
+                break;
+            }
+            if (!first || loaded == 0) pause(500, true);
+            std::string back;
+            if (browseQueue(control, q.listName, back) != 200 || back.empty()) continue;
+            const wr::QueueInfo b = wr::parseQueueContext(back, wr::kQueueTitlesMax);
+            loaded = b.tracks;
+            if (b.tracks == 0) continue;
+            index = track.empty() ? 1 : wr::queueIndexOf(b, track, true);
+            if (index == 0 && millis() - t0 > 6000) index = 1;  // morceau pas trouvé : début de la file
+        }
+        if (c == 200) p = playQueueAt(control, q.listName, index > 0 ? index : 1);
+        // Le WiiM peut remélanger la file juste après CreateQueue : titre vérifié, place relue, un nouvel essai
+        if (p == 200 && !track.empty()) {
+            pause(1500, true);
+            wr::TrackMeta m;
+            std::string back;
+            if (client_.metaInfo(m) == WiimError::None && !m.title.empty() &&
+                wr::normalizeText(m.title) != wr::normalizeText(track) &&
+                browseQueue(control, q.listName, back) == 200 && !back.empty()) {
+                const int k = wr::queueIndexOf(wr::parseQueueContext(back, wr::kQueueTitlesMax), track, true);
+                if (k > 0) p = playQueueAt(control, q.listName, index = k);
+            }
+        }
+        logTagged("fav.play", "create=%d tracks=%d play=%d index=%d | "
+                  "Favori \xE2\x96\xB6 \xC2\xAB %s \xC2\xBB (\xC2\xAB %s \xC2\xBB, piste %d) : CreateQueue %d, %d piste(s), "
+                  "PlayQueueWithIndex %d (%lu ms)",
+                  c, loaded, p, index, name.c_str(), track.c_str(), index, c, loaded, p, (unsigned long)(millis() - t0));
         ev.ok = c == 200 && p == 200;
         if (!ev.ok) ev.text = wr::L("the WiiM refused the queue", "le WiiM a refus\xC3\xA9 la file");
     }

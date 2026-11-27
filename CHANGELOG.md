@@ -5,6 +5,23 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+**Tab5:** not checked on a Tab5 yet (not built locally either: CI builds and tests it).
+
+### Changed
+- **Home strip**: only the WiiM presets and the favorites saved on the remote. The tiles of the Qobuz and Deezer
+  accounts (*Qobuz favorites*, *Deezer favorites*, favorite albums) are now in the **Library** only, under
+  its *Qobuz* and *Deezer* filters.
+
+### Fixed
+- **Saved favorites** started at the first track of the queue, not at the track you saved (for example, a favorite
+  saved on *Coke Room* of *Babylon* started another track). The favorite now keeps the title of the track that
+  played; the replay finds it in the queue that the WiiM loads and starts there (checked again after 1.5 s, as the
+  WiiM can reshuffle the queue). Favorites saved before this version still start at the first track.
+- **Loading a favorite** let the old music play for some seconds, then the start of the new queue. The music now
+  pauses at the touch, and the WiiM sound stays off from `CreateQueue` until the chosen track plays (noted like a
+  search: if the Tab5 restarts in the middle, the sound comes back at the next start). Journal: `[fav.play]`,
+  `[fav.unmute]`.
+
 ## [0.4.1-beta] — 2026-11-21 — Library fixes
 
 **Tab5:** checked in the simulator only, like v0.4.0-beta: not checked on a Tab5 yet. If something does not work,

@@ -30,9 +30,9 @@ move 300 585
 release
 wait 600
 shot tour-08-page2
-tap 208 640
-wait 1200
-shot tour-09-favoris-qobuz
+tap 50 212
+wait 800
+shot tour-09-bibliotheque
 tap 50 360
 wait 400
 tap 998 143

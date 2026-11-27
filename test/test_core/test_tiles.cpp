@@ -104,8 +104,21 @@ static void test_tile_kind() {
     TEST_ASSERT_TRUE(tileKind(p) == TileKind::Deezer);
 }
 
+// Bande de l'accueil : presets et favoris de la télécommande ; les tuiles des comptes restent dans la Bibliothèque
+static void test_tile_on_strip() {
+    Preset p;
+    TEST_ASSERT_TRUE(onStrip(p));
+    p.favId = "0a1b2c3d";
+    TEST_ASSERT_TRUE(onStrip(p));
+    for (const char* id : {"qobuz-favoris", "qobuz-album:42", "deezer-favoris", "deezer-album:7"}) {
+        p.favId = id;
+        TEST_ASSERT_FALSE(onStrip(p));
+    }
+}
+
 void run_tiles_tests() {
     RUN_TEST(test_tile_kind);
+    RUN_TEST(test_tile_on_strip);
     RUN_TEST(test_tile_key);
     RUN_TEST(test_tile_played_and_order);
     RUN_TEST(test_tile_stats_text);

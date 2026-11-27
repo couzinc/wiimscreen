@@ -3,6 +3,7 @@
 
 #include <esp_heap_caps.h>
 
+#include <algorithm>
 #include <cstring>
 
 #include "app/app_internal.h"
@@ -10,6 +11,7 @@
 #include "appstate.h"
 #include "storage/favorites.h"
 #include "i18n.h"
+#include "tiles.h"
 
 namespace app {
 
@@ -22,7 +24,7 @@ static bool samePresets(const std::vector<wr::Preset>& a, const std::vector<wr::
     return true;
 }
 
-static void applyPresets(const std::vector<wr::Preset>& list) {
+static void applyPresets(const std::vector<wr::Preset>& list, int stripCount) {
     // Doigt posé sur une tuile : son indice ne vaut plus rien dans la nouvelle liste (mauvaise tuile lancée, ou
     // lecture hors de la liste si elle a raccourci)
     if (g_strip.touch) {
@@ -40,7 +42,7 @@ static void applyPresets(const std::vector<wr::Preset>& list) {
             for (auto& p : g_tiles.list) used |= p.picUrl == it->first;
             it = used ? std::next(it) : g_img.presets.erase(it);
         }
-    g_ui.setPresets(g_tiles.list);
+    g_ui.setPresets(g_tiles.list, stripCount);
     g_active.index = -1;
     for (size_t i = 0; !activeKey.empty() && i < g_tiles.list.size(); ++i)
         if (wr::tileKey(g_tiles.list[i]) == activeKey) {
@@ -119,8 +121,12 @@ void refreshTiles() {
     for (auto& p : list) keys.push_back(wr::tileKey(p));
     std::vector<wr::Preset> sorted;
     for (size_t i : wr::tileOrder(keys, g_tiles.shown, g_settings.recentFirst)) sorted.push_back(list[i]);
+    // Bande de l'accueil : presets et favoris de la télécommande, en premier ; les tuiles des comptes (Qobuz,
+    // Deezer) suivent et ne sont que dans la Bibliothèque (filtres Qobuz / Deezer)
+    const auto split = std::stable_partition(sorted.begin(), sorted.end(), [](const wr::Preset& p) { return wr::onStrip(p); });
+    const int stripCount = (int)(split - sorted.begin());
     if (samePresets(sorted, g_tiles.list)) return;
-    applyPresets(sorted);
+    applyPresets(sorted, stripCount);
     show();
 }
 

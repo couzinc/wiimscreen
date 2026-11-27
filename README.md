@@ -34,10 +34,10 @@ Open source · runs on ESP32 · tested on the M5Stack Tab5
 |---|---|
 | **Now playing** | Large album art, title, artist, album, source and audio quality. The colors follow the album art. Touch the progress bar to go to a position. |
 | **Control** | Play, pause, next, previous, volume and mute. Slide the volume bar, or hold − or + to change the volume step by step. A ring turns on a button until the WiiM does the command. |
-| **Tiles** | Presets of the WiiM, your favorites and a **Flow** tile, with their images. Album tiles show the artist. The last played tiles come first. Swipe for the next page. |
-| **Favorites** | Touch the heart while an album or a playlist plays. One touch on its tile plays it again. Hold a tile to pin it at the front or to remove it. |
-| **Library** | The grid button in the side bar shows all the tiles on one screen. Filter them: presets, favorites, Qobuz, Deezer. |
-| **Qobuz** | Search tracks. Touch a result to play it. Your favorite tracks show in the **Qobuz favorites** tile: touch a track, **Play all** or **Shuffle**. Optional: album search with a heart to add an album as a tile (see [Unofficial interfaces](#unofficial-interfaces)). |
+| **Tiles** | Presets of the WiiM, your favorites and a **Flow** tile, with their images. The tiles of your Qobuz and Deezer accounts are in the **Library**. Album tiles show the artist. The last played tiles come first. Swipe for the next page. |
+| **Favorites** | Touch the heart while an album or a playlist plays. One touch on its tile plays it again from the track that played when you saved it. The music that plays stops at once and the sound stays off while the favorite loads. Hold a tile to pin it at the front or to remove it. |
+| **Library** | The grid button in the side bar shows all the tiles on one screen. Filter them: presets, favorites, Qobuz, Deezer. The Qobuz and Deezer tiles (favorites lists, albums) show only here. |
+| **Qobuz** | Search tracks. Touch a result to play it. Your favorite tracks show in the **Qobuz favorites** tile (Library, filter *Qobuz*): touch a track, **Play all** or **Shuffle**. Optional: album search with a heart to add an album as a tile (see [Unofficial interfaces](#unofficial-interfaces)). |
 | **Deezer** | Search the Deezer catalog. **Flow** becomes a tile automatically. Favorites of a public profile show as tiles. |
 | **Voice search** | Optional. Say an artist or a title. Uses OpenAI speech-to-text with your own key. |
 | **Ambient view** | After 60 s without a touch: large album art and text, and an optional sound spectrum. |

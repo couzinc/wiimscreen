@@ -292,7 +292,7 @@ std::string favoritesToText(const std::vector<Favorite>& list) {
     std::string o;
     for (auto& f : list)
         o += clean(f.id) + "\t" + clean(f.key) + "\t" + clean(f.title) + "\t" + clean(f.artist) + "\t" +
-             clean(f.source) + "\t" + clean(f.artUrl) + "\n";
+             clean(f.source) + "\t" + clean(f.artUrl) + "\t" + clean(f.track) + "\n";
     return o;
 }
 
@@ -314,7 +314,7 @@ std::vector<Favorite> favoritesFromText(const std::string& text) {
             a = t + 1;
         }
         if (f.size() < 6 || f[0].empty()) continue;  // ligne abîmée : ignorée
-        out.push_back(Favorite{f[0], f[1], f[2], f[3], f[4], f[5]});
+        out.push_back(Favorite{f[0], f[1], f[2], f[3], f[4], f[5], f.size() > 6 ? f[6] : std::string()});
     }
     return out;
 }

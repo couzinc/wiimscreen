@@ -74,7 +74,7 @@ void Ui::relayout() {
 #ifdef PC_SCALED_FONTS
     scaleFonts(D.width(), D.height());
 #endif
-    layout_ = wr::computeLayout(D.width(), D.height(), (int)presets_.size());
+    layout_ = wr::computeLayout(D.width(), D.height(), stripCount_);
     if (art_.width() != layout_.art.w || art_.height() != layout_.art.h) {
         art_.deleteSprite();
         art_.createSprite(layout_.art.w, layout_.art.h);

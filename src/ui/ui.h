@@ -39,8 +39,10 @@ class Ui {
 public:
     void begin(const Settings& s);
 
-    // Liste des presets (revient à la première page)
-    void setPresets(const std::vector<wr::Preset>& presets);
+    // Liste des tuiles (revient à la première page). Les stripCount premières sont sur la bande de l'accueil
+    // (-1 : toutes) ; les suivantes ne sont que dans la Bibliothèque (tuiles des comptes Qobuz / Deezer).
+    void setPresets(const std::vector<wr::Preset>& presets, int stripCount = -1);
+    int stripCount() const { return stripCount_; }
     // Image du preset i (nullptr : pas d'image). L'image doit rester valide.
     void setPresetArt(int index, const ArtImage* img);
     // Preset en cours de lecture (-1 : aucun), marqué d'un contour et d'une icône
@@ -214,6 +216,7 @@ private:
     int ref_ = 540;
     wr::Layout layout_;
     std::vector<wr::Preset> presets_;
+    int stripCount_ = 0;  // tuiles de la bande : presets_[0..stripCount_)
     std::vector<const ArtImage*> presetArtSrc_;
     std::vector<std::unique_ptr<M5Canvas>> thumbs_;  // vignettes décodées (nullptr : aucune)
     int page_ = 0;
