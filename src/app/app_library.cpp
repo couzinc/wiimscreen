@@ -1,6 +1,7 @@
 // Bibliothèque : toutes les tuiles (presets, favoris, albums des comptes) en grille, avec des filtres par sorte de
 // tuile ; filtre Qobuz / Deezer : les morceaux favoris du compte au-dessus des albums (pas une tuile). Les tuiles
-// notées d'abord (plus d'étoiles d'abord), puis l'ordre de la bande (épinglées, dernières lancées). Appuis et appui long : main.cpp
+// notées d'abord (plus d'étoiles d'abord), puis l'ordre de la bande (épinglées, dernières lancées). Appuis et appui
+// long : main.cpp
 // (activateLibrary, serviceLibraryTouch), qui partagent playPreset() et le menu de la tuile avec la bande.
 
 #include "app/app_internal.h"
@@ -43,11 +44,11 @@ void renderLibrary(int pressed) {
         const SearchKind kind = deezer ? SearchKind::DeezerFavorites : SearchKind::QobuzFavorites;
         sec.title = wr::L("Favorite tracks", "Morceaux favoris");
         const bool current = g_search.resultsKind == kind;  // la liste lue en dernier est celle-ci
-        // Lue à l'ouverture de la Bibliothèque ou à l'appui sur le filtre, jamais à un simple rafraîchissement (image
-        // arrivée…) : sans accès direct, la lecture passe par une file du WiiM (son coupé un moment)
+        // Lue (à nouveau) à chaque appui sur le filtre, jamais à l'ouverture de la Bibliothèque ni à un rafraîchissement
+        // (image arrivée…) : sans accès direct, la lecture passe par une file du WiiM (son coupé un moment)
         if (g_lib.favReload) {
             g_lib.favReload = false;
-            if ((!current || g_search.results.empty()) && !g_jobs.search) loadFavoriteList(deezer, false);
+            if (!g_jobs.search) loadFavoriteList(deezer, false);
         }
         if (g_search.resultsKind == kind && g_jobs.search)
             sec.note = deezer ? wr::L("Loading your Deezer favorites\xE2\x80\xA6", "Chargement de tes favoris Deezer\xE2\x80\xA6")
@@ -73,7 +74,6 @@ void openLibrary() {
     logEvent("Biblioth\xC3\xA8que : %u tuile(s)", (unsigned)g_tiles.list.size());
     g_view.screen = Screen::Library;
     g_lib.touch = -1;
-    g_lib.favReload = true;  // filtre Qobuz / Deezer gardé : ses morceaux favoris relus
     g_focus.spot[(int)Screen::Library] = wr::FocusSpot{};
     renderLibrary();
 }

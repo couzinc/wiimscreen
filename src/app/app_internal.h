@@ -102,6 +102,7 @@ struct SearchScreen {
     int keyDown = -1;
     uint32_t keyDownAt = 0;
     String note;  // message d'une liste vide (chargement, échec) : redessinée telle quelle quand l'anneau bouge
+    bool background = false;  // morceaux favoris lus pour la Bibliothèque : la réponse n'ouvre pas la liste
 };
 extern SearchScreen g_search;
 

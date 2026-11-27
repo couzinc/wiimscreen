@@ -89,7 +89,7 @@ C'est le même fichier que pour le flash USB : le Tab5 n'en garde que la partie 
 | Tuiles du bas | Lancer le preset (au relâcher) |
 | Doigt tenu sur une tuile | Menu de la tuile : note (1 à 5 étoiles ; la même étoile retouchée l'efface), épingler en tête / désépingler, retirer des favoris |
 | Bibliothèque (2ᵉ bouton de la barre de gauche : deux pochettes et un cœur) | Bibliothèque : toutes les tuiles sur un écran, filtres Presets / Favoris / Qobuz / Deezer ; les tuiles notées d'abord (★ et leur note sur l'image) ; toucher une tuile la lance, doigt tenu : son menu |
-| « Favoris Qobuz » / « Favoris Deezer » (Bibliothèque › Qobuz / Deezer, en premier ; plus sur la bande) | Liste des morceaux favoris : toucher un morceau, **Tout lire** ou **Aléatoire** (Deezer : pas encore vérifié sur un WiiM) |
+| Bibliothèque › Qobuz / Deezer | Tes morceaux favoris au-dessus des albums (ce n'est plus une tuile) : toucher un morceau, **Tout lire**, **Aléatoire** ou **Les N ›** pour la liste complète (Deezer : pas encore vérifié sur un WiiM). Les albums des comptes ne sont plus sur la bande de l'accueil. |
 | Glisser sur les tuiles, ou toucher les points | Page de presets suivante / précédente |
 | − / + (bouts de la barre de volume) | Volume (pas réglable) |
 | ◀◀ / ▶▶ | Piste précédente / suivante |
@@ -119,8 +119,8 @@ album à partir de ce morceau.
 Flow avec de nouveaux morceaux. Si tu la retires, touche le cœur pendant que Flow joue pour la remettre.
 
 **Favoris d'un profil Deezer.** Sur deezer.com, ouvre ton profil (public) et copie le numéro à la fin de l'adresse.
-Colle-le dans la configuration (⚙ › **Configuration** › **Profil Deezer**). Puis Bibliothèque › **Deezer** ›
-**Favoris Deezer**, ou une tuile d'album.
+Colle-le dans la configuration (⚙ › **Configuration** › **Profil Deezer**). Puis Bibliothèque › **Deezer** : tes
+morceaux favoris au-dessus des tuiles d'album.
 
 **Mise en veille.** ⚙ › **Mise en veille** éteint le Tab5 ; la configuration peut aussi régler une mise en veille
 automatique. Le bouton d'alimentation le rallume (un appui sur l'écran ne le réveille pas).

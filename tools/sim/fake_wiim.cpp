@@ -59,9 +59,11 @@ int albumIndex(const std::string& id) {
     return -1;
 }
 
-// Presets of the fake WiiM (slot → album)
+// Presets of the fake WiiM (slot → album). Nine: the home strip has two pages (the Qobuz and Deezer tiles of
+// the accounts are in the Library only), dpad.txt pages through them.
 const std::vector<std::pair<int, const char*>> kPresets = {{1, "r-fip"}, {2, "r-rsj"}, {3, "q-kob"},
-                                                             {4, "q-dis"}, {5, "q-ls"},  {6, "q-rc"}};
+                                                             {4, "q-dis"}, {5, "q-ls"},  {6, "q-rc"},
+                                                             {7, "q-ns"},  {8, "d-ram"}, {9, "d-amy"}};
 
 struct Player {
     int album = 0, track = 1;

@@ -74,6 +74,7 @@ bool loadFavoriteList(bool deezer, bool open) {
     g_search.results.clear();
     g_search.status = "";
     g_search.page = 0;
+    g_search.background = !open;
     if (open) {
         g_view.screen = Screen::Results;
         g_focus.spot[(int)Screen::Results] = wr::FocusSpot{};  // anneau : la première ligne quand elle arrivera
@@ -197,6 +198,10 @@ void onSearchDone(const WiimEvent& ev) {
     }
     g_jobs.search = false;
     g_search.albums = ev.albums;
+    // Liste lue pour la Bibliothèque : seule la Bibliothèque est redessinée ; ni le clavier ni la liste ne s'ouvrent
+    // (on a pu passer à la recherche entre-temps)
+    const bool background = g_search.background;
+    g_search.background = false;
     if (!ev.ok || ev.tracks.empty()) {
         if (!ev.ok) sound::error();
         g_search.status = !ev.ok ? String(wr::L("Search failed: ", "Recherche impossible : ")) + ev.text
@@ -206,6 +211,7 @@ void onSearchDone(const WiimEvent& ev) {
                                                                       "Aucun morceau trouv\xC3\xA9 pour \xC2\xAB ")) +
                                       ev.name + wr::L("\xE2\x80\x9D", " \xC2\xBB");
         if (g_view.screen == Screen::Library) renderLibrary();  // filtre Qobuz / Deezer : « aucun », échec
+        if (background) return;
         if (g_view.screen == Screen::Results) {  // liste ouverte (favoris Qobuz) : le message s'y affiche
             g_search.results.clear();
             showResultsNote(!ev.ok ? String(wr::L("Failed: ", "Impossible : ")) + ev.text
@@ -223,8 +229,8 @@ void onSearchDone(const WiimEvent& ev) {
         g_focus.spot[(int)Screen::Results] = wr::FocusSpot{wr::Act::ResultRow, 0};
         logTagged("search.results", "count=%u | R\xC3\xA9sultats : %u", (unsigned)g_search.results.size(),
                   (unsigned)g_search.results.size());
-        if (g_view.screen == Screen::Library) {  // filtre Qobuz / Deezer : les morceaux favoris arrivés
-            renderLibrary();
+        if (g_view.screen == Screen::Library || background) {  // filtre Qobuz / Deezer : les morceaux arrivés
+            if (g_view.screen == Screen::Library) renderLibrary();
             return;
         }
         // Toujours sur le clavier ou la liste : on montre les résultats

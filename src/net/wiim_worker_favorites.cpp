@@ -283,8 +283,12 @@ void WiimWorker::runPlayFavoriteNow(const String& id) {
             if (index == 0 && millis() - t0 > 6000) index = 1;  // morceau pas trouvé : début de la file
         }
         if (c == 200) p = playQueueAt(control, q.listName, index > 0 ? index : 1);
-        // Le WiiM peut remélanger la file juste après CreateQueue : titre vérifié, place relue, un nouvel essai
-        if (p == 200 && !track.empty()) {
+        // Lecture aléatoire : le WiiM peut remélanger la file juste après CreateQueue ; titre vérifié, place relue, un
+        // nouvel essai (sans lecture aléatoire, pas d'attente : le son revient tout de suite)
+        wr::PlayerStatus now;
+        const bool shuffled = p == 200 && !track.empty() && client_.status(now) == WiimError::None &&
+                              wr::loopWithoutShuffle(now.loop) != now.loop;
+        if (shuffled) {
             pause(1500, true);
             wr::TrackMeta m;
             std::string back;

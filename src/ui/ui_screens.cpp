@@ -234,7 +234,9 @@ int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& fil
     if (fav) {
         auto measure = [&](const std::string& s) { return (int)C.textWidth(s.c_str()); };
         const int n = fav->tracks ? (int)fav->tracks->size() : 0;
-        const int hy = above + sc(16), bh = sc(48), pad = sc(18), bg2 = sc(10), rowH = sc(64), rg = sc(8);
+        const int hy = above + sc(16), bh = sc(48), bg2 = sc(10), rowH = sc(64), rg = sc(8);
+        // Boutons de même largeur (un tiers au plus de la ligne) : places fixes, les scripts du simulateur les touchent
+        const int bw = std::min(sc(170), (W - 2 * bg2) / 3);
         useFont(C, kSmall);
         C.setTextDatum(textdatum_t::middle_center);
         int left = X + W;
@@ -242,8 +244,7 @@ int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& fil
             const char* mixText = wr::L("Shuffle", "Al\xC3\xA9" "atoire");
             const char* playText = wr::L("Play all", "Tout lire");
             const String allText = String(wr::L("All ", "Les ")) + String(n) + " \xE2\x80\xBA";
-            const int mw = (int)C.textWidth(mixText) + 2 * pad, pw = (int)C.textWidth(playText) + 2 * pad,
-                      aw = (int)C.textWidth(allText.c_str()) + 2 * pad;
+            const int mw = bw, pw = bw, aw = bw;
             favMix = wr::Rect{left - mw, hy, mw, bh};
             favPlay = wr::Rect{favMix.x - bg2 - pw, hy, pw, bh};
             favAll = wr::Rect{favPlay.x - bg2 - aw, hy, aw, bh};
@@ -269,7 +270,9 @@ int Ui::renderLibrary(const std::vector<int>& shown, const std::vector<int>& fil
             above += sc(10) + C.fontHeight();
         } else {
             // Lignes montrées : la place restante, moins une rangée de tuiles s'il y a des albums (3 au plus, 8 sans)
-            const int avail = A.bottom() - m - above - sc(10) - (shown.empty() ? 0 : th + sc(16));
+            // Une rangée de tuiles, et la barre des pages si les albums n'y tiennent pas (sinon elle couvrirait la rangée)
+            const int tilesNeed = shown.empty() ? 0 : th + sc(16) + ((int)shown.size() > cols ? navH + sc(10) : 0);
+            const int avail = A.bottom() - m - above - sc(10) - tilesNeed;
             const int k = std::min(n, std::max(1, std::min(shown.empty() ? 8 : 3, (avail + rg) / (rowH + rg))));
             for (int i = 0; i < k; ++i) {
                 const wr::Rect r{X, above + sc(10) + i * (rowH + rg), W, rowH};

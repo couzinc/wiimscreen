@@ -20,7 +20,7 @@ event that the app takes: `[key] key=ok kind=long`; what each key does: docs/DES
 
 | Real (same code as the Tab5) | Replaced (`tools/sim/`) |
 |---|---|
-| Main loop, screens, navigation, keyboard, results, tiles, Journal, menus, pending rings, messages | `fake_wiim.cpp`: the WiiM behind the real `WiimWorker` interface (catalog of 7 albums and 2 radios, 6 presets, Qobuz/Deezer favorites, search, favorites, playback with position) |
+| Main loop, screens, navigation, keyboard, results, tiles, Journal, menus, pending rings, messages | `fake_wiim.cpp`: the WiiM behind the real `WiimWorker` interface (catalog of 7 albums and 2 radios, 9 presets, Qobuz/Deezer favorites, search, favorites, playback with position) |
 | Settings code (`settings.cpp`), backup fields, Journal | `services.cpp` and `fake_data.cpp`: covers drawn as PNG per album, favorites in memory, silent sound, setup portal and update screens (no web server), dictation returns « Miles Davis » (`SIM_DICTEE=…` to change) |
 | `lib/core` (layout, parsing, text) | `platform/pc/stubs/` (shared with the desktop build): Arduino `String`, FreeRTOS on `std::thread`, Wi-Fi always connected, M5Unified (display = canvas, mouse = touch, microphone = silence) |
 

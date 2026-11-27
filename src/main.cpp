@@ -130,6 +130,7 @@ static void markPending(int button, Await what, bool viaEvent = false);
 
 // Lecture en cours, d'après le dernier relevé ; WiiM injoignable : son dernier état ne compte plus
 static bool playingNow() { return g_state.online && g_state.player.playing; }
+static bool g_cutForFavorite = false;  // pause donnée par cutMusicForFavorite : reprise si le favori échoue
 
 // État affiché : la position avance entre deux relevés pendant la lecture ; anneau du bouton en attente
 static UiState displayState() {
@@ -566,7 +567,10 @@ static void serviceWiim() {
                     g_active.index = -1;
                     g_ui.setActivePreset(-1);
                     setMessage(String(wr::L("Playback: ", "Lecture : ")) + ev.text);
+                    // La musique d'avant, mise en pause pour ce favori, repart (rien d'autre ne joue)
+                    if (g_cutForFavorite) g_worker.command("setPlayerCmd:resume");
                 }
+                g_cutForFavorite = false;
                 g_worker.pollSoon();
                 show();
                 break;
@@ -819,9 +823,11 @@ static void activateTileMenu(const wr::Target& tg, uint32_t now) {
 // Favori choisi : la musique en cours s'arrête tout de suite, le favori met quelques secondes à se charger
 // (le son du WiiM reste coupé pendant ce chargement : WiimWorker::favMuteBegin)
 static void cutMusicForFavorite() {
+    g_cutForFavorite = false;
     if (!playingNow()) return;
     g_worker.command("setPlayerCmd:pause");
     g_state.player.playing = false;
+    g_cutForFavorite = true;
 }
 
 static void playPreset(int p) {
@@ -1125,10 +1131,17 @@ static void activateControls(const wr::Target& tg, const Press& at) {
             sound::tap();
             const std::string id = currentFavorite();
             if (!id.empty()) {
+                // Favori d'avant 1.0.1 (aucun morceau noté : sa lecture part du début) : on dit comment le noter
+                bool noTrack = false;
+                for (auto& f : g_tiles.favs)
+                    if (f.id == id) noTrack = f.track.empty();
                 fav::remove(id);
                 logEvent("Favori retir\xC3\xA9 (%s)", id.c_str());
                 refreshTiles();
-                setMessage(wr::L("Removed from favorites", "Retir\xC3\xA9 des favoris"), 4000);
+                setMessage(noTrack ? wr::L("Removed. Tap the heart again to save it from this track",
+                                           "Retir\xC3\xA9. Retouche le c\xC5\x93ur pour l'enregistrer \xC3\xA0 ce morceau")
+                                   : wr::L("Removed from favorites", "Retir\xC3\xA9 des favoris"),
+                           noTrack ? 8000 : 4000);
             } else {
                 const UiState& st = g_state;
                 const std::string album = st.player.album.empty() ? st.meta.album : st.player.album;
@@ -1893,6 +1906,8 @@ void loop() {
             g_search.status = noAnswer;
             if (g_view.screen == Screen::Search) renderSearch();
             else if (g_view.screen == Screen::Results && g_search.results.empty()) showResultsNote(noAnswer);
+            else if (g_view.screen == Screen::Library) renderLibrary();  // plus de « chargement » des favoris
+            g_search.background = false;
         }
         show();
     }

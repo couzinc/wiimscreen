@@ -30,13 +30,11 @@ move 300 585
 release
 wait 600
 shot tour-08-page2
-# Qobuz favorites: no longer on the strip; Library › Qobuz › the list (first)
+# Qobuz favorites: not a tile; Library › Qobuz filter: the favorite tracks above the album tiles
 tap 50 261
 wait 600
 tap 557 56
-wait 400
-tap 305 195
-wait 1200
+wait 1500
 shot tour-09-favoris-qobuz
 tap 50 458
 wait 400

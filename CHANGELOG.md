@@ -5,6 +5,31 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-11-27 — Favorite tracks as a list, favorites start at their track
+
+**Tab5:** open ⚙ › Update and touch **Install**. Built and tested by CI (unit tests, simulator, mock WiiM); **not
+checked on a Tab5 yet**. If something does not work, report it and install v1.0.0 again.
+
+### Changed
+- **Favorite tracks are no longer a tile.** The *Qobuz favorites* and *Deezer favorites* tiles are gone. Open the
+  Library and touch **Qobuz** (or **Deezer**): your favorite tracks show above the album tiles, with **Play all**,
+  **Shuffle** and **All N ›** for the whole list. Touch a track to play it. The list is read again each time you
+  touch the filter (never only by opening the Library: without direct access, reading it mutes the WiiM a moment).
+- **Home strip**: only the WiiM presets and the favorites saved on the remote (♥, Flow). The favorite albums of
+  your Qobuz and Deezer accounts are in the Library only, under its *Qobuz* and *Deezer* filters. With no other
+  tile, the empty strip says so.
+
+### Fixed
+- **A saved favorite started at the first track**, not at the track you saved (a favorite saved on *Coke Room* of
+  *Babylon* started another track). A favorite now keeps the title of the track that played; the replay finds it
+  in the queue that the WiiM loads and starts there (with shuffle on, it checks again after 1.5 s, as the WiiM can
+  reshuffle the queue). **Favorites saved before 1.1.0 have no track**: touch the heart to remove one, then again
+  to save it from the track that plays (the message says so).
+- **Loading a favorite** let the old music play for some seconds, then the start of the new queue. The music now
+  pauses at the touch, and the WiiM sound stays off from `CreateQueue` until the chosen track plays (noted like a
+  search: if the Tab5 restarts in the middle, the sound comes back at the next start). If the favorite does not
+  start, the music from before plays again. Journal: `[fav.play]`, `[fav.unmute]`.
+
 ## [1.0.0] — 2026-11-23 — First stable version
 
 **Tab5:** open ⚙ › Update and touch **Install** (from v0.5.0-beta on), or flash it from the project page:

@@ -529,11 +529,16 @@ void Ui::emptyStrip() {
     y += C.fontHeight() + sc(8);
     useFont(C, kSmall);
     C.setTextColor(kText2);
-    for (auto& l : wr::wrapText(wr::L("While an album or a playlist plays, tap the favorite button (left of the controls) "
-                                      "to add it here.",
-                                      "Pendant qu'un album ou une playlist joue, touche le bouton favori (\xC3\xA0 gauche des "
-                                      "commandes) pour l'ajouter ici."),
-                                tw, 3, measure)) {
+    const bool inLibrary = (int)presets_.size() > stripCount_;  // albums des comptes : dans la Bibliothèque seulement
+    const char* hint = inLibrary ? wr::L("Your Qobuz and Deezer albums are in the Library (grid button). Tap the favorite "
+                                         "button while an album plays to add it here.",
+                                         "Tes albums Qobuz et Deezer sont dans la Biblioth\xC3\xA8que (bouton grille). Touche "
+                                         "le bouton favori pendant qu'un album joue pour l'ajouter ici.")
+                                 : wr::L("While an album or a playlist plays, tap the favorite button (left of the controls) "
+                                         "to add it here.",
+                                         "Pendant qu'un album ou une playlist joue, touche le bouton favori (\xC3\xA0 gauche des "
+                                         "commandes) pour l'ajouter ici.");
+    for (auto& l : wr::wrapText(hint, tw, 3, measure)) {
         if (y + C.fontHeight() > r.bottom() - sc(10)) break;
         C.drawString(l.c_str(), tx, y);
         y += C.fontHeight() + sc(4);

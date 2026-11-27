@@ -36,8 +36,8 @@ Open source · runs on ESP32 · tested on the M5Stack Tab5
 | **Control** | Play, pause, next, previous, volume and mute. Slide the volume bar, or hold − or + to change the volume step by step. A ring turns on a button until the WiiM does the command. |
 | **Tiles** | Presets of the WiiM, your favorites and a **Flow** tile, with their images. Album tiles show the artist. The last played tiles come first. Swipe for the next page. |
 | **Favorites** | Touch the heart while an album or a playlist plays. One touch on its tile plays it again. Hold a tile to rate it (1 to 5 stars), pin it at the front or remove it. |
-| **Library** | The Library button in the side bar (two covers with a heart) shows all the tiles on one screen. Filter them: presets, favorites, Qobuz, Deezer. Rated tiles come first, most stars first. |
-| **Qobuz** | Search tracks. Touch a result to play it. Your favorite tracks: open the Library, touch **Qobuz**, then the **Qobuz favorites** panel. Touch a track, **Play all** or **Shuffle**. Optional: album search with a heart to add an album as a tile (see [Unofficial interfaces](#unofficial-interfaces)). |
+| **Library** | The Library button in the side bar (two covers with a heart) shows all the tiles on one screen. Filter them: presets, favorites, Qobuz, Deezer. Rated tiles come first, most stars first. The albums of your Qobuz and Deezer accounts are only here, not on the main screen. |
+| **Qobuz** | Search tracks. Touch a result to play it. Your favorite tracks: open the Library and touch **Qobuz**. The tracks show above your favorite albums. Touch a track, **Play all**, **Shuffle**, or **All** for the full list. Optional: album search with a heart to add an album as a tile (see [Unofficial interfaces](#unofficial-interfaces)). |
 | **Deezer** | Search the Deezer catalog. **Flow** becomes a tile automatically. Favorites of a public profile show as tiles. |
 | **Voice search** | Optional. Say an artist or a title. Uses OpenAI speech-to-text with your own key. |
 | **Ambient view** | After 60 s without a touch, or at once with the full-screen button (right of the controls): large album art and text, and an optional sound spectrum. |
@@ -153,7 +153,7 @@ Flow again, with new tracks. If you remove the tile, touch the heart while Flow 
 
 1. On deezer.com, open your profile. Copy the number at the end of the address. The profile must be public.
 2. Open the setup page (⚙ › **Setup**). Paste the number in **Deezer profile**, then save.
-3. Open the Library and touch **Deezer**. Touch **Deezer favorites** for your tracks, or touch an album tile.
+3. Open the Library and touch **Deezer**. Your favorite tracks show above the album tiles. Touch a track or an album tile.
 
 </details>
 
