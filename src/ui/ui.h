@@ -105,7 +105,15 @@ public:
     // Bibliothèque : toutes les tuiles en grille. shown : indices des tuiles à montrer (filtre appliqué, dans l'ordre
     // de la bande) ; filters : filtres proposés (wr::TileKind, -1 = toutes) ; filter : le choisi ; pressed : tuile
     // enfoncée (-1). Éléments LibFilter, LibTile (arg = indice global), LibPage. Rend la page montrée (bornée).
-    int renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed = -1);
+    // Filtre Qobuz / Deezer : section « Morceaux favoris » au-dessus des tuiles (quelques lignes, Tout lire, Aléatoire,
+    // Tout voir) ; tracks vide : note (chargement, aucun, échec). Éléments LibFavRow, LibFavPlay, LibFavAll.
+    struct LibFavSection {
+        const char* title = "";
+        const std::vector<wr::QueueTrack>* tracks = nullptr;
+        String note;
+    };
+    int renderLibrary(const std::vector<int>& shown, const std::vector<int>& filters, int filter, int page, int pressed = -1,
+                      const LibFavSection* fav = nullptr);
     // Une tuile de la Bibliothèque montrée redessinée seule (image arrivée, doigt posé ou relevé) ; false si elle
     // n'est pas à l'écran (autre page, autre écran)
     bool updateLibraryTile(int index, bool pressed);

@@ -198,6 +198,7 @@ int pageEdgeMove(int index, int perPage, int count, Dir d) {
 const char* actName(Act act) {
     static const char* const kNames[] = {"none", "home", "search", "settings", "library", "header", "progress", "volume", "mute",
                                          "dots", "preset", "strip", "fav", "transport", "ambientexit", "menuchoice", "tilechoice", "libfilter", "libtile", "libpage",
+                                         "libfavrow", "libfavplay", "libfavall",
                                          "pickdevice", "pickretry", "picksetup", "logclose", "logqueue", "touchclose",
                                          "source", "mic", "key", "resultrow", "resultheart", "resultspage",
                                          "resultsedit", "resultsplayall", "updatecancel"};

@@ -8,9 +8,11 @@ the *Settings* menu (`<build>-<commit>` for CI builds, `vX.Y.Z` for releases).
 **Tab5:** not checked on a Tab5 yet (not built locally either: CI builds and tests it).
 
 ### Changed
-- **Home strip**: only the WiiM presets and the favorites saved on the remote. The tiles of the Qobuz and Deezer
-  accounts (*Qobuz favorites*, *Deezer favorites*, favorite albums) are now in the **Library** only, under
-  its *Qobuz* and *Deezer* filters.
+- **Home strip**: only the WiiM presets and the favorites saved on the remote. The favorite albums of the Qobuz and
+  Deezer accounts are now in the **Library** only, under its *Qobuz* and *Deezer* filters.
+- **Favorite tracks are no longer a tile.** The *Qobuz favorites* and *Deezer favorites* tiles are gone: with the
+  *Qobuz* or *Deezer* filter, the Library shows your favorite tracks above the album tiles (a few rows, **Play all**,
+  **Shuffle**, and **All N ›** for the full list). The list loads when you open the Library or touch the filter.
 
 ### Fixed
 - **Saved favorites** started at the first track of the queue, not at the track you saved (for example, a favorite

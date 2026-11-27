@@ -857,6 +857,39 @@ static void serviceStrip(const m5::touch_detail_t& t, uint32_t now) {
 
 // Bibliothèque : barre, filtres, pages ; une tuile se joue au relâcher du doigt (appui long : son menu,
 // serviceLibraryTouch), tout de suite avec OK. Après le lancement : retour aux commandes (ce qui joue)
+// Ligne d'une liste (résultats, morceaux favoris) : jouée, retour aux commandes
+static void playResultRow(int r) {
+    if (r < 0 || r >= (int)g_search.results.size()) return;
+    logTagged("search.play", "row=%d | Recherche : lecture de %d (%s)", r, r + 1, g_search.results[r].title.c_str());
+    if (g_search.resultsKind == SearchKind::QobuzFavorites || g_search.resultsKind == SearchKind::DeezerFavorites)
+        cutMusicForFavorite();  // morceau d'une liste de favoris
+    g_worker.playSearchResult(r);
+    markPending(wr::kPlayPause, Await::Music, true);
+    setMessage((std::string(wr::L("Playing: ", "Lecture : ")) + g_search.results[r].title +
+                (loadsAlbum(g_search.resultsKind) ? wr::L(" (loading the album\xE2\x80\xA6)", " (chargement de l'album\xE2\x80\xA6)")
+                                                  : ""))
+                   .c_str(),
+               loadsAlbum(g_search.resultsKind) ? 9000 : 4000);
+    g_view.screen = Screen::Controls;
+    show();
+}
+
+// Liste de favoris : toute la liste, dans l'ordre ou en aléatoire
+static void playFavoritesAll(bool shuffle) {
+    const bool deezer = g_search.resultsKind == SearchKind::DeezerFavorites;
+    if (!deezer && g_search.resultsKind != SearchKind::QobuzFavorites) return;
+    sound::tap();
+    logEvent("Favoris %s : %s", deezer ? "Deezer" : "Qobuz", shuffle ? "lecture al\xC3\xA9" "atoire" : "tout lire");
+    cutMusicForFavorite();
+    g_worker.playFavorite((std::string(deezer ? kDeezerFavsId : kQobuzFavsId) + (shuffle ? ":shuffle" : ":all")).c_str());
+    markPending(wr::kPlayPause, Await::Music, true);
+    setMessage(shuffle ? wr::L("Shuffling your favorites\xE2\x80\xA6", "Tes favoris en al\xC3\xA9" "atoire\xE2\x80\xA6")
+                       : wr::L("Playing your favorites\xE2\x80\xA6", "Lecture de tes favoris\xE2\x80\xA6"),
+               9000);
+    g_view.screen = Screen::Controls;
+    show();
+}
+
 static void activateLibrary(const wr::Target& tg, const Press& at) {
     switch (tg.act) {
         case wr::Act::Home:
@@ -879,7 +912,19 @@ static void activateLibrary(const wr::Target& tg, const Press& at) {
             sound::tap();
             g_lib.filter = tg.arg;
             g_lib.page = 0;
+            g_lib.favReload = tg.arg == (int)wr::TileKind::Qobuz || tg.arg == (int)wr::TileKind::Deezer;  // liste relue
             renderLibrary();
+            return;
+        case wr::Act::LibFavRow:  // morceau favori (filtre Qobuz / Deezer) : la liste lue est celle montrée
+            sound::tap();
+            playResultRow(tg.arg);
+            return;
+        case wr::Act::LibFavPlay: playFavoritesAll(tg.arg == 1); return;
+        case wr::Act::LibFavAll:  // toute la liste : l'écran de la liste (pages, cœurs, pochettes)
+            sound::tap();
+            g_view.screen = Screen::Results;
+            g_focus.spot[(int)Screen::Results] = wr::FocusSpot{wr::Act::ResultRow, 0};
+            renderResultsList();
             return;
         case wr::Act::LibPage:
             sound::tap();
@@ -1276,37 +1321,10 @@ static void activateSearch(const wr::Target& tg) {
             if (r < 0 || r >= (int)g_search.results.size()) return;
             sound::tap();
             renderResultsList(r);  // ligne enfoncée
-            logTagged("search.play", "row=%d | Recherche : lecture de %d (%s)", r, r + 1, g_search.results[r].title.c_str());
-            if (g_search.resultsKind == SearchKind::QobuzFavorites || g_search.resultsKind == SearchKind::DeezerFavorites)
-                cutMusicForFavorite();  // morceau d'une liste de favoris
-            g_worker.playSearchResult(r);
-            markPending(wr::kPlayPause, Await::Music, true);
-            setMessage((std::string(wr::L("Playing: ", "Lecture : ")) + g_search.results[r].title +
-                        (loadsAlbum(g_search.resultsKind) ? wr::L(" (loading the album\xE2\x80\xA6)",
-                                                                  " (chargement de l'album\xE2\x80\xA6)")
-                                                          : ""))
-                           .c_str(),
-                       loadsAlbum(g_search.resultsKind) ? 9000 : 4000);
-            g_view.screen = Screen::Controls;
-            show();
+            playResultRow(r);
             return;
         }
-        case wr::Act::ResultsPlayAll: {  // liste de favoris : toute la liste, dans l'ordre ou en aléatoire
-            const bool deezer = g_search.resultsKind == SearchKind::DeezerFavorites;
-            if (!deezer && g_search.resultsKind != SearchKind::QobuzFavorites) return;
-            const bool shuffle = tg.arg == 1;
-            sound::tap();
-            logEvent("Favoris %s : %s", deezer ? "Deezer" : "Qobuz", shuffle ? "lecture al\xC3\xA9" "atoire" : "tout lire");
-            cutMusicForFavorite();
-            g_worker.playFavorite((std::string(deezer ? kDeezerFavsId : kQobuzFavsId) + (shuffle ? ":shuffle" : ":all")).c_str());
-            markPending(wr::kPlayPause, Await::Music, true);
-            setMessage(shuffle ? wr::L("Shuffling your favorites\xE2\x80\xA6", "Tes favoris en al\xC3\xA9" "atoire\xE2\x80\xA6")
-                               : wr::L("Playing your favorites\xE2\x80\xA6", "Lecture de tes favoris\xE2\x80\xA6"),
-                       9000);
-            g_view.screen = Screen::Controls;
-            show();
-            return;
-        }
+        case wr::Act::ResultsPlayAll: playFavoritesAll(tg.arg == 1); return;
         case wr::Act::ResultsPage:
             sound::tap();
             g_search.page += tg.arg;

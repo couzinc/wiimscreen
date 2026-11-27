@@ -197,6 +197,7 @@ struct LibraryView {
     int page = 0;
     int touch = -1;      // tuile sous le doigt (indice global), -1 aucune
     uint32_t since = 0;  // doigt posé
+    bool favReload = false;  // filtre Qobuz / Deezer touché : liste des morceaux favoris relue
 };
 extern LibraryView g_lib;
 
@@ -320,6 +321,9 @@ const ArtImage* knownImage(const std::string& url);
 void renderSearch(int pressedKey = -1);
 void runSearchQuery();
 void openFavoriteList(bool deezer);
+// Morceaux favoris lus par la tâche WiiM dans g_search.results ; open : l'écran de la liste s'ouvre, sinon on reste
+// où l'on est (Bibliothèque, filtre Qobuz / Deezer). Faux si une recherche est déjà en cours.
+bool loadFavoriteList(bool deezer, bool open);
 void openSearch();
 void updateSearchField();
 void releaseKey(bool force);
